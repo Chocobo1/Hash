@@ -35,7 +35,7 @@ then **take your time** and go setup OpenSSL or other proven library
 Now some features:
 * No/none tweaking knobs, it just works!
 <br />  Works out-of-the-box on little endian & big endian machines
-* Have similar performance to C implementations: see my rudimentary benchmark :[Benchmark.md](./Benchmark.md)
+* Have similar performance to C implementations: see my rudimentary benchmark: [Benchmark.md](./Benchmark.md)
 
 ## Prerequisites
 * Library only:
