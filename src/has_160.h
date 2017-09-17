@@ -266,7 +266,7 @@ namespace HAS160_Hash
 			uint32_t d = m_h[3];
 			uint32_t e = m_h[4];
 
-			const auto round1 = [x, &xTable](uint32_t &a, uint32_t &b, uint32_t &c, uint32_t &d, uint32_t &e, const unsigned int s1, const int t) -> void
+			const auto round1 = [&xTable](uint32_t &a, uint32_t &b, uint32_t &c, uint32_t &d, uint32_t &e, const unsigned int s1, const int t) -> void
 			{
 				const uint32_t f = ((b & (c ^ d)) ^ d);  // alternative
 				e = rotl(a, s1) + f + e + xTable[lTable[t]] + 0x00000000;
