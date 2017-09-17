@@ -26,6 +26,7 @@ addons:
       # packages list: https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
       - g++-5
       - clang-4.0
+      - python3-pip
 
 
 install:
