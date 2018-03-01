@@ -13,7 +13,7 @@
 #include "catch/single_include/catch.hpp"
 
 
-int main(int argc, char *const argv[])
+int main(int argc, char *argv[])
 {
 	// utilize ccache:
 	// since this file is always the same and it's compilation is slow
