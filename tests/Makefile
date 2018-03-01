@@ -14,6 +14,7 @@ SRC_NAME   = main \
 	test_sha2_224 test_sha2_256 test_sha2_384 test_sha2_512 \
 	test_sha2_512_224 test_sha2_512_256 \
 	test_sha3 test_shake \
+	test_sm3 \
 	test_tiger \
 	test_tuple_hash \
 	test_whirlpool

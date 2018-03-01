@@ -1,7 +1,7 @@
 /*
  *  Chocobo1/Hash
  *
- *   Copyright 2017 by Mike Tzou (Chocobo1)
+ *   Copyright 2017-2018 by Mike Tzou (Chocobo1)
  *     https://github.com/Chocobo1/Hash
  *
  *   Licensed under GNU General Public License 3 or later.
@@ -33,6 +33,7 @@
 #include "../sha2_512_224.h"
 #include "../sha2_512_256.h"
 #include "../sha3.h"
+#include "../sm3.h"
 #include "../tiger.h"
 #include "../tuple_hash.h"
 #include "../whirlpool.h"
@@ -63,6 +64,7 @@ enum class Hash : int
 	Sha2_512_224, Sha2_512_256,
 	Sha3_224, Sha3_256, Sha3_384, Sha3_512,
 	Shake_128, Shake_256,
+	Sm3,
 	Tiger1_128, Tiger1_160, Tiger1_192,
 	Tiger2_128, Tiger2_160, Tiger2_192,
 	Tuple_hash_128, Tuple_hash_256,
@@ -117,6 +119,7 @@ void printUsage(const std::string &name)
 		"  -sha3-224"		"\t -sha3-256"		"\t -sha3-384"		"\t -sha3-512\n"
 		"  -shake-128 <Digest length (bytes)>\n"
 		"  -shake-256 <Digest length (bytes)>\n"
+		"  -sm3\n"
 		"  -tiger1-128"		"\t -tiger1-160"	"\t -tiger1-192\n"
 		"  -tiger2-128"		"\t -tiger2-160"	"\t -tiger2-192\n"
 		"  -tuple-hash-128 <Digest length (bytes)> <Customization string>\n"
@@ -140,6 +143,7 @@ Hash getHash(const std::string &hash)
 		"-sha2-512-224", "-sha2-512-256",
 		"-sha3-224", "-sha3-256", "-sha3-384", "-sha3-512",
 		"-shake-128", "-shake-256",
+		"-sm3",
 		"-tiger1-128", "-tiger1-160", "-tiger1-192",
 		"-tiger2-128", "-tiger2-160", "-tiger2-192",
 		"-tuple-hash-128", "-tuple-hash-256",
@@ -508,6 +512,15 @@ bool runHash(const Hash hash, const int argc, const char *argv[])
 			return true;
 		}
 
+		case Hash::Sm3:
+		{
+			if (argc != 3)
+				return false;
+
+			readNPrint(Chocobo1::SM3(), argv[2]);
+			return true;
+		}
+
 		case Hash::Tiger1_128:
 		{
 			if (argc != 3)
@@ -616,6 +629,3 @@ bool runHash(const Hash hash, const int argc, const char *argv[])
 
 	return false;
 }
-
-
-

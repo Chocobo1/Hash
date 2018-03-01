@@ -25,6 +25,7 @@ What is included in this library:
 | SHA-3                   | 224, 256, 384, 512, SHAKE-128, SHAKE-256 | https://keccak.team/index.html                                                            |
 | SHA-3 derived functions | CSHAKE-128, CSHAKE-256                   | http://csrc.nist.gov/groups/ST/hash/derived-functions.html                                |
 |                         | TupleHash-128, TupleHash-256             |                                                                                           |
+| SM3                     |                                          | https://tools.ietf.org/html/draft-sca-cfrg-sm3-02                                         |
 | Tiger                   | Tiger1-128, Tiger1-160, Tiger1-192       | https://www.cs.technion.ac.il/~biham/Reports/Tiger/                                       |
 |                         | Tiger2-128, Tiger2-160, Tiger2-192       |                                                                                           |
 | WHIRLPOOL               |                                          | http://www.larc.usp.br/~pbarreto/WhirlpoolPage.html                                       |

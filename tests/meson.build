@@ -30,6 +30,7 @@ sources = files('main.cpp',
                 'test_sha2_384.cpp', 'test_sha2_512.cpp',
                 'test_sha2_512_224.cpp', 'test_sha2_512_256.cpp',
                 'test_sha3.cpp', 'test_shake.cpp',
+                'test_sm3.cpp',
                 'test_tiger.cpp',
                 'test_tuple_hash.cpp',
                 'test_whirlpool.cpp'
