@@ -260,7 +260,7 @@ namespace RIPEMD_128_Hash
 			uint32_t b = m_h[1];
 			uint32_t c = m_h[2];
 			uint32_t d = m_h[3];
-			const auto lineLeft = [x](uint32_t &a, uint32_t &b, uint32_t &c, uint32_t &d, const auto & f, const uint32_t k, const unsigned int r, const unsigned int s) -> void
+			const auto lineLeft = [x](uint32_t &a, uint32_t &b, uint32_t &c, uint32_t &d, const auto &f, const uint32_t k, const unsigned int r, const unsigned int s) -> void
 			{
 				a = rotl((a + f(b, c, d) + x[r] + k), s);
 			};
