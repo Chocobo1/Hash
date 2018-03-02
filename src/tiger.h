@@ -403,7 +403,7 @@ namespace Tiger_Hash
 
 			const auto pass = [&x](uint64_t &a, uint64_t &b, uint64_t &c, const unsigned int mul) -> void
 			{
-				const auto round = [](uint64_t &a, uint64_t &b, uint64_t &c, uint64_t &x, const unsigned int mul) -> void
+				const auto round = [](uint64_t &a, uint64_t &b, uint64_t &c, const uint64_t x, const unsigned int mul) -> void
 				{
 					c ^= x;
 					a -= tTable[0][ror<Byte>(c, (0 * 8))] ^ tTable[1][ror<Byte>(c, (2 * 8))] ^ tTable[2][ror<Byte>(c, (4 * 8))] ^ tTable[3][ror<Byte>(c, (6 * 8))];

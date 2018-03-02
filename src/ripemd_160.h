@@ -240,23 +240,23 @@ namespace RIPEMD_160_Hash
 		{
 			const Loader<uint32_t> x(reinterpret_cast<const Byte *>(data.data() + (i * BLOCK_SIZE)));
 
-			const auto f1 = [](uint32_t &x, uint32_t &y, uint32_t &z) -> uint32_t
+			const auto f1 = [](const uint32_t x, const uint32_t y, const uint32_t z) -> uint32_t
 			{
 				return (x ^ y ^ z);
 			};
-			const auto f2 = [](uint32_t &x, uint32_t &y, uint32_t &z) -> uint32_t
+			const auto f2 = [](const uint32_t x, const uint32_t y, const uint32_t z) -> uint32_t
 			{
 				return ((x & (y ^ z)) ^ z);  // alternative
 			};
-			const auto f3 = [](uint32_t &x, uint32_t &y, uint32_t &z) -> uint32_t
+			const auto f3 = [](const uint32_t x, const uint32_t y, const uint32_t z) -> uint32_t
 			{
 				return ((x | (~y)) ^ z);
 			};
-			const auto f4 = [](uint32_t &x, uint32_t &y, uint32_t &z) -> uint32_t
+			const auto f4 = [](const uint32_t x, const uint32_t y, const uint32_t z) -> uint32_t
 			{
 				return (((x ^ y) & z) ^ y);  // alternative
 			};
-			const auto f5 = [](uint32_t &x, uint32_t &y, uint32_t &z) -> uint32_t
+			const auto f5 = [](const uint32_t x, const uint32_t y, const uint32_t z) -> uint32_t
 			{
 				return (x ^ (y | (~z)));
 			};
