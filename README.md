@@ -91,6 +91,15 @@ To use this library in your project:
         ```
 
 
+## Run Tests
+```shell
+cd tests
+meson _build
+cd _build
+ninja
+./run_tests
+```
+
 ## Dependencies
 * [Microsoft/GSL](https://github.com/Microsoft/GSL)
 <br />  No need to download or install it. It's already included!
