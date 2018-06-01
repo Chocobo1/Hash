@@ -30,7 +30,7 @@ class HAS_V_320
 		typedef uint8_t Byte;
 
 
-		explicit HAS_V_320();
+		HAS_V_320();
 
 		void reset();
 		HAS_V_320& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available

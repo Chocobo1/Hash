@@ -45,19 +45,19 @@ namespace MD5_Hash
 			typedef uint8_t Byte;
 
 
-			inline explicit MD5();
+			MD5();
 
-			inline void reset();
-			inline MD5& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			void reset();
+			MD5& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
 
-			inline std::string toString() const;
-			inline std::vector<MD5::Byte> toVector() const;
+			std::string toString() const;
+			std::vector<MD5::Byte> toVector() const;
 
-			inline MD5& addData(const Span<const Byte> inData);
-			inline MD5& addData(const void *ptr, const long int length);
+			MD5& addData(const Span<const Byte> inData);
+			MD5& addData(const void *ptr, const long int length);
 
 		private:
-			inline void addDataImpl(const Span<const Byte> data);
+			void addDataImpl(const Span<const Byte> data);
 
 			const unsigned int BLOCK_SIZE = 64;
 
@@ -75,7 +75,7 @@ namespace MD5_Hash
 		// this class workaround loading data from unaligned memory boundaries
 		// also eliminate endianness issues
 		public:
-			explicit Loader(const void *ptr)
+			explicit constexpr Loader(const void *ptr)
 				: m_ptr(static_cast<const uint8_t *>(ptr))
 			{
 			}

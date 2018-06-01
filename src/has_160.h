@@ -45,19 +45,19 @@ namespace HAS160_Hash
 			typedef uint8_t Byte;
 
 
-			inline explicit HAS_160();
+			HAS_160();
 
-			inline void reset();
-			inline HAS_160& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			void reset();
+			HAS_160& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
 
-			inline std::string toString() const;
-			inline std::vector<HAS_160::Byte> toVector() const;
+			std::string toString() const;
+			std::vector<HAS_160::Byte> toVector() const;
 
-			inline HAS_160& addData(const Span<const Byte> inData);
-			inline HAS_160& addData(const void *ptr, const long int length);
+			HAS_160& addData(const Span<const Byte> inData);
+			HAS_160& addData(const void *ptr, const long int length);
 
 		private:
-			inline void addDataImpl(const Span<const Byte> data);
+			void addDataImpl(const Span<const Byte> data);
 
 			const unsigned int BLOCK_SIZE = 64;
 
@@ -75,7 +75,7 @@ namespace HAS160_Hash
 		// this class workaround loading data from unaligned memory boundaries
 		// also eliminate endianness issues
 		public:
-			explicit Loader(const void *ptr)
+			explicit constexpr Loader(const void *ptr)
 				: m_ptr(static_cast<const uint8_t *>(ptr))
 			{
 			}

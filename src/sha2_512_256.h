@@ -45,34 +45,34 @@ namespace SHA2_512_256_Hash
 			typedef uint8_t Byte;
 
 
-			inline explicit SHA2_512_256();
+			SHA2_512_256();
 
-			inline void reset();
-			inline SHA2_512_256& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			void reset();
+			SHA2_512_256& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
 
-			inline std::string toString() const;
-			inline std::vector<SHA2_512_256::Byte> toVector() const;
+			std::string toString() const;
+			std::vector<SHA2_512_256::Byte> toVector() const;
 
-			inline SHA2_512_256& addData(const Span<const Byte> inData);
-			inline SHA2_512_256& addData(const void *ptr, const long int length);
+			SHA2_512_256& addData(const Span<const Byte> inData);
+			SHA2_512_256& addData(const void *ptr, const long int length);
 
 		private:
 			class Uint128
 			{
 				public:
-					explicit Uint128()
+					constexpr Uint128()
 						: m_lo(0), m_hi(0)
 					{
 					}
 
-					Uint128& operator= (const uint64_t n)
+					constexpr Uint128& operator= (const uint64_t n)
 					{
 						this->m_lo = n;
 						this->m_hi = 0;
 						return (*this);
 					}
 
-					Uint128& operator* (const unsigned int n)
+					constexpr Uint128& operator* (const unsigned int n)
 					{
 						// only handle `*8` case
 						assert(n == 8);
@@ -84,7 +84,7 @@ namespace SHA2_512_256_Hash
 						return (*this);
 					}
 
-					Uint128& operator+= (const uint64_t n)
+					constexpr Uint128& operator+= (const uint64_t n)
 					{
 						const uint64_t newLo = (m_lo + n);
 						if (newLo < m_lo)
@@ -94,12 +94,12 @@ namespace SHA2_512_256_Hash
 						return (*this);
 					}
 
-					uint64_t low() const
+					constexpr uint64_t low() const
 					{
 						return m_lo;
 					}
 
-					uint64_t high() const
+					constexpr uint64_t high() const
 					{
 						return m_hi;
 					}
@@ -109,7 +109,7 @@ namespace SHA2_512_256_Hash
 					uint64_t m_hi;
 			};
 
-			inline void addDataImpl(const Span<const Byte> data);
+			void addDataImpl(const Span<const Byte> data);
 
 			const unsigned int BLOCK_SIZE = 128;
 
@@ -127,7 +127,7 @@ namespace SHA2_512_256_Hash
 		// this class workaround loading data from unaligned memory boundaries
 		// also eliminate endianness issues
 		public:
-			explicit Loader(const void *ptr)
+			explicit constexpr Loader(const void *ptr)
 				: m_ptr(static_cast<const uint8_t *>(ptr))
 			{
 			}

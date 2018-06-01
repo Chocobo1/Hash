@@ -95,7 +95,7 @@ namespace SHA3_Hash
 		// this class workaround loading data from unaligned memory boundaries
 		// also eliminate endianness issues
 		public:
-			explicit Loader(const void *ptr)
+			explicit constexpr Loader(const void *ptr)
 				: m_ptr(static_cast<const uint8_t *>(ptr))
 			{
 			}
@@ -386,10 +386,10 @@ namespace SHA3_Hash
 		return ret;
 	}
 }
-	struct SHA3_224 : SHA3_Hash::Keccak<(1152 / 8), 0x06> { explicit SHA3_224() : SHA3_Hash::Keccak<(1152 / 8), 0x06>(224 / 8) {} };
-	struct SHA3_256 : SHA3_Hash::Keccak<(1088 / 8), 0x06> { explicit SHA3_256() : SHA3_Hash::Keccak<(1088 / 8), 0x06>(256 / 8) {} };
-	struct SHA3_384 : SHA3_Hash::Keccak<( 832 / 8), 0x06> { explicit SHA3_384() : SHA3_Hash::Keccak<( 832 / 8), 0x06>(384 / 8) {} };
-	struct SHA3_512 : SHA3_Hash::Keccak<( 576 / 8), 0x06> { explicit SHA3_512() : SHA3_Hash::Keccak<( 576 / 8), 0x06>(512 / 8) {} };
+	struct SHA3_224 : SHA3_Hash::Keccak<(1152 / 8), 0x06> { SHA3_224() : SHA3_Hash::Keccak<(1152 / 8), 0x06>(224 / 8) {} };
+	struct SHA3_256 : SHA3_Hash::Keccak<(1088 / 8), 0x06> { SHA3_256() : SHA3_Hash::Keccak<(1088 / 8), 0x06>(256 / 8) {} };
+	struct SHA3_384 : SHA3_Hash::Keccak<( 832 / 8), 0x06> { SHA3_384() : SHA3_Hash::Keccak<( 832 / 8), 0x06>(384 / 8) {} };
+	struct SHA3_512 : SHA3_Hash::Keccak<( 576 / 8), 0x06> { SHA3_512() : SHA3_Hash::Keccak<( 576 / 8), 0x06>(512 / 8) {} };
 	struct SHAKE_128 : SHA3_Hash::Keccak<(1344 / 8), 0x1F> { explicit SHAKE_128(const unsigned int d) : SHA3_Hash::Keccak<(1344 / 8), 0x1F>(d) {} };
 	struct SHAKE_256 : SHA3_Hash::Keccak<(1088 / 8), 0x1F> { explicit SHAKE_256(const unsigned int d) : SHA3_Hash::Keccak<(1088 / 8), 0x1F>(d) {} };
 }

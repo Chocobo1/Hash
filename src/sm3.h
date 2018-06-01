@@ -45,19 +45,19 @@ namespace SM3_Hash
 			typedef uint8_t Byte;
 
 
-			inline explicit SM3();
+			SM3();
 
-			inline void reset();
-			inline SM3& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			void reset();
+			SM3& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
 
-			inline std::string toString() const;
-			inline std::vector<SM3::Byte> toVector() const;
+			std::string toString() const;
+			std::vector<SM3::Byte> toVector() const;
 
-			inline SM3& addData(const Span<const Byte> inData);
-			inline SM3& addData(const void *ptr, const long int length);
+			SM3& addData(const Span<const Byte> inData);
+			SM3& addData(const void *ptr, const long int length);
 
 		private:
-			inline void addDataImpl(const Span<const Byte> data);
+			void addDataImpl(const Span<const Byte> data);
 
 			const unsigned int BLOCK_SIZE = 64;
 
@@ -75,7 +75,7 @@ namespace SM3_Hash
 		// this class workaround loading data from unaligned memory boundaries
 		// also eliminate endianness issues
 		public:
-			explicit Loader(const void *ptr)
+			explicit constexpr Loader(const void *ptr)
 				: m_ptr(static_cast<const uint8_t *>(ptr))
 			{
 			}

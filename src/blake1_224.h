@@ -45,19 +45,19 @@ namespace Blake1_224_Hash
 			typedef uint8_t Byte;
 
 
-			inline explicit Blake1_224();
+			Blake1_224();
 
-			inline void reset();
-			inline Blake1_224& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			void reset();
+			Blake1_224& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
 
-			inline std::string toString() const;
-			inline std::vector<Blake1_224::Byte> toVector() const;
+			std::string toString() const;
+			std::vector<Blake1_224::Byte> toVector() const;
 
-			inline Blake1_224& addData(const Span<const Byte> inData);
-			inline Blake1_224& addData(const void *ptr, const long int length);
+			Blake1_224& addData(const Span<const Byte> inData);
+			Blake1_224& addData(const void *ptr, const long int length);
 
 		private:
-			inline void addDataImpl(const Span<const Byte> data, const uint32_t paddingLen = 0);
+			void addDataImpl(const Span<const Byte> data, const uint32_t paddingLen = 0);
 
 			const unsigned int BLOCK_SIZE = 64;
 
@@ -75,7 +75,7 @@ namespace Blake1_224_Hash
 		// this class workaround loading data from unaligned memory boundaries
 		// also eliminate endianness issues
 		public:
-			explicit Loader(const void *ptr)
+			explicit constexpr Loader(const void *ptr)
 				: m_ptr(static_cast<const uint8_t *>(ptr))
 			{
 			}

@@ -52,7 +52,7 @@ namespace Tiger_Hash
 			typedef uint8_t Byte;
 
 
-			explicit Tiger();
+			Tiger();
 
 			void reset();
 			Tiger& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
@@ -82,7 +82,7 @@ namespace Tiger_Hash
 		// this class workaround loading data from unaligned memory boundaries
 		// also eliminate endianness issues
 		public:
-			explicit Loader(const void *ptr)
+			explicit constexpr Loader(const void *ptr)
 				: m_ptr(static_cast<const uint8_t *>(ptr))
 			{
 			}

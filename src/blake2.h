@@ -45,34 +45,34 @@ namespace Blake2_Hash
 			typedef uint8_t Byte;
 
 
-			inline explicit Blake2();
+			Blake2();
 
-			inline void reset();
-			inline Blake2& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			void reset();
+			Blake2& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
 
-			inline std::string toString() const;
-			inline std::vector<Blake2::Byte> toVector() const;
+			std::string toString() const;
+			std::vector<Blake2::Byte> toVector() const;
 
-			inline Blake2& addData(const Span<const Byte> inData);
-			inline Blake2& addData(const void *ptr, const long int length);
+			Blake2& addData(const Span<const Byte> inData);
+			Blake2& addData(const void *ptr, const long int length);
 
 		private:
 			class Uint128
 			{
 				public:
-					explicit Uint128()
+					constexpr Uint128()
 						: m_lo(0), m_hi(0)
 					{
 					}
 
-					Uint128& operator= (const uint64_t n)
+					constexpr Uint128& operator= (const uint64_t n)
 					{
 						this->m_lo = n;
 						this->m_hi = 0;
 						return (*this);
 					}
 
-					Uint128& operator* (const unsigned int n)
+					constexpr Uint128& operator* (const unsigned int n)
 					{
 						// only handle `*8` case
 						assert(n == 8);
@@ -84,7 +84,7 @@ namespace Blake2_Hash
 						return (*this);
 					}
 
-					Uint128& operator+= (const uint64_t n)
+					constexpr Uint128& operator+= (const uint64_t n)
 					{
 						const uint64_t newLo = (m_lo + n);
 						if (newLo < m_lo)
@@ -94,12 +94,12 @@ namespace Blake2_Hash
 						return (*this);
 					}
 
-					uint64_t low() const
+					constexpr uint64_t low() const
 					{
 						return m_lo;
 					}
 
-					uint64_t high() const
+					constexpr uint64_t high() const
 					{
 						return m_hi;
 					}
@@ -109,7 +109,7 @@ namespace Blake2_Hash
 					uint64_t m_hi;
 			};
 
-			inline void addDataImpl(const Span<const Byte> data, const bool isFinal, const uint64_t paddingLen = 0);
+			void addDataImpl(const Span<const Byte> data, const bool isFinal, const uint64_t paddingLen = 0);
 
 			const unsigned int BLOCK_SIZE = 128;
 
@@ -132,7 +132,7 @@ namespace Blake2_Hash
 		// this class workaround loading data from unaligned memory boundaries
 		// also eliminate endianness issues
 		public:
-			explicit Loader(const void *ptr)
+			explicit constexpr Loader(const void *ptr)
 				: m_ptr(static_cast<const uint8_t *>(ptr))
 			{
 			}

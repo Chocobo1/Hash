@@ -45,19 +45,19 @@ namespace RIPEMD_160_Hash
 			typedef uint8_t Byte;
 
 
-			inline explicit RIPEMD_160();
+			RIPEMD_160();
 
-			inline void reset();
-			inline RIPEMD_160& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			void reset();
+			RIPEMD_160& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
 
-			inline std::string toString() const;
-			inline std::vector<RIPEMD_160::Byte> toVector() const;
+			std::string toString() const;
+			std::vector<RIPEMD_160::Byte> toVector() const;
 
-			inline RIPEMD_160& addData(const Span<const Byte> inData);
-			inline RIPEMD_160& addData(const void *ptr, const long int length);
+			RIPEMD_160& addData(const Span<const Byte> inData);
+			RIPEMD_160& addData(const void *ptr, const long int length);
 
 		private:
-			inline void addDataImpl(const Span<const Byte> data);
+			void addDataImpl(const Span<const Byte> data);
 
 			const unsigned int BLOCK_SIZE = 64;
 
@@ -75,7 +75,7 @@ namespace RIPEMD_160_Hash
 		// this class workaround loading data from unaligned memory boundaries
 		// also eliminate endianness issues
 		public:
-			explicit Loader(const void *ptr)
+			explicit constexpr Loader(const void *ptr)
 				: m_ptr(static_cast<const uint8_t *>(ptr))
 			{
 			}

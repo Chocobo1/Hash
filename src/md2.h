@@ -43,19 +43,19 @@ namespace MD2_Hash
 			typedef uint8_t Byte;
 
 
-			inline explicit MD2();
+			MD2();
 
-			inline void reset();
-			inline MD2& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			void reset();
+			MD2& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
 
-			inline std::string toString() const;
-			inline std::vector<MD2::Byte> toVector() const;
+			std::string toString() const;
+			std::vector<MD2::Byte> toVector() const;
 
-			inline MD2& addData(const Span<const Byte> inData);
-			inline MD2& addData(const void *ptr, const long int length);
+			MD2& addData(const Span<const Byte> inData);
+			MD2& addData(const void *ptr, const long int length);
 
 		private:
-			inline void addDataImpl(const Span<const Byte> data);
+			void addDataImpl(const Span<const Byte> data);
 
 			const unsigned int BLOCK_SIZE = 16;
 

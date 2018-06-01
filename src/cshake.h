@@ -71,7 +71,7 @@ namespace CShake_Hash
 
 	// helpers
 	template <typename R, typename T, typename std::enable_if<(std::is_unsigned<T>::value), int>::type = 0>
-	inline R ror(const T n, const unsigned int r)
+	constexpr R ror(const T n, const unsigned int r)
 	{
 		const R mask = -1;
 		return ((n >> r) & mask);

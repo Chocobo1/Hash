@@ -45,19 +45,19 @@ namespace SHA2_224_Hash
 			typedef uint8_t Byte;
 
 
-			inline explicit SHA2_224();
+			SHA2_224();
 
-			inline void reset();
-			inline SHA2_224& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			void reset();
+			SHA2_224& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
 
-			inline std::string toString() const;
-			inline std::vector<SHA2_224::Byte> toVector() const;
+			std::string toString() const;
+			std::vector<SHA2_224::Byte> toVector() const;
 
-			inline SHA2_224& addData(const Span<const Byte> inData);
-			inline SHA2_224& addData(const void *ptr, const long int length);
+			SHA2_224& addData(const Span<const Byte> inData);
+			SHA2_224& addData(const void *ptr, const long int length);
 
 		private:
-			inline void addDataImpl(const Span<const Byte> data);
+			void addDataImpl(const Span<const Byte> data);
 
 			const unsigned int BLOCK_SIZE = 64;
 
@@ -75,7 +75,7 @@ namespace SHA2_224_Hash
 		// this class workaround loading data from unaligned memory boundaries
 		// also eliminate endianness issues
 		public:
-			explicit Loader(const void *ptr)
+			explicit constexpr Loader(const void *ptr)
 				: m_ptr(static_cast<const uint8_t *>(ptr))
 			{
 			}
