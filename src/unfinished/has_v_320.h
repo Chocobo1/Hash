@@ -14,7 +14,9 @@
 
 #include "../gsl/span"
 
+#include <array>
 #include <cstdint>
+#include <initializer_list>
 #include <string>
 #include <vector>
 
@@ -24,19 +26,21 @@ class HAS_V_320
 	// https://link.springer.com/chapter/10.1007%2F3-540-44983-3_15
 
 	public:
+		using Byte = uint8_t;
+		using ResultArrayType = std::array<Byte, 40>;
+
 		template <typename T>
 		using Span = gsl::span<T>;
-
-		typedef uint8_t Byte;
 
 
 		HAS_V_320();
 
 		void reset();
-		HAS_V_320& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+		HAS_V_320& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 		std::string toString() const;
-		std::vector<HAS_V_320::Byte> toVector() const;
+		std::vector<Byte> toVector() const;
+		ResultArrayType toArray() const;
 
 		HAS_V_320& addData(const Span<const Byte> inData);
 		HAS_V_320& addData(const void *ptr, const long int length);

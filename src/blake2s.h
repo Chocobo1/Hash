@@ -106,7 +106,7 @@ namespace Hash
 
 			constexpr void clear()
 			{
-				m_array = decltype(m_array) {};
+				m_array = {};
 				m_dataEndIdx = 0;
 			}
 
@@ -163,19 +163,21 @@ namespace Blake2s_NS
 		// https://blake2.net/
 
 		public:
+			using Byte = uint8_t;
+			using ResultArrayType = std::array<Byte, 32>;
+
 			template <typename T>
 			using Span = gsl::span<T>;
-
-			typedef uint8_t Byte;
 
 
 			Blake2s();
 
 			void reset();
-			Blake2s& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			Blake2s& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
-			std::vector<Blake2s::Byte> toVector() const;
+			std::vector<Byte> toVector() const;
+			ResultArrayType toArray() const;
 
 			Blake2s& addData(const Span<const Byte> inData);
 			Blake2s& addData(const void *ptr, const long int length);
@@ -273,13 +275,13 @@ namespace Blake2s_NS
 
 	std::string Blake2s::toString() const
 	{
+		const auto a = toArray();
 		std::string ret;
-		const auto v = toVector();
-		ret.reserve(2 * v.size());
-		for (const auto &i : v)
+		ret.reserve(2 * a.size());
+		for (const auto c : a)
 		{
 			char buf[3];
-			snprintf(buf, sizeof(buf), "%02x", i);
+			snprintf(buf, sizeof(buf), "%02x", c);
 			ret.append(buf);
 		}
 
@@ -288,15 +290,21 @@ namespace Blake2s_NS
 
 	std::vector<Blake2s::Byte> Blake2s::toVector() const
 	{
+		const auto a = toArray();
+		return {a.begin(), a.end()};
+	}
+
+	Blake2s::ResultArrayType Blake2s::toArray() const
+	{
 		const Span<const uint32_t> state(m_h);
 		const int dataSize = sizeof(decltype(state)::value_type);
 
-		std::vector<Byte> ret;
-		ret.reserve(dataSize * state.size());
-		for (const auto &i : state)
+		int retCounter = 0;
+		ResultArrayType ret;
+		for (const auto i : state)
 		{
 			for (int j = 0; j < dataSize; ++j)
-				ret.emplace_back(ror<Byte>(i, (j * 8)));
+				ret[retCounter++] = ror<Byte>(i, (j * 8));
 		}
 
 		return ret;

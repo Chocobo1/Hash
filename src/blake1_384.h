@@ -106,7 +106,7 @@ namespace Hash
 
 			constexpr void clear()
 			{
-				m_array = decltype(m_array) {};
+				m_array = {};
 				m_dataEndIdx = 0;
 			}
 
@@ -225,19 +225,21 @@ namespace Blake1_384_NS
 		// https://131002.net/blake/
 
 		public:
+			using Byte = uint8_t;
+			using ResultArrayType = std::array<Byte, 48>;
+
 			template <typename T>
 			using Span = gsl::span<T>;
-
-			typedef uint8_t Byte;
 
 
 			Blake1_384();
 
 			void reset();
-			Blake1_384& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			Blake1_384& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
-			std::vector<Blake1_384::Byte> toVector() const;
+			std::vector<Byte> toVector() const;
+			ResultArrayType toArray() const;
 
 			Blake1_384& addData(const Span<const Byte> inData);
 			Blake1_384& addData(const void *ptr, const long int length);
@@ -352,13 +354,13 @@ namespace Blake1_384_NS
 
 	std::string Blake1_384::toString() const
 	{
+		const auto a = toArray();
 		std::string ret;
-		const auto v = toVector();
-		ret.reserve(2 * v.size());
-		for (const auto &i : v)
+		ret.reserve(2 * a.size());
+		for (const auto c : a)
 		{
 			char buf[3];
-			snprintf(buf, sizeof(buf), "%02x", i);
+			snprintf(buf, sizeof(buf), "%02x", c);
 			ret.append(buf);
 		}
 
@@ -367,15 +369,21 @@ namespace Blake1_384_NS
 
 	std::vector<Blake1_384::Byte> Blake1_384::toVector() const
 	{
+		const auto a = toArray();
+		return {a.begin(), a.end()};
+	}
+
+	Blake1_384::ResultArrayType Blake1_384::toArray() const
+	{
 		const Span<const uint64_t> state(std::begin(m_h), (std::end(m_h) - 2));
 		const int dataSize = sizeof(decltype(state)::value_type);
 
-		std::vector<Byte> ret;
-		ret.reserve(dataSize * state.size());
-		for (const auto &i : state)
+		int retCounter = 0;
+		ResultArrayType ret;
+		for (const auto i : state)
 		{
 			for (int j = (dataSize - 1); j >= 0; --j)
-				ret.emplace_back(ror<Byte>(i, (j * 8)));
+				ret[retCounter++] = ror<Byte>(i, (j * 8));
 		}
 
 		return ret;

@@ -32,6 +32,8 @@ namespace Chocobo1
 namespace Chocobo1
 {
 // users should ignore things in this namespace
+namespace Hash
+{
 namespace TupleHash_NS
 {
 	template <typename Alg>
@@ -40,10 +42,10 @@ namespace TupleHash_NS
 		// https://doi.org/10.6028/NIST.SP.800-185
 
 		public:
+			using Byte = uint8_t;
+
 			template <typename T>
 			using Span = gsl::span<T>;
-
-			typedef uint8_t Byte;
 
 
 			explicit TupleHash(const unsigned int digestLength, const std::string &customize = {});
@@ -52,7 +54,7 @@ namespace TupleHash_NS
 			TupleHash& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
-			std::vector<typename TupleHash::Byte> toVector() const;
+			std::vector<Byte> toVector() const;
 
 			TupleHash& nextData(const Span<const Byte> inData);  // pass in next element in tuple
 			TupleHash& nextData(const void *ptr, const long int length);
@@ -68,7 +70,7 @@ namespace TupleHash_NS
 	// helpers
 	inline std::vector<uint8_t> rightEncode(const uint64_t value)
 	{
-		std::vector<uint8_t> ret = Chocobo1::CShake_NS::leftEncode(value);
+		std::vector<uint8_t> ret = Chocobo1::Hash::CShake_NS::leftEncode(value);
 		const uint8_t first = ret.front();
 		ret.erase(ret.begin());
 		ret.emplace_back(first);
@@ -113,7 +115,7 @@ namespace TupleHash_NS
 	template <typename Alg>
 	TupleHash<Alg>& TupleHash<Alg>::nextData(const Span<const Byte> inData)
 	{
-		const std::vector<uint8_t> encoded = Chocobo1::CShake_NS::leftEncode(inData.size() * 8);
+		const std::vector<uint8_t> encoded = Chocobo1::Hash::CShake_NS::leftEncode(inData.size() * 8);
 		addDataImpl(encoded);
 		addDataImpl(inData);
 
@@ -133,8 +135,9 @@ namespace TupleHash_NS
 		m_cshake.addData(data);
 	}
 }
-	struct TupleHash_128 : TupleHash_NS::TupleHash<CSHAKE_128> { explicit TupleHash_128(const unsigned int l, const std::string &c = {}) : TupleHash_NS::TupleHash<CSHAKE_128>(l, c) {} };
-	struct TupleHash_256 : TupleHash_NS::TupleHash<CSHAKE_256> { explicit TupleHash_256(const unsigned int l, const std::string &c = {}) : TupleHash_NS::TupleHash<CSHAKE_256>(l, c) {} };
+}
+	struct TupleHash_128 : Hash::TupleHash_NS::TupleHash<CSHAKE_128> { explicit TupleHash_128(const unsigned int l, const std::string &c = {}) : Hash::TupleHash_NS::TupleHash<CSHAKE_128>(l, c) {} };
+	struct TupleHash_256 : Hash::TupleHash_NS::TupleHash<CSHAKE_256> { explicit TupleHash_256(const unsigned int l, const std::string &c = {}) : Hash::TupleHash_NS::TupleHash<CSHAKE_256>(l, c) {} };
 }
 
 #endif  // CHOCOBO1_TUPLE_HASH_H

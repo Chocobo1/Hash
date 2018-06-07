@@ -106,7 +106,7 @@ namespace Hash
 
 			constexpr void clear()
 			{
-				m_array = decltype(m_array) {};
+				m_array = {};
 				m_dataEndIdx = 0;
 			}
 
@@ -163,19 +163,21 @@ namespace RIPEMD_128_NS
 		// https://homes.esat.kuleuven.be/~bosselae/ripemd160.html
 
 		public:
+			using Byte = uint8_t;
+			using ResultArrayType = std::array<Byte, 16>;
+
 			template <typename T>
 			using Span = gsl::span<T>;
-
-			typedef uint8_t Byte;
 
 
 			RIPEMD_128();
 
 			void reset();
-			RIPEMD_128& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			RIPEMD_128& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
-			std::vector<RIPEMD_128::Byte> toVector() const;
+			std::vector<Byte> toVector() const;
+			ResultArrayType toArray() const;
 
 			RIPEMD_128& addData(const Span<const Byte> inData);
 			RIPEMD_128& addData(const void *ptr, const long int length);
@@ -283,13 +285,13 @@ namespace RIPEMD_128_NS
 
 	std::string RIPEMD_128::toString() const
 	{
+		const auto a = toArray();
 		std::string ret;
-		const auto v = toVector();
-		ret.reserve(2 * v.size());
-		for (const auto &i : v)
+		ret.reserve(2 * a.size());
+		for (const auto c : a)
 		{
 			char buf[3];
-			snprintf(buf, sizeof(buf), "%02x", i);
+			snprintf(buf, sizeof(buf), "%02x", c);
 			ret.append(buf);
 		}
 
@@ -298,15 +300,21 @@ namespace RIPEMD_128_NS
 
 	std::vector<RIPEMD_128::Byte> RIPEMD_128::toVector() const
 	{
+		const auto a = toArray();
+		return {a.begin(), a.end()};
+	}
+
+	RIPEMD_128::ResultArrayType RIPEMD_128::toArray() const
+	{
 		const Span<const uint32_t> state(m_h);
 		const int dataSize = sizeof(decltype(state)::value_type);
 
-		std::vector<Byte> ret;
-		ret.reserve(dataSize * state.size());
-		for (const auto &i : state)
+		int retCounter = 0;
+		ResultArrayType ret;
+		for (const auto i : state)
 		{
 			for (int j = 0; j < dataSize; ++j)
-				ret.emplace_back(ror<Byte>(i, (j * 8)));
+				ret[retCounter++] = ror<Byte>(i, (j * 8));
 		}
 
 		return ret;

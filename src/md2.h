@@ -14,6 +14,7 @@
 
 #include "gsl/span"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdint>
@@ -104,7 +105,7 @@ namespace Hash
 
 			constexpr void clear()
 			{
-				m_array = decltype(m_array) {};
+				m_array = {};
 				m_dataEndIdx = 0;
 			}
 
@@ -161,19 +162,21 @@ namespace MD2_NS
 		// https://tools.ietf.org/html/rfc1319
 
 		public:
+			using Byte = uint8_t;
+			using ResultArrayType = std::array<Byte, 16>;
+
 			template <typename T>
 			using Span = gsl::span<T>;
-
-			typedef uint8_t Byte;
 
 
 			MD2();
 
 			void reset();
-			MD2& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			MD2& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
-			std::vector<MD2::Byte> toVector() const;
+			std::vector<Byte> toVector() const;
+			ResultArrayType toArray() const;
 
 			MD2& addData(const Span<const Byte> inData);
 			MD2& addData(const void *ptr, const long int length);
@@ -185,8 +188,8 @@ namespace MD2_NS
 
 			Buffer<Byte, (BLOCK_SIZE * 2)> m_buffer;  // x2 for paddings
 
-			Byte m_x[48];
-			Byte m_checksum[16];
+			std::array<Byte, 48> m_x;
+			std::array<Byte, 16> m_checksum;
 			Byte m_checksumL;
 	};
 
@@ -201,10 +204,8 @@ namespace MD2_NS
 	{
 		m_buffer.clear();
 
-		for (auto &i : m_x)
-			i = 0;
-		for (auto &i : m_checksum)
-			i = 0;
+		m_x = {};
+		m_checksum = {};
 		m_checksumL = 0;
 	}
 
@@ -217,7 +218,7 @@ namespace MD2_NS
 		m_buffer.clear();
 
 		// append checksum
-		const std::vector<Byte> currentChecksum = {std::begin(m_checksum), std::end(m_checksum)};
+		const auto currentChecksum = m_checksum;
 		addDataImpl(currentChecksum);
 
 		return (*this);
@@ -225,13 +226,13 @@ namespace MD2_NS
 
 	std::string MD2::toString() const
 	{
+		const auto a = toArray();
 		std::string ret;
-		const auto v = toVector();
-		ret.reserve(2 * v.size());
-		for (const auto &i : v)
+		ret.reserve(2 * a.size());
+		for (const auto c : a)
 		{
 			char buf[3];
-			snprintf(buf, sizeof(buf), "%02x", i);
+			snprintf(buf, sizeof(buf), "%02x", c);
 			ret.append(buf);
 		}
 
@@ -240,8 +241,15 @@ namespace MD2_NS
 
 	std::vector<MD2::Byte> MD2::toVector() const
 	{
-		const auto iter = std::begin(m_x);
-		return {iter, (iter + 16)};
+		const auto a = toArray();
+		return {a.begin(), a.end()};
+	}
+
+	MD2::ResultArrayType MD2::toArray() const
+	{
+		ResultArrayType ret;
+		std::copy(m_x.begin(), (m_x.begin() + 16), ret.begin());
+		return ret;
 	}
 
 	MD2& MD2::addData(const Span<const Byte> inData)

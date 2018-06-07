@@ -106,7 +106,7 @@ namespace Hash
 
 			constexpr void clear()
 			{
-				m_array = decltype(m_array) {};
+				m_array = {};
 				m_dataEndIdx = 0;
 			}
 
@@ -225,19 +225,21 @@ namespace SHA2_512_224_NS
 		// https://dx.doi.org/10.6028/NIST.FIPS.180-4
 
 		public:
+			using Byte = uint8_t;
+			using ResultArrayType = std::array<Byte, 28>;
+
 			template <typename T>
 			using Span = gsl::span<T>;
-
-			typedef uint8_t Byte;
 
 
 			SHA2_512_224();
 
 			void reset();
-			SHA2_512_224& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			SHA2_512_224& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
-			std::vector<SHA2_512_224::Byte> toVector() const;
+			std::vector<Byte> toVector() const;
+			ResultArrayType toArray() const;
 
 			SHA2_512_224& addData(const Span<const Byte> inData);
 			SHA2_512_224& addData(const void *ptr, const long int length);
@@ -352,13 +354,13 @@ namespace SHA2_512_224_NS
 
 	std::string SHA2_512_224::toString() const
 	{
+		const auto a = toArray();
 		std::string ret;
-		const auto v = toVector();
-		ret.reserve(2 * v.size());
-		for (const auto &i : v)
+		ret.reserve(2 * a.size());
+		for (const auto c : a)
 		{
 			char buf[3];
-			snprintf(buf, sizeof(buf), "%02x", i);
+			snprintf(buf, sizeof(buf), "%02x", c);
 			ret.append(buf);
 		}
 
@@ -367,20 +369,26 @@ namespace SHA2_512_224_NS
 
 	std::vector<SHA2_512_224::Byte> SHA2_512_224::toVector() const
 	{
+		const auto a = toArray();
+		return {a.begin(), a.end()};
+	}
+
+	SHA2_512_224::ResultArrayType SHA2_512_224::toArray() const
+	{
 		const Span<const uint64_t> state(m_h, 3);
 		const int dataSize = sizeof(decltype(state)::value_type);
 
-		std::vector<Byte> ret;
-		ret.reserve(dataSize * state.size());
-		for (const auto &i : state)
+		int retCounter = 0;
+		ResultArrayType ret;
+		for (const auto i : state)
 		{
 			for (int j = (dataSize - 1); j >= 0; --j)
-				ret.emplace_back(ror<Byte>(i, (j * 8)));
+				ret[retCounter++] = ror<Byte>(i, (j * 8));
 		}
-		ret.emplace_back(ror<Byte>(m_h[3], 56));
-		ret.emplace_back(ror<Byte>(m_h[3], 48));
-		ret.emplace_back(ror<Byte>(m_h[3], 40));
-		ret.emplace_back(ror<Byte>(m_h[3], 32));
+		ret[retCounter++] = ror<Byte>(m_h[3], 56);
+		ret[retCounter++] = ror<Byte>(m_h[3], 48);
+		ret[retCounter++] = ror<Byte>(m_h[3], 40);
+		ret[retCounter++] = ror<Byte>(m_h[3], 32);
 
 		return ret;
 	}

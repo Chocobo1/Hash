@@ -112,7 +112,7 @@ namespace Hash
 
 			constexpr void clear()
 			{
-				m_array = decltype(m_array) {};
+				m_array = {};
 				m_dataEndIdx = 0;
 			}
 
@@ -170,19 +170,21 @@ namespace Tiger_NS
 		// https://www.cs.technion.ac.il/~biham/Reports/Tiger/
 
 		public:
+			using Byte = uint8_t;
+			using ResultArrayType = std::array<Byte, (D / 8)>;
+
 			template <typename T>
 			using Span = gsl::span<T>;
-
-			typedef uint8_t Byte;
 
 
 			Tiger();
 
 			void reset();
-			Tiger& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			Tiger& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
-			std::vector<typename Tiger::Byte> toVector() const;
+			std::vector<Byte> toVector() const;
+			ResultArrayType toArray() const;
 
 			Tiger& addData(const Span<const Byte> inData);
 			Tiger& addData(const void *ptr, const long int length);
@@ -296,13 +298,13 @@ namespace Tiger_NS
 	template <int V, int D>
 	std::string Tiger<V, D>::toString() const
 	{
+		const auto a = toArray();
 		std::string ret;
-		const auto v = toVector();
-		ret.reserve(2 * v.size());
-		for (const auto &i : v)
+		ret.reserve(2 * a.size());
+		for (const auto c : a)
 		{
 			char buf[3];
-			snprintf(buf, sizeof(buf), "%02x", i);
+			snprintf(buf, sizeof(buf), "%02x", c);
 			ret.append(buf);
 		}
 
@@ -312,18 +314,23 @@ namespace Tiger_NS
 	template <int V, int D>
 	std::vector<typename Tiger<V, D>::Byte> Tiger<V, D>::toVector() const
 	{
+		const auto a = toArray();
+		return {a.begin(), a.end()};
+	}
+
+	template <int V, int D>
+	typename Tiger<V, D>::ResultArrayType Tiger<V, D>::toArray() const
+	{
 		const Span<const uint64_t> state(m_h);
 		const int dataSize = sizeof(typename decltype(state)::value_type);
 
-		std::vector<Byte> ret;
-		ret.reserve(dataSize * state.size());
-		for (const auto &i : state)
+		int retCounter = 0;
+		ResultArrayType ret;
+		for (const auto i : state)
 		{
 			for (int j = 0, jMax = dataSize; j < jMax; ++j)
-				ret.emplace_back(ror<Byte>(i, (j * 8)));
+				ret[retCounter++] = ror<Byte>(i, (j * 8));
 		}
-
-		ret.resize(D / 8);
 		return ret;
 	}
 

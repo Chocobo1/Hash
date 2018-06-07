@@ -38,19 +38,21 @@ namespace CRC_32_Hash
 		// not my algorithm, "Slicing-by-16" from: http://create.stephan-brumme.com/crc32/
 
 		public:
+			using Byte = uint8_t;
+			using ResultArrayType = std::array<Byte, 4>;
+
 			template <typename T>
 			using Span = gsl::span<T>;
-
-			typedef uint8_t Byte;
 
 
 			CRC_32();
 
 			void reset();
-			CRC_32& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			CRC_32& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
-			std::vector<CRC_32::Byte> toVector() const;
+			std::vector<Byte> toVector() const;
+			ResultArrayType toArray() const;
 
 			CRC_32& addData(const Span<const Byte> inData);
 			CRC_32& addData(const void *ptr, const long int length);
@@ -118,13 +120,13 @@ namespace CRC_32_Hash
 
 	std::string CRC_32::toString() const
 	{
+		const auto a = toArray();
 		std::string ret;
-		const auto v = toVector();
-		ret.reserve(2 * v.size());
-		for (const auto &i : v)
+		ret.reserve(2 * a.size());
+		for (const auto c : a)
 		{
 			char buf[3];
-			snprintf(buf, sizeof(buf), "%02x", i);
+			snprintf(buf, sizeof(buf), "%02x", c);
 			ret.append(buf);
 		}
 
@@ -133,16 +135,18 @@ namespace CRC_32_Hash
 
 	std::vector<CRC_32::Byte> CRC_32::toVector() const
 	{
-		const std::vector<uint32_t> state = {m_h};
-		const int dataSize = sizeof(decltype(state)::value_type);
+		const auto a = toArray();
+		return {a.begin(), a.end()};
+	}
 
-		std::vector<Byte> ret;
-		ret.reserve(dataSize * state.size());
-		for (const auto &i : state)
-		{
-			for (int j = (dataSize - 1); j >= 0; --j)
-				ret.emplace_back(ror<Byte>(i, (j * 8)));
-		}
+	CRC_32::ResultArrayType CRC_32::toArray() const
+	{
+		const int dataSize = sizeof(m_h);
+
+		int retCounter = 0;
+		ResultArrayType ret;
+		for (int j = (dataSize - 1); j >= 0; --j)
+			ret[retCounter++] = ror<Byte>(m_h, (j * 8));
 
 		return ret;
 	}

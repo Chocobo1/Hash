@@ -106,7 +106,7 @@ namespace Hash
 
 			constexpr void clear()
 			{
-				m_array = decltype(m_array) {};
+				m_array = {};
 				m_dataEndIdx = 0;
 			}
 
@@ -225,19 +225,21 @@ namespace SHA2_512_NS
 		// https://tools.ietf.org/html/rfc6234
 
 		public:
+			using Byte = uint8_t;
+			using ResultArrayType = std::array<Byte, 64>;
+
 			template <typename T>
 			using Span = gsl::span<T>;
-
-			typedef uint8_t Byte;
 
 
 			SHA2_512();
 
 			void reset();
-			SHA2_512& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			SHA2_512& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
-			std::vector<SHA2_512::Byte> toVector() const;
+			std::vector<Byte> toVector() const;
+			ResultArrayType toArray() const;
 
 			SHA2_512& addData(const Span<const Byte> inData);
 			SHA2_512& addData(const void *ptr, const long int length);
@@ -353,13 +355,13 @@ namespace SHA2_512_NS
 
 	std::string SHA2_512::toString() const
 	{
+		const auto a = toArray();
 		std::string ret;
-		const auto v = toVector();
-		ret.reserve(2 * v.size());
-		for (const auto &i : v)
+		ret.reserve(2 * a.size());
+		for (const auto c : a)
 		{
 			char buf[3];
-			snprintf(buf, sizeof(buf), "%02x", i);
+			snprintf(buf, sizeof(buf), "%02x", c);
 			ret.append(buf);
 		}
 
@@ -368,15 +370,21 @@ namespace SHA2_512_NS
 
 	std::vector<SHA2_512::Byte> SHA2_512::toVector() const
 	{
+		const auto a = toArray();
+		return {a.begin(), a.end()};
+	}
+
+	SHA2_512::ResultArrayType SHA2_512::toArray() const
+	{
 		const Span<const uint64_t> state(m_h);
 		const int dataSize = sizeof(decltype(state)::value_type);
 
-		std::vector<Byte> ret;
-		ret.reserve(dataSize * state.size());
-		for (const auto &i : state)
+		int retCounter = 0;
+		ResultArrayType ret;
+		for (const auto i : state)
 		{
 			for (int j = (dataSize - 1); j >= 0; --j)
-				ret.emplace_back(ror<Byte>(i, (j * 8)));
+				ret[retCounter++] = ror<Byte>(i, (j * 8));
 		}
 
 		return ret;

@@ -34,6 +34,8 @@ namespace Chocobo1
 namespace Chocobo1
 {
 // users should ignore things in this namespace
+namespace Hash
+{
 namespace CShake_NS
 {
 	template <typename S, typename K, unsigned int P>
@@ -42,10 +44,10 @@ namespace CShake_NS
 		// https://doi.org/10.6028/NIST.SP.800-185
 
 		public:
+			using Byte = uint8_t;
+
 			template <typename T>
 			using Span = gsl::span<T>;
-
-			typedef uint8_t Byte;
 
 
 			explicit CShake(const unsigned int digestLength, const std::string &name = {}, const std::string &customize = {});
@@ -54,7 +56,7 @@ namespace CShake_NS
 			CShake& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
-			std::vector<typename CShake::Byte> toVector() const;
+			std::vector<Byte> toVector() const;
 
 			CShake& addData(const Span<const Byte> inData);
 			CShake& addData(const void *ptr, const long int length);
@@ -79,7 +81,7 @@ namespace CShake_NS
 
 	inline std::vector<uint8_t> leftEncode(const uint64_t value)
 	{
-		const uint8_t n = (value == 0) ? 1 : std::lround((log2(value) / 8) + 0.5);
+		const uint8_t n = (value == 0) ? 1 : std::lround((std::log2(value) / 8) + 0.5);
 		std::vector<uint8_t> ret = {n};
 		ret.reserve(n + 1);
 
@@ -191,8 +193,9 @@ namespace CShake_NS
 			m_keccak->addData(data);
 	}
 }
-	struct CSHAKE_128 : CShake_NS::CShake<SHAKE_128, Hash::SHA3_NS::Keccak<(1344 / 8), 0x04>, (1344 / 8)> { explicit CSHAKE_128(const unsigned int l, const std::string &n = {}, const std::string &c = {}) : CShake_NS::CShake<SHAKE_128, Hash::SHA3_NS::Keccak<(1344 / 8), 0x04>, (1344 / 8)>(l, n, c) {} };
-	struct CSHAKE_256 : CShake_NS::CShake<SHAKE_256, Hash::SHA3_NS::Keccak<(1088 / 8), 0x04>, (1088 / 8)> { explicit CSHAKE_256(const unsigned int l, const std::string &n = {}, const std::string &c = {}) : CShake_NS::CShake<SHAKE_256, Hash::SHA3_NS::Keccak<(1088 / 8), 0x04>, (1088 / 8)>(l, n, c) {} };
+}
+	struct CSHAKE_128 : Hash::CShake_NS::CShake<SHAKE_128, Hash::SHA3_NS::Keccak<(1344 / 8), 0x04>, (1344 / 8)> { explicit CSHAKE_128(const unsigned int l, const std::string &n = {}, const std::string &c = {}) : Hash::CShake_NS::CShake<SHAKE_128, Hash::SHA3_NS::Keccak<(1344 / 8), 0x04>, (1344 / 8)>(l, n, c) {} };
+	struct CSHAKE_256 : Hash::CShake_NS::CShake<SHAKE_256, Hash::SHA3_NS::Keccak<(1088 / 8), 0x04>, (1088 / 8)> { explicit CSHAKE_256(const unsigned int l, const std::string &n = {}, const std::string &c = {}) : Hash::CShake_NS::CShake<SHAKE_256, Hash::SHA3_NS::Keccak<(1088 / 8), 0x04>, (1088 / 8)>(l, n, c) {} };
 }
 
 #endif  // CHOCOBO1_CSHAKE_H

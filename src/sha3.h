@@ -112,7 +112,7 @@ namespace Hash
 
 			constexpr void clear()
 			{
-				m_array = decltype(m_array) {};
+				m_array = {};
 				m_dataEndIdx = 0;
 			}
 
@@ -170,10 +170,10 @@ namespace SHA3_NS
 		// https://dx.doi.org/10.6028/NIST.FIPS.202
 
 		public:
+			using Byte = uint8_t;
+
 			template <typename T>
 			using Span = gsl::span<T>;
-
-			typedef uint8_t Byte;
 
 
 			explicit Keccak(const unsigned int digestLength);
@@ -182,7 +182,7 @@ namespace SHA3_NS
 			Keccak& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
-			std::vector<typename Keccak::Byte> toVector() const;
+			std::vector<Byte> toVector() const;
 
 			Keccak& addData(const Span<const Byte> inData);
 			Keccak& addData(const void *ptr, const long int length);
@@ -303,7 +303,7 @@ namespace SHA3_NS
 			if (m_final.size() >= m_digestLength)
 				break;
 
-			addDataImpl(std::vector<Byte>(R , 0));
+			addDataImpl(std::array<Byte, R> {});
 		}
 
 		m_final.resize(m_digestLength);
@@ -313,13 +313,13 @@ namespace SHA3_NS
 	template <int R, unsigned int P>
 	std::string Keccak<R, P>::toString() const
 	{
-		std::string ret;
 		const auto v = toVector();
+		std::string ret;
 		ret.reserve(2 * v.size());
-		for (const auto &i : v)
+		for (const auto c : v)
 		{
 			char buf[3];
-			snprintf(buf, sizeof(buf), "%02x", i);
+			snprintf(buf, sizeof(buf), "%02x", c);
 			ret.append(buf);
 		}
 
@@ -500,7 +500,7 @@ namespace SHA3_NS
 
 		std::vector<Byte> ret;
 		ret.reserve(dataSize * state.size());
-		for (const auto &i : state)
+		for (const auto i : state)
 		{
 			for (int j = 0; j < dataSize; ++j)
 				ret.emplace_back(ror<Byte>(i, (j * 8)));

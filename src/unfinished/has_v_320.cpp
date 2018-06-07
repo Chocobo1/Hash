@@ -119,13 +119,13 @@ HAS_V_320& HAS_V_320::finalize()
 
 std::string HAS_V_320::toString() const
 {
+	const auto a = toArray();
 	std::string ret;
-	const auto v = toVector();
-	ret.reserve(2 * v.size());
-	for (const auto &i : v)
+	ret.reserve(2 * a.size());
+	for (const auto c : a)
 	{
 		char buf[3];
-		snprintf(buf, sizeof(buf), "%02x", i);
+		snprintf(buf, sizeof(buf), "%02x", c);
 		ret.append(buf);
 	}
 
@@ -134,15 +134,21 @@ std::string HAS_V_320::toString() const
 
 std::vector<HAS_V_320::Byte> HAS_V_320::toVector() const
 {
+	const auto a = toArray();
+	return {a.begin(), a.end()};
+}
+
+HAS_V_320::ResultArrayType HAS_V_320::toArray() const
+{
 	const Span<const uint32_t> state(m_h);
 	const int dataSize = sizeof(decltype(state)::value_type);
 
-	std::vector<Byte> ret;
-	ret.reserve(dataSize * state.size());
+	int retCounter = 0;
+	ResultArrayType ret;
 	for (const auto &i : state)
 	{
 		for (int j = 0; j < dataSize; ++j)
-			ret.emplace_back(ror<Byte>(i, (j * 8)));
+			ret[retCounter++] = ror<Byte>(i, (j * 8));
 	}
 
 	return ret;

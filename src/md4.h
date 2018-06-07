@@ -106,7 +106,7 @@ namespace Hash
 
 			constexpr void clear()
 			{
-				m_array = decltype(m_array) {};
+				m_array = {};
 				m_dataEndIdx = 0;
 			}
 
@@ -163,19 +163,21 @@ namespace MD4_NS
 		// https://tools.ietf.org/html/rfc1320
 
 		public:
+			using Byte = uint8_t;
+			using ResultArrayType = std::array<Byte, 16>;
+
 			template <typename T>
 			using Span = gsl::span<T>;
-
-			typedef uint8_t Byte;
 
 
 			MD4();
 
 			void reset();
-			MD4& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			MD4& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
-			std::vector<MD4::Byte> toVector() const;
+			std::vector<Byte> toVector() const;
+			ResultArrayType toArray() const;
 
 			MD4& addData(const Span<const Byte> inData);
 			MD4& addData(const void *ptr, const long int length);
@@ -283,13 +285,13 @@ namespace MD4_NS
 
 	std::string MD4::toString() const
 	{
+		const auto a = toArray();
 		std::string ret;
-		const auto v = toVector();
-		ret.reserve(2 * v.size());
-		for (const auto &i : v)
+		ret.reserve(2 * a.size());
+		for (const auto c : a)
 		{
 			char buf[3];
-			snprintf(buf, sizeof(buf), "%02x", i);
+			snprintf(buf, sizeof(buf), "%02x", c);
 			ret.append(buf);
 		}
 
@@ -298,15 +300,21 @@ namespace MD4_NS
 
 	std::vector<MD4::Byte> MD4::toVector() const
 	{
+		const auto a = toArray();
+		return {a.begin(), a.end()};
+	}
+
+	MD4::ResultArrayType MD4::toArray() const
+	{
 		const Span<const uint32_t> state(m_state);
 		const int dataSize = sizeof(decltype(state)::value_type);
 
-		std::vector<Byte> ret;
-		ret.reserve(dataSize * state.size());
-		for (const auto &i : state)
+		int retCounter = 0;
+		ResultArrayType ret;
+		for (const auto i : state)
 		{
 			for (int j = 0; j < dataSize; ++j)
-				ret.emplace_back(ror<Byte>(i, (j * 8)));
+				ret[retCounter++] = ror<Byte>(i, (j * 8));
 		}
 
 		return ret;
