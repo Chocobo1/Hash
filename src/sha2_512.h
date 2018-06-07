@@ -14,9 +14,11 @@
 
 #include "gsl/span"
 
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <cstdint>
+#include <initializer_list>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -32,7 +34,191 @@ namespace Chocobo1
 namespace Chocobo1
 {
 // users should ignore things in this namespace
-namespace SHA2_512_Hash
+
+namespace Hash
+{
+#ifndef CHOCOBO1_HASH_BUFFER_IMPL
+#define CHOCOBO1_HASH_BUFFER_IMPL
+	template <typename T, std::size_t N>
+	class Buffer
+	{
+		public:
+			using value_type = T;
+			using size_type = std::size_t;
+			using reference = T&;
+			using iterator = T*;
+			using const_iterator = const T*;
+
+			constexpr Buffer() = default;
+			constexpr explicit Buffer(const Buffer &) = default;
+
+			constexpr Buffer(const std::initializer_list<T> initList)
+			{
+				// check if out-of-bounds
+				m_array.at(m_dataEndIdx + initList.size() - 1);
+
+				for (const auto &i : initList)
+				{
+					m_array[m_dataEndIdx] = i;
+					++m_dataEndIdx;
+				}
+			}
+
+			template <typename InputIt>
+			constexpr Buffer(const InputIt first, const InputIt last)
+			{
+				for (InputIt iter = first; iter != last; ++iter)
+				{
+					this->fill(*iter);
+				}
+			}
+
+			constexpr T& operator[](const size_type pos)
+			{
+				return m_array[pos];
+			}
+
+			constexpr T operator[](const size_type pos) const
+			{
+				return m_array[pos];
+			}
+
+			constexpr void fill(const T &value, const size_type count = 1)
+			{
+				// check if out-of-bounds
+				m_array.at(m_dataEndIdx + count - 1);
+
+				for (size_type i = 0; i < count; ++i)
+				{
+					m_array[m_dataEndIdx] = value;
+					++m_dataEndIdx;
+				}
+			}
+
+			template <typename InputIt>
+			constexpr void push_back(const InputIt first, const InputIt last)
+			{
+				for (InputIt iter = first; iter != last; ++iter)
+				{
+					this->fill(*iter);
+				}
+			}
+
+			constexpr void clear()
+			{
+				m_array = decltype(m_array) {};
+				m_dataEndIdx = 0;
+			}
+
+			constexpr bool empty() const
+			{
+				return (m_dataEndIdx == 0);
+			}
+
+			constexpr size_type size() const
+			{
+				return m_dataEndIdx;
+			}
+
+			constexpr const T* data() const
+			{
+				return m_array.data();
+			}
+
+			constexpr iterator begin()
+			{
+				return m_array.data();
+			}
+
+			constexpr const_iterator begin() const
+			{
+				return m_array.data();
+			}
+
+			constexpr iterator end()
+			{
+				if (N == 0)
+					return m_array.data();
+				return &m_array[m_dataEndIdx];
+			}
+
+			constexpr const_iterator end() const
+			{
+				if (N == 0)
+					return m_array.data();
+				return &m_array[m_dataEndIdx];
+			}
+
+		private:
+			std::array<T, N> m_array {};
+			size_type m_dataEndIdx = 0;
+	};
+#endif
+
+#ifndef CHOCOBO1_HASH_UINT128_IMPL
+#define CHOCOBO1_HASH_UINT128_IMPL
+	class Uint128
+	{
+		public:
+			constexpr Uint128()
+				: m_lo(0), m_hi(0)
+			{
+			}
+
+			constexpr Uint128& operator= (const uint64_t n)
+			{
+				this->m_lo = n;
+				this->m_hi = 0;
+				return (*this);
+			}
+
+			constexpr Uint128 operator+ (const uint64_t n)
+			{
+				Uint128 ret = *this;
+				ret += n;
+				return ret;
+			}
+
+			constexpr Uint128& operator* (const unsigned int n)
+			{
+				// only handle `*8` case
+				assert(n == 8);
+
+				const uint8_t msb = (m_lo >> 61) & 0xff;
+				m_hi = (m_hi << 3) | msb;
+				m_lo = m_lo << 3;
+
+				return (*this);
+			}
+
+			constexpr Uint128& operator+= (const uint64_t n)
+			{
+				const uint64_t newLo = (m_lo + n);
+				if (newLo < m_lo)
+					++m_hi;
+				m_lo = newLo;
+
+				return (*this);
+			}
+
+			constexpr uint64_t low() const
+			{
+				return m_lo;
+			}
+
+			constexpr uint64_t high() const
+			{
+				return m_hi;
+			}
+
+		private:
+			uint64_t m_lo;
+			uint64_t m_hi;
+	};
+#endif
+
+
+namespace SHA2_512_NS
 {
 	class SHA2_512
 	{
@@ -57,63 +243,11 @@ namespace SHA2_512_Hash
 			SHA2_512& addData(const void *ptr, const long int length);
 
 		private:
-			class Uint128
-			{
-				public:
-					constexpr Uint128()
-						: m_lo(0), m_hi(0)
-					{
-					}
-
-					constexpr Uint128& operator= (const uint64_t n)
-					{
-						this->m_lo = n;
-						this->m_hi = 0;
-						return (*this);
-					}
-
-					constexpr Uint128& operator* (const unsigned int n)
-					{
-						// only handle `*8` case
-						assert(n == 8);
-
-						const uint8_t msb = (m_lo >> 61) & 0xff;
-						m_hi = (m_hi << 3) | msb;
-						m_lo = m_lo << 3;
-
-						return (*this);
-					}
-
-					constexpr Uint128& operator+= (const uint64_t n)
-					{
-						const uint64_t newLo = (m_lo + n);
-						if (newLo < m_lo)
-							++m_hi;
-						m_lo = newLo;
-
-						return (*this);
-					}
-
-					constexpr uint64_t low() const
-					{
-						return m_lo;
-					}
-
-					constexpr uint64_t high() const
-					{
-						return m_hi;
-					}
-
-				private:
-					uint64_t m_lo;
-					uint64_t m_hi;
-			};
-
 			void addDataImpl(const Span<const Byte> data);
 
-			const unsigned int BLOCK_SIZE = 128;
+			static constexpr unsigned int BLOCK_SIZE = 128;
 
-			std::vector<Byte> m_buffer;
+			Buffer<Byte, (BLOCK_SIZE * 2)> m_buffer;  // x2 for paddings
 			Uint128 m_sizeCounter;
 
 			uint64_t m_h[8];
@@ -172,7 +306,6 @@ namespace SHA2_512_Hash
 	//
 	SHA2_512::SHA2_512()
 	{
-		m_buffer.reserve(BLOCK_SIZE * 2);  // x2 for paddings
 		reset();
 	}
 
@@ -196,11 +329,11 @@ namespace SHA2_512_Hash
 		m_sizeCounter += m_buffer.size();
 
 		// append 1 bit
-		m_buffer.emplace_back(1 << 7);
+		m_buffer.fill(1 << 7);
 
 		// append paddings
 		const size_t len = BLOCK_SIZE - ((m_buffer.size() + 16) % BLOCK_SIZE);
-		m_buffer.insert(m_buffer.end(), (len + 16), 0);
+		m_buffer.fill(0, (len + 16));
 
 		// append size in bits
 		const Uint128 sizeCounterBits = m_sizeCounter * 8;
@@ -212,7 +345,7 @@ namespace SHA2_512_Hash
 			m_buffer[m_buffer.size() - 8 + i] = ror<Byte>(sizeCounterBitsL, (8 * (7 - i)));
 		}
 
-		addDataImpl(m_buffer);
+		addDataImpl({m_buffer.begin(), m_buffer.end()});
 		m_buffer.clear();
 
 		return (*this);
@@ -256,12 +389,12 @@ namespace SHA2_512_Hash
 		if (!m_buffer.empty())
 		{
 			const size_t len = std::min<size_t>((BLOCK_SIZE - m_buffer.size()), data.size());  // try fill to BLOCK_SIZE bytes
-			m_buffer.insert(m_buffer.end(), data.begin(), data.begin() + len);
+			m_buffer.push_back(data.begin(), (data.begin() + len));
 
 			if (m_buffer.size() < BLOCK_SIZE)  // still doesn't fill the buffer
 				return (*this);
 
-			addDataImpl(m_buffer);
+			addDataImpl({m_buffer.begin(), m_buffer.end()});
 			m_buffer.clear();
 
 			data = data.subspan(len);
@@ -278,7 +411,7 @@ namespace SHA2_512_Hash
 		addDataImpl(data.first(len));
 
 		if (len < dataSize)  // didn't consume all data
-			m_buffer = {data.begin() + len, data.end()};
+			m_buffer = {(data.begin() + len), data.end()};
 
 		return (*this);
 	}
@@ -395,7 +528,8 @@ namespace SHA2_512_Hash
 		}
 	}
 }
-	using SHA2_512 = SHA2_512_Hash::SHA2_512;
+}
+	using SHA2_512 = Hash::SHA2_512_NS::SHA2_512;
 }
 
 #endif  // CHOCOBO1_SHA2_512_H

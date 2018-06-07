@@ -14,9 +14,11 @@
 
 #include "gsl/span"
 
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <cstdint>
+#include <initializer_list>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -38,7 +40,129 @@ namespace Chocobo1
 namespace Chocobo1
 {
 // users should ignore things in this namespace
-namespace SHA3_Hash
+
+namespace Hash
+{
+#ifndef CHOCOBO1_HASH_BUFFER_IMPL
+#define CHOCOBO1_HASH_BUFFER_IMPL
+	template <typename T, std::size_t N>
+	class Buffer
+	{
+		public:
+			using value_type = T;
+			using size_type = std::size_t;
+			using reference = T&;
+			using iterator = T*;
+			using const_iterator = const T*;
+
+			constexpr Buffer() = default;
+			constexpr explicit Buffer(const Buffer &) = default;
+
+			constexpr Buffer(const std::initializer_list<T> initList)
+			{
+				// check if out-of-bounds
+				m_array.at(m_dataEndIdx + initList.size() - 1);
+
+				for (const auto &i : initList)
+				{
+					m_array[m_dataEndIdx] = i;
+					++m_dataEndIdx;
+				}
+			}
+
+			template <typename InputIt>
+			constexpr Buffer(const InputIt first, const InputIt last)
+			{
+				for (InputIt iter = first; iter != last; ++iter)
+				{
+					this->fill(*iter);
+				}
+			}
+
+			constexpr T& operator[](const size_type pos)
+			{
+				return m_array[pos];
+			}
+
+			constexpr T operator[](const size_type pos) const
+			{
+				return m_array[pos];
+			}
+
+			constexpr void fill(const T &value, const size_type count = 1)
+			{
+				// check if out-of-bounds
+				m_array.at(m_dataEndIdx + count - 1);
+
+				for (size_type i = 0; i < count; ++i)
+				{
+					m_array[m_dataEndIdx] = value;
+					++m_dataEndIdx;
+				}
+			}
+
+			template <typename InputIt>
+			constexpr void push_back(const InputIt first, const InputIt last)
+			{
+				for (InputIt iter = first; iter != last; ++iter)
+				{
+					this->fill(*iter);
+				}
+			}
+
+			constexpr void clear()
+			{
+				m_array = decltype(m_array) {};
+				m_dataEndIdx = 0;
+			}
+
+			constexpr bool empty() const
+			{
+				return (m_dataEndIdx == 0);
+			}
+
+			constexpr size_type size() const
+			{
+				return m_dataEndIdx;
+			}
+
+			constexpr const T* data() const
+			{
+				return m_array.data();
+			}
+
+			constexpr iterator begin()
+			{
+				return m_array.data();
+			}
+
+			constexpr const_iterator begin() const
+			{
+				return m_array.data();
+			}
+
+			constexpr iterator end()
+			{
+				if (N == 0)
+					return m_array.data();
+				return &m_array[m_dataEndIdx];
+			}
+
+			constexpr const_iterator end() const
+			{
+				if (N == 0)
+					return m_array.data();
+				return &m_array[m_dataEndIdx];
+			}
+
+		private:
+			std::array<T, N> m_array {};
+			size_type m_dataEndIdx = 0;
+	};
+#endif
+
+
+namespace SHA3_NS
 {
 	template<int R, unsigned int P>  // `R`: see m_params. `P`: suffix + padding
 	class Keccak
@@ -81,7 +205,7 @@ namespace SHA3_Hash
 			} const m_params;
 			const unsigned int m_digestLength;
 
-			std::vector<Byte> m_buffer;
+			Buffer<Byte, R> m_buffer;
 			std::vector<Byte> m_final;
 
 			uint64_t m_state[5][5];  // [y][x]
@@ -142,7 +266,6 @@ namespace SHA3_Hash
 		: m_params()
 		, m_digestLength(digestLength)
 	{
-		m_buffer.reserve(R);
 		m_final.reserve(m_digestLength);
 		reset();
 	}
@@ -163,13 +286,13 @@ namespace SHA3_Hash
 	{
 		// add padding
 		// the padding is reversed due to "B.1 Conversion Functions - Algorithm 11: b2h(S)"
-		m_buffer.emplace_back(P);
+		m_buffer.fill(P);
 
 		const size_t len = R - (m_buffer.size() % R);
-		m_buffer.insert(m_buffer.end(), len, 0);
-		m_buffer.back() |= (1 << 7);
+		m_buffer.fill(0, len);
+		m_buffer[m_buffer.size() - 1] |= (1 << 7);
 
-		addDataImpl(m_buffer);
+		addDataImpl({m_buffer.begin(), m_buffer.end()});
 		m_buffer.clear();
 
 		// squish out
@@ -217,12 +340,12 @@ namespace SHA3_Hash
 		if (!m_buffer.empty())
 		{
 			const size_t len = std::min<size_t>((R - m_buffer.size()), data.size());  // try fill to BLOCK_SIZE bytes
-			m_buffer.insert(m_buffer.end(), data.begin(), data.begin() + len);
+			m_buffer.push_back(data.begin(), (data.begin() + len));
 
 			if (m_buffer.size() < R)  // still doesn't fill the buffer
 				return (*this);
 
-			addDataImpl(m_buffer);
+			addDataImpl({m_buffer.begin(), m_buffer.end()});
 			m_buffer.clear();
 
 			data = data.subspan(len);
@@ -239,7 +362,7 @@ namespace SHA3_Hash
 		addDataImpl(data.first(len));
 
 		if (len < dataSize)  // didn't consume all data
-			m_buffer = {data.begin() + len, data.end()};
+			m_buffer = {(data.begin() + len), data.end()};
 
 		return (*this);
 	}
@@ -386,12 +509,13 @@ namespace SHA3_Hash
 		return ret;
 	}
 }
-	struct SHA3_224 : SHA3_Hash::Keccak<(1152 / 8), 0x06> { SHA3_224() : SHA3_Hash::Keccak<(1152 / 8), 0x06>(224 / 8) {} };
-	struct SHA3_256 : SHA3_Hash::Keccak<(1088 / 8), 0x06> { SHA3_256() : SHA3_Hash::Keccak<(1088 / 8), 0x06>(256 / 8) {} };
-	struct SHA3_384 : SHA3_Hash::Keccak<( 832 / 8), 0x06> { SHA3_384() : SHA3_Hash::Keccak<( 832 / 8), 0x06>(384 / 8) {} };
-	struct SHA3_512 : SHA3_Hash::Keccak<( 576 / 8), 0x06> { SHA3_512() : SHA3_Hash::Keccak<( 576 / 8), 0x06>(512 / 8) {} };
-	struct SHAKE_128 : SHA3_Hash::Keccak<(1344 / 8), 0x1F> { explicit SHAKE_128(const unsigned int d) : SHA3_Hash::Keccak<(1344 / 8), 0x1F>(d) {} };
-	struct SHAKE_256 : SHA3_Hash::Keccak<(1088 / 8), 0x1F> { explicit SHAKE_256(const unsigned int d) : SHA3_Hash::Keccak<(1088 / 8), 0x1F>(d) {} };
+}
+	struct SHA3_224 : Hash::SHA3_NS::Keccak<(1152 / 8), 0x06> { SHA3_224() : Hash::SHA3_NS::Keccak<(1152 / 8), 0x06>(224 / 8) {} };
+	struct SHA3_256 : Hash::SHA3_NS::Keccak<(1088 / 8), 0x06> { SHA3_256() : Hash::SHA3_NS::Keccak<(1088 / 8), 0x06>(256 / 8) {} };
+	struct SHA3_384 : Hash::SHA3_NS::Keccak<( 832 / 8), 0x06> { SHA3_384() : Hash::SHA3_NS::Keccak<( 832 / 8), 0x06>(384 / 8) {} };
+	struct SHA3_512 : Hash::SHA3_NS::Keccak<( 576 / 8), 0x06> { SHA3_512() : Hash::SHA3_NS::Keccak<( 576 / 8), 0x06>(512 / 8) {} };
+	struct SHAKE_128 : Hash::SHA3_NS::Keccak<(1344 / 8), 0x1F> { explicit SHAKE_128(const unsigned int d) : Hash::SHA3_NS::Keccak<(1344 / 8), 0x1F>(d) {} };
+	struct SHAKE_256 : Hash::SHA3_NS::Keccak<(1088 / 8), 0x1F> { explicit SHAKE_256(const unsigned int d) : Hash::SHA3_NS::Keccak<(1088 / 8), 0x1F>(d) {} };
 }
 
 #endif  // CHOCOBO1_SHA3_H

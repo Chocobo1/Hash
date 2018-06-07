@@ -32,7 +32,7 @@ namespace Chocobo1
 namespace Chocobo1
 {
 // users should ignore things in this namespace
-namespace TupleHash_Hash
+namespace TupleHash_NS
 {
 	template <typename Alg>
 	class TupleHash
@@ -68,7 +68,7 @@ namespace TupleHash_Hash
 	// helpers
 	inline std::vector<uint8_t> rightEncode(const uint64_t value)
 	{
-		std::vector<uint8_t> ret = Chocobo1::CShake_Hash::leftEncode(value);
+		std::vector<uint8_t> ret = Chocobo1::CShake_NS::leftEncode(value);
 		const uint8_t first = ret.front();
 		ret.erase(ret.begin());
 		ret.emplace_back(first);
@@ -113,7 +113,7 @@ namespace TupleHash_Hash
 	template <typename Alg>
 	TupleHash<Alg>& TupleHash<Alg>::nextData(const Span<const Byte> inData)
 	{
-		const std::vector<uint8_t> encoded = Chocobo1::CShake_Hash::leftEncode(inData.size() * 8);
+		const std::vector<uint8_t> encoded = Chocobo1::CShake_NS::leftEncode(inData.size() * 8);
 		addDataImpl(encoded);
 		addDataImpl(inData);
 
@@ -133,8 +133,8 @@ namespace TupleHash_Hash
 		m_cshake.addData(data);
 	}
 }
-	struct TupleHash_128 : TupleHash_Hash::TupleHash<CSHAKE_128> { explicit TupleHash_128(const unsigned int l, const std::string &c = {}) : TupleHash_Hash::TupleHash<CSHAKE_128>(l, c) {} };
-	struct TupleHash_256 : TupleHash_Hash::TupleHash<CSHAKE_256> { explicit TupleHash_256(const unsigned int l, const std::string &c = {}) : TupleHash_Hash::TupleHash<CSHAKE_256>(l, c) {} };
+	struct TupleHash_128 : TupleHash_NS::TupleHash<CSHAKE_128> { explicit TupleHash_128(const unsigned int l, const std::string &c = {}) : TupleHash_NS::TupleHash<CSHAKE_128>(l, c) {} };
+	struct TupleHash_256 : TupleHash_NS::TupleHash<CSHAKE_256> { explicit TupleHash_256(const unsigned int l, const std::string &c = {}) : TupleHash_NS::TupleHash<CSHAKE_256>(l, c) {} };
 }
 
 #endif  // CHOCOBO1_TUPLE_HASH_H

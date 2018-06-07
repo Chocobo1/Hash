@@ -34,7 +34,7 @@ namespace Chocobo1
 namespace Chocobo1
 {
 // users should ignore things in this namespace
-namespace CShake_Hash
+namespace CShake_NS
 {
 	template <typename S, typename K, unsigned int P>
 	class CShake
@@ -191,8 +191,8 @@ namespace CShake_Hash
 			m_keccak->addData(data);
 	}
 }
-	struct CSHAKE_128 : CShake_Hash::CShake<SHAKE_128, SHA3_Hash::Keccak<(1344 / 8), 0x04>, (1344 / 8)> { explicit CSHAKE_128(const unsigned int l, const std::string &n = {}, const std::string &c = {}) : CShake_Hash::CShake<SHAKE_128, SHA3_Hash::Keccak<(1344 / 8), 0x04>, (1344 / 8)>(l, n, c) {} };
-	struct CSHAKE_256 : CShake_Hash::CShake<SHAKE_256, SHA3_Hash::Keccak<(1088 / 8), 0x04>, (1088 / 8)> { explicit CSHAKE_256(const unsigned int l, const std::string &n = {}, const std::string &c = {}) : CShake_Hash::CShake<SHAKE_256, SHA3_Hash::Keccak<(1088 / 8), 0x04>, (1088 / 8)>(l, n, c) {} };
+	struct CSHAKE_128 : CShake_NS::CShake<SHAKE_128, Hash::SHA3_NS::Keccak<(1344 / 8), 0x04>, (1344 / 8)> { explicit CSHAKE_128(const unsigned int l, const std::string &n = {}, const std::string &c = {}) : CShake_NS::CShake<SHAKE_128, Hash::SHA3_NS::Keccak<(1344 / 8), 0x04>, (1344 / 8)>(l, n, c) {} };
+	struct CSHAKE_256 : CShake_NS::CShake<SHAKE_256, Hash::SHA3_NS::Keccak<(1088 / 8), 0x04>, (1088 / 8)> { explicit CSHAKE_256(const unsigned int l, const std::string &n = {}, const std::string &c = {}) : CShake_NS::CShake<SHAKE_256, Hash::SHA3_NS::Keccak<(1088 / 8), 0x04>, (1088 / 8)>(l, n, c) {} };
 }
 
 #endif  // CHOCOBO1_CSHAKE_H

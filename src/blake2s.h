@@ -14,9 +14,11 @@
 
 #include "gsl/span"
 
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <cstdint>
+#include <initializer_list>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -32,7 +34,129 @@ namespace Chocobo1
 namespace Chocobo1
 {
 // users should ignore things in this namespace
-namespace Blake2s_Hash
+
+namespace Hash
+{
+#ifndef CHOCOBO1_HASH_BUFFER_IMPL
+#define CHOCOBO1_HASH_BUFFER_IMPL
+	template <typename T, std::size_t N>
+	class Buffer
+	{
+		public:
+			using value_type = T;
+			using size_type = std::size_t;
+			using reference = T&;
+			using iterator = T*;
+			using const_iterator = const T*;
+
+			constexpr Buffer() = default;
+			constexpr explicit Buffer(const Buffer &) = default;
+
+			constexpr Buffer(const std::initializer_list<T> initList)
+			{
+				// check if out-of-bounds
+				m_array.at(m_dataEndIdx + initList.size() - 1);
+
+				for (const auto &i : initList)
+				{
+					m_array[m_dataEndIdx] = i;
+					++m_dataEndIdx;
+				}
+			}
+
+			template <typename InputIt>
+			constexpr Buffer(const InputIt first, const InputIt last)
+			{
+				for (InputIt iter = first; iter != last; ++iter)
+				{
+					this->fill(*iter);
+				}
+			}
+
+			constexpr T& operator[](const size_type pos)
+			{
+				return m_array[pos];
+			}
+
+			constexpr T operator[](const size_type pos) const
+			{
+				return m_array[pos];
+			}
+
+			constexpr void fill(const T &value, const size_type count = 1)
+			{
+				// check if out-of-bounds
+				m_array.at(m_dataEndIdx + count - 1);
+
+				for (size_type i = 0; i < count; ++i)
+				{
+					m_array[m_dataEndIdx] = value;
+					++m_dataEndIdx;
+				}
+			}
+
+			template <typename InputIt>
+			constexpr void push_back(const InputIt first, const InputIt last)
+			{
+				for (InputIt iter = first; iter != last; ++iter)
+				{
+					this->fill(*iter);
+				}
+			}
+
+			constexpr void clear()
+			{
+				m_array = decltype(m_array) {};
+				m_dataEndIdx = 0;
+			}
+
+			constexpr bool empty() const
+			{
+				return (m_dataEndIdx == 0);
+			}
+
+			constexpr size_type size() const
+			{
+				return m_dataEndIdx;
+			}
+
+			constexpr const T* data() const
+			{
+				return m_array.data();
+			}
+
+			constexpr iterator begin()
+			{
+				return m_array.data();
+			}
+
+			constexpr const_iterator begin() const
+			{
+				return m_array.data();
+			}
+
+			constexpr iterator end()
+			{
+				if (N == 0)
+					return m_array.data();
+				return &m_array[m_dataEndIdx];
+			}
+
+			constexpr const_iterator end() const
+			{
+				if (N == 0)
+					return m_array.data();
+				return &m_array[m_dataEndIdx];
+			}
+
+		private:
+			std::array<T, N> m_array {};
+			size_type m_dataEndIdx = 0;
+	};
+#endif
+
+
+namespace Blake2s_NS
 {
 	class Blake2s
 	{
@@ -59,9 +183,9 @@ namespace Blake2s_Hash
 		private:
 			void addDataImpl(const Span<const Byte> data, const bool isFinal, const uint32_t paddingLen = 0);
 
-			const unsigned int BLOCK_SIZE = 64;
+			static constexpr unsigned int BLOCK_SIZE = 64;
 
-			std::vector<Byte> m_buffer;
+			Buffer<Byte, BLOCK_SIZE> m_buffer;
 			uint64_t m_sizeCounter;
 
 			uint32_t m_h[8];
@@ -121,7 +245,6 @@ namespace Blake2s_Hash
 	//
 	Blake2s::Blake2s()
 	{
-		m_buffer.reserve(BLOCK_SIZE);
 		reset();
 	}
 
@@ -140,9 +263,9 @@ namespace Blake2s_Hash
 	{
 		// append paddings
 		const size_t len = (BLOCK_SIZE - m_buffer.size());
-		m_buffer.insert(m_buffer.end(), len, 0);
+		m_buffer.fill(0, len);
 
-		addDataImpl(m_buffer, true, len);
+		addDataImpl({m_buffer.begin(), m_buffer.end()}, true, len);
 		m_buffer.clear();
 
 		return (*this);
@@ -188,14 +311,14 @@ namespace Blake2s_Hash
 
 		if (m_buffer.size() == BLOCK_SIZE)
 		{
-			addDataImpl(m_buffer, false);
+			addDataImpl({m_buffer.begin(), m_buffer.end()}, false);
 			m_buffer.clear();
 		}
 		else if (!m_buffer.empty())
 		{
 			// try fill to BLOCK_SIZE bytes
 			const size_t len = std::min<size_t>((BLOCK_SIZE - m_buffer.size()), data.size());
-			m_buffer.insert(m_buffer.end(), data.begin(), data.begin() + len);
+			m_buffer.push_back(data.begin(), (data.begin() + len));
 
 			addData(data.subspan(len));
 			return (*this);
@@ -349,6 +472,7 @@ namespace Blake2s_Hash
 		}
 	}
 }
-	using Blake2s = Blake2s_Hash::Blake2s;
+}
+	using Blake2s = Hash::Blake2s_NS::Blake2s;
 }
 #endif  // CHOCOBO1_BLAKE2S_H
