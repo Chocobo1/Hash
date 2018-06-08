@@ -187,9 +187,11 @@ bool runHash(const Hash hash, const int argc, const char *argv[])
 		else
 			inStream.reset(new std::ifstream(filename));
 
-		std::vector<char> buf;
 		const size_t tmpSize = 1024 * 1024;
 		std::unique_ptr<char[]> tmp(new char[tmpSize]);
+
+		std::vector<char> buf;
+		buf.reserve(tmpSize);
 		while (inStream->good())
 		{
 			inStream->read(tmp.get(), tmpSize);
