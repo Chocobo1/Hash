@@ -232,27 +232,27 @@ namespace Blake2_NS
 			using Span = gsl::span<T>;
 
 
-			Blake2();
+			constexpr Blake2();
 
-			void reset();
-			Blake2& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			constexpr void reset();
+			constexpr Blake2& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 			ResultArrayType toArray() const;
 
-			Blake2& addData(const Span<const Byte> inData);
-			Blake2& addData(const void *ptr, const long int length);
+			constexpr Blake2& addData(const Span<const Byte> inData);
+			constexpr Blake2& addData(const void *ptr, const long int length);
 
 		private:
-			void addDataImpl(const Span<const Byte> data, const bool isFinal, const uint64_t paddingLen = 0);
+			constexpr void addDataImpl(const Span<const Byte> data, const bool isFinal, const uint64_t paddingLen = 0);
 
 			static constexpr unsigned int BLOCK_SIZE = 128;
 
 			Buffer<Byte, BLOCK_SIZE> m_buffer;
 			Uint128 m_sizeCounter;
 
-			uint64_t m_h[8];
+			uint64_t m_h[8] = {};
 			const uint64_t m_initializationVector[8] =
 			{
 				0x6a09e667f3bcc908, 0xbb67ae8584caa73b, 0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1,
@@ -311,12 +311,12 @@ namespace Blake2_NS
 
 
 	//
-	Blake2::Blake2()
+	constexpr Blake2::Blake2()
 	{
 		reset();
 	}
 
-	void Blake2::reset()
+	constexpr void Blake2::reset()
 	{
 		m_buffer.clear();
 		m_sizeCounter = 0;
@@ -327,7 +327,7 @@ namespace Blake2_NS
 		m_h[0] ^= (0x01010000 ^ (0 << 8) ^ 64);
 	}
 
-	Blake2& Blake2::finalize()
+	constexpr Blake2& Blake2::finalize()
 	{
 		// append paddings
 		const size_t len = (BLOCK_SIZE - m_buffer.size());
@@ -376,7 +376,7 @@ namespace Blake2_NS
 		return ret;
 	}
 
-	Blake2& Blake2::addData(const Span<const Byte> inData)
+	constexpr Blake2& Blake2::addData(const Span<const Byte> inData)
 	{
 		if (inData.empty())
 			return (*this);
@@ -411,13 +411,13 @@ namespace Blake2_NS
 		return (*this);
 	}
 
-	Blake2& Blake2::addData(const void *ptr, const long int length)
+	constexpr Blake2& Blake2::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
 		return addData({reinterpret_cast<const Byte*>(ptr), length});
 	}
 
-	void Blake2::addDataImpl(const Span<const Byte> data, const bool isFinal, const uint64_t paddingLen)
+	constexpr void Blake2::addDataImpl(const Span<const Byte> data, const bool isFinal, const uint64_t paddingLen)
 	{
 		assert((data.size() % BLOCK_SIZE) == 0);
 

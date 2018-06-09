@@ -170,9 +170,9 @@ namespace MD4_NS
 			using Span = gsl::span<T>;
 
 
-			MD4();
+			constexpr MD4();
 
-			void reset();
+			constexpr void reset();
 			MD4& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
@@ -188,9 +188,9 @@ namespace MD4_NS
 			static constexpr unsigned int BLOCK_SIZE = 64;
 
 			Buffer<Byte, (BLOCK_SIZE * 2)> m_buffer;  // x2 for paddings
-			uint64_t m_sizeCounter;
+			uint64_t m_sizeCounter = 0;
 
-			uint32_t m_state[4];
+			uint32_t m_state[4] = {};
 	};
 
 
@@ -240,12 +240,12 @@ namespace MD4_NS
 
 
 	//
-	MD4::MD4()
+	constexpr MD4::MD4()
 	{
 		reset();
 	}
 
-	void MD4::reset()
+	constexpr void MD4::reset()
 	{
 		m_buffer.clear();
 		m_sizeCounter = 0;

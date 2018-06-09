@@ -232,27 +232,27 @@ namespace Blake1_384_NS
 			using Span = gsl::span<T>;
 
 
-			Blake1_384();
+			constexpr Blake1_384();
 
-			void reset();
-			Blake1_384& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			constexpr void reset();
+			constexpr Blake1_384& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 			ResultArrayType toArray() const;
 
-			Blake1_384& addData(const Span<const Byte> inData);
-			Blake1_384& addData(const void *ptr, const long int length);
+			constexpr Blake1_384& addData(const Span<const Byte> inData);
+			constexpr Blake1_384& addData(const void *ptr, const long int length);
 
 		private:
-			void addDataImpl(const Span<const Byte> data, const uint32_t paddingLen = 0);
+			constexpr void addDataImpl(const Span<const Byte> data, const uint32_t paddingLen = 0);
 
 			static constexpr unsigned int BLOCK_SIZE = 128;
 
 			Buffer<Byte, (BLOCK_SIZE * 2)> m_buffer;  // x2 for paddings
 			Uint128 m_sizeCounter;
 
-			uint64_t m_h[8];
+			uint64_t m_h[8] = {};
 	};
 
 
@@ -306,12 +306,12 @@ namespace Blake1_384_NS
 
 
 	//
-	Blake1_384::Blake1_384()
+	constexpr Blake1_384::Blake1_384()
 	{
 		reset();
 	}
 
-	void Blake1_384::reset()
+	constexpr void Blake1_384::reset()
 	{
 		m_buffer.clear();
 		m_sizeCounter = 0;
@@ -326,7 +326,7 @@ namespace Blake1_384_NS
 		m_h[7] = 0x47b5481dbefa4fa4;
 	}
 
-	Blake1_384& Blake1_384::finalize()
+	constexpr Blake1_384& Blake1_384::finalize()
 	{
 		const Uint128 sizeCounterBits = (m_sizeCounter + (m_buffer.size() * 8));
 		const uint64_t sizeCounterBitsL = sizeCounterBits.low();
@@ -389,7 +389,7 @@ namespace Blake1_384_NS
 		return ret;
 	}
 
-	Blake1_384& Blake1_384::addData(const Span<const Byte> inData)
+	constexpr Blake1_384& Blake1_384::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
 
@@ -423,13 +423,13 @@ namespace Blake1_384_NS
 		return (*this);
 	}
 
-	Blake1_384& Blake1_384::addData(const void *ptr, const long int length)
+	constexpr Blake1_384& Blake1_384::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
 		return addData({reinterpret_cast<const Byte*>(ptr), length});
 	}
 
-	void Blake1_384::addDataImpl(const Span<const Byte> data, const uint32_t paddingLen)
+	constexpr void Blake1_384::addDataImpl(const Span<const Byte> data, const uint32_t paddingLen)
 	{
 		assert((data.size() % BLOCK_SIZE) == 0);
 
@@ -437,7 +437,7 @@ namespace Blake1_384_NS
 		{
 			const Loader<uint64_t> m(reinterpret_cast<const Byte *>(data.data() + (iter * BLOCK_SIZE)));
 
-			static const uint64_t cTable[16] =
+			const uint64_t cTable[16] =  // TODO: should be static
 			{
 				0x243f6a8885a308d3, 0x13198a2e03707344, 0xa4093822299f31d0, 0x082efa98ec4e6c89, 0x452821e638d01377, 0xbe5466cf34e90c6c, 0xc0ac29b7c97c50dd, 0x3f84d5b5b5470917,
 				0x9216d5d98979fb1b, 0xd1310ba698dfb5ac, 0x2ffd72dbd01adfb7, 0xb8e1afed6a267e96, 0xba7c9045f12c7f99, 0x24a19947b3916cf7, 0x0801f2e2858efc16, 0x636920d871574e69

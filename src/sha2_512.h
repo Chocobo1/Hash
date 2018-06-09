@@ -232,9 +232,9 @@ namespace SHA2_512_NS
 			using Span = gsl::span<T>;
 
 
-			SHA2_512();
+			constexpr SHA2_512();
 
-			void reset();
+			constexpr void reset();
 			SHA2_512& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
@@ -252,7 +252,7 @@ namespace SHA2_512_NS
 			Buffer<Byte, (BLOCK_SIZE * 2)> m_buffer;  // x2 for paddings
 			Uint128 m_sizeCounter;
 
-			uint64_t m_h[8];
+			uint64_t m_h[8] = {};
 	};
 
 
@@ -306,12 +306,12 @@ namespace SHA2_512_NS
 
 
 	//
-	SHA2_512::SHA2_512()
+	constexpr SHA2_512::SHA2_512()
 	{
 		reset();
 	}
 
-	void SHA2_512::reset()
+	constexpr void SHA2_512::reset()
 	{
 		m_buffer.clear();
 		m_sizeCounter = 0;

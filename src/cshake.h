@@ -50,21 +50,21 @@ namespace CShake_NS
 			using Span = gsl::span<T>;
 
 
-			explicit CShake(const unsigned int digestLength, const std::string &name = {}, const std::string &customize = {});
+			explicit constexpr  CShake(const unsigned int digestLength, const std::string &name = {}, const std::string &customize = {});
 
-			void reset();
-			CShake& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			constexpr void reset();
+			constexpr CShake& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 
-			CShake& addData(const Span<const Byte> inData);
-			CShake& addData(const void *ptr, const long int length);
+			constexpr CShake& addData(const Span<const Byte> inData);
+			constexpr CShake& addData(const void *ptr, const long int length);
 
 		private:
-			void addDataImpl(const Span<const Byte> data);
+			constexpr void addDataImpl(const Span<const Byte> data);
 
-			const bool m_customized;
+			const bool m_customized = false;
 
 			std::unique_ptr<S> m_shake;
 			std::unique_ptr<K> m_keccak;
@@ -94,7 +94,7 @@ namespace CShake_NS
 
 	//
 	template <typename S, typename K, unsigned int P>
-	CShake<S, K, P>::CShake(const unsigned int digestLength, const std::string &name, const std::string &customize)
+	constexpr CShake<S, K, P>::CShake(const unsigned int digestLength, const std::string &name, const std::string &customize)
 		: m_customized(!(name.empty() && customize.empty()))
 	{
 		if (!m_customized)
@@ -134,7 +134,7 @@ namespace CShake_NS
 	}
 
 	template <typename S, typename K, unsigned int P>
-	void CShake<S, K, P>::reset()
+	constexpr void CShake<S, K, P>::reset()
 	{
 		if (!m_customized)
 			m_shake->reset();
@@ -143,7 +143,7 @@ namespace CShake_NS
 	}
 
 	template <typename S, typename K, unsigned int P>
-	CShake<S, K, P>& CShake<S, K, P>::finalize()
+	constexpr CShake<S, K, P>& CShake<S, K, P>::finalize()
 	{
 		if (!m_customized)
 			m_shake->finalize();
@@ -171,21 +171,21 @@ namespace CShake_NS
 	}
 
 	template <typename S, typename K, unsigned int P>
-	CShake<S, K, P>& CShake<S, K, P>::addData(const Span<const Byte> inData)
+	constexpr CShake<S, K, P>& CShake<S, K, P>::addData(const Span<const Byte> inData)
 	{
 		addDataImpl(inData);
 		return (*this);
 	}
 
 	template <typename S, typename K, unsigned int P>
-	CShake<S, K, P>& CShake<S, K, P>::addData(const void *ptr, const long int length)
+	constexpr CShake<S, K, P>& CShake<S, K, P>::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
 		return addData({reinterpret_cast<const Byte*>(ptr), length});
 	}
 
 	template <typename S, typename K, unsigned int P>
-	void CShake<S, K, P>::addDataImpl(const Span<const Byte> data)
+	constexpr void CShake<S, K, P>::addDataImpl(const Span<const Byte> data)
 	{
 		if (!m_customized)
 			m_shake->addData(data);

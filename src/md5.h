@@ -170,9 +170,9 @@ namespace MD5_NS
 			using Span = gsl::span<T>;
 
 
-			MD5();
+			constexpr MD5();
 
-			void reset();
+			constexpr void reset();
 			MD5& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
@@ -188,9 +188,9 @@ namespace MD5_NS
 			static constexpr unsigned int BLOCK_SIZE = 64;
 
 			Buffer<Byte, (BLOCK_SIZE * 2)> m_buffer;  // x2 for paddings
-			uint64_t m_sizeCounter;
+			uint64_t m_sizeCounter = 0;
 
-			uint32_t m_state[4];
+			uint32_t m_state[4] = {};
 	};
 
 
@@ -246,12 +246,12 @@ namespace MD5_NS
 
 
 	//
-	MD5::MD5()
+	constexpr MD5::MD5()
 	{
 		reset();
 	}
 
-	void MD5::reset()
+	constexpr void MD5::reset()
 	{
 		m_buffer.clear();
 		m_sizeCounter = 0;

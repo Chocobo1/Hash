@@ -48,22 +48,22 @@ namespace TupleHash_NS
 			using Span = gsl::span<T>;
 
 
-			explicit TupleHash(const unsigned int digestLength, const std::string &customize = {});
+			explicit constexpr TupleHash(const unsigned int digestLength, const std::string &customize = {});
 
-			void reset();
-			TupleHash& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			constexpr void reset();
+			constexpr TupleHash& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 
-			TupleHash& nextData(const Span<const Byte> inData);  // pass in next element in tuple
-			TupleHash& nextData(const void *ptr, const long int length);
+			constexpr TupleHash& nextData(const Span<const Byte> inData);  // pass in next element in tuple
+			constexpr TupleHash& nextData(const void *ptr, const long int length);
 
 		private:
-			void addDataImpl(const Span<const Byte> data);
+			constexpr void addDataImpl(const Span<const Byte> data);
 
 			Alg m_cshake;
-			const unsigned int m_digestLength;
+			const unsigned int m_digestLength = 0;
 	};
 
 
@@ -80,20 +80,20 @@ namespace TupleHash_NS
 
 	//
 	template <typename Alg>
-	TupleHash<Alg>::TupleHash(const unsigned int digestLength, const std::string &customize)
+	constexpr TupleHash<Alg>::TupleHash(const unsigned int digestLength, const std::string &customize)
 		: m_cshake(digestLength, "TupleHash", customize)
 		, m_digestLength(digestLength)
 	{
 	}
 
 	template <typename Alg>
-	void TupleHash<Alg>::reset()
+	constexpr void TupleHash<Alg>::reset()
 	{
 		m_cshake.reset();
 	}
 
 	template <typename Alg>
-	TupleHash<Alg>& TupleHash<Alg>::finalize()
+	constexpr TupleHash<Alg>& TupleHash<Alg>::finalize()
 	{
 		addDataImpl(rightEncode(m_digestLength * 8));
 		m_cshake.finalize();
@@ -113,7 +113,7 @@ namespace TupleHash_NS
 	}
 
 	template <typename Alg>
-	TupleHash<Alg>& TupleHash<Alg>::nextData(const Span<const Byte> inData)
+	constexpr TupleHash<Alg>& TupleHash<Alg>::nextData(const Span<const Byte> inData)
 	{
 		const std::vector<uint8_t> encoded = Chocobo1::Hash::CShake_NS::leftEncode(inData.size() * 8);
 		addDataImpl(encoded);
@@ -123,14 +123,14 @@ namespace TupleHash_NS
 	}
 
 	template <typename Alg>
-	TupleHash<Alg>& TupleHash<Alg>::nextData(const void *ptr, const long int length)
+	constexpr TupleHash<Alg>& TupleHash<Alg>::nextData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
 		return nextData({reinterpret_cast<const Byte*>(ptr), length});
 	}
 
 	template <typename Alg>
-	void TupleHash<Alg>::addDataImpl(const Span<const Byte> data)
+	constexpr void TupleHash<Alg>::addDataImpl(const Span<const Byte> data)
 	{
 		m_cshake.addData(data);
 	}

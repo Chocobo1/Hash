@@ -170,9 +170,9 @@ namespace HAS160_NS
 			using Span = gsl::span<T>;
 
 
-			HAS_160();
+			constexpr HAS_160();
 
-			void reset();
+			constexpr void reset();
 			HAS_160& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
@@ -188,9 +188,9 @@ namespace HAS160_NS
 			static constexpr unsigned int BLOCK_SIZE = 64;
 
 			Buffer<Byte, (BLOCK_SIZE * 2)> m_buffer;  // x2 for paddings
-			uint64_t m_sizeCounter;
+			uint64_t m_sizeCounter = 0;
 
-			uint32_t m_h[5];
+			uint32_t m_h[5] = {};
 	};
 
 
@@ -240,12 +240,12 @@ namespace HAS160_NS
 
 
 	//
-	HAS_160::HAS_160()
+	constexpr HAS_160::HAS_160()
 	{
 		reset();
 	}
 
-	void HAS_160::reset()
+	constexpr void HAS_160::reset()
 	{
 		m_buffer.clear();
 		m_sizeCounter = 0;

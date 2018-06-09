@@ -232,9 +232,9 @@ namespace Whirlpool_NS
 			using Span = gsl::span<T>;
 
 
-			Whirlpool();
+			constexpr Whirlpool();
 
-			void reset();
+			constexpr void reset();
 			Whirlpool& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
@@ -253,7 +253,7 @@ namespace Whirlpool_NS
 			Buffer<Byte, (BLOCK_SIZE * 2)> m_buffer;  // x2 for paddings
 			Uint128 m_sizeCounter;  // limitation: shrink from 2^256 to 2^128 bits
 
-			uint64_t m_h[8];
+			uint64_t m_h[8] = {};
 	};
 
 
@@ -298,12 +298,12 @@ namespace Whirlpool_NS
 
 
 	//
-	Whirlpool::Whirlpool()
+	constexpr Whirlpool::Whirlpool()
 	{
 		reset();
 	}
 
-	void Whirlpool::reset()
+	constexpr void Whirlpool::reset()
 	{
 		m_buffer.clear();
 		m_sizeCounter = 0;

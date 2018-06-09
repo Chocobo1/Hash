@@ -177,27 +177,27 @@ namespace Tiger_NS
 			using Span = gsl::span<T>;
 
 
-			Tiger();
+			constexpr Tiger();
 
-			void reset();
-			Tiger& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			constexpr void reset();
+			constexpr Tiger& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 			ResultArrayType toArray() const;
 
-			Tiger& addData(const Span<const Byte> inData);
-			Tiger& addData(const void *ptr, const long int length);
+			constexpr Tiger& addData(const Span<const Byte> inData);
+			constexpr Tiger& addData(const void *ptr, const long int length);
 
 		private:
-			void addDataImpl(const Span<const Byte> data);
+			constexpr void addDataImpl(const Span<const Byte> data);
 
 			static constexpr unsigned int BLOCK_SIZE = 64;
 
 			Buffer<Byte, (BLOCK_SIZE * 2)> m_buffer;  // x2 for paddings
-			uint64_t m_sizeCounter;
+			uint64_t m_sizeCounter = 0;
 
-			uint64_t m_h[3];
+			uint64_t m_h[3] = {};
 	};
 
 
@@ -251,13 +251,13 @@ namespace Tiger_NS
 
 	//
 	template <int V, int D>
-	Tiger<V, D>::Tiger()
+	constexpr Tiger<V, D>::Tiger()
 	{
 		reset();
 	}
 
 	template <int V, int D>
-	void Tiger<V, D>::reset()
+	constexpr void Tiger<V, D>::reset()
 	{
 		m_buffer.clear();
 		m_sizeCounter = 0;
@@ -268,7 +268,7 @@ namespace Tiger_NS
 	}
 
 	template <int V, int D>
-	Tiger<V, D>& Tiger<V, D>::finalize()
+	constexpr Tiger<V, D>& Tiger<V, D>::finalize()
 	{
 		m_sizeCounter += m_buffer.size();
 
@@ -335,7 +335,7 @@ namespace Tiger_NS
 	}
 
 	template <int V, int D>
-	Tiger<V, D>& Tiger<V, D>::addData(const Span<const Byte> inData)
+	constexpr Tiger<V, D>& Tiger<V, D>::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
 
@@ -370,14 +370,14 @@ namespace Tiger_NS
 	}
 
 	template <int V, int D>
-	Tiger<V, D>& Tiger<V, D>::addData(const void *ptr, const long int length)
+	constexpr Tiger<V, D>& Tiger<V, D>::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
 		return addData({reinterpret_cast<const Byte*>(ptr), length});
 	}
 
 	template <int V, int D>
-	void Tiger<V, D>::addDataImpl(const Span<const Byte> data)
+	constexpr void Tiger<V, D>::addDataImpl(const Span<const Byte> data)
 	{
 		assert((data.size() % BLOCK_SIZE) == 0);
 
@@ -387,7 +387,7 @@ namespace Tiger_NS
 		{
 			const Loader<uint64_t> block(reinterpret_cast<const Byte *>(data.data() + (iter * BLOCK_SIZE)));
 
-			static const uint64_t tTable[4][256] =
+			const uint64_t tTable[4][256] =  // TODO: should be static
 			{
 				{
 					0x02AAB17CF7E90C5E, 0xAC424B03E243A8EC, 0x72CD5BE30DD5FCD3, 0x6D019B93F6F97F3A, 0xCD9978FFD21F9193, 0x7573A1C9708029E2, 0xB164326B922A83C3, 0x46883EEE04915870,
@@ -531,9 +531,9 @@ namespace Tiger_NS
 			for (int j = 0; j < 8; ++j)
 				x[j] = block[j];
 
-			const auto pass = [&x](uint64_t &a, uint64_t &b, uint64_t &c, const unsigned int mul) -> void
+			const auto pass = [&x, &tTable](uint64_t &a, uint64_t &b, uint64_t &c, const unsigned int mul) -> void
 			{
-				const auto round = [](uint64_t &a, uint64_t &b, uint64_t &c, const uint64_t x, const unsigned int mul) -> void
+				const auto round = [&tTable](uint64_t &a, uint64_t &b, uint64_t &c, const uint64_t x, const unsigned int mul) -> void
 				{
 					c ^= x;
 					a -= tTable[0][ror<Byte>(c, (0 * 8))] ^ tTable[1][ror<Byte>(c, (2 * 8))] ^ tTable[2][ror<Byte>(c, (4 * 8))] ^ tTable[3][ror<Byte>(c, (6 * 8))];

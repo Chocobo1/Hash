@@ -170,27 +170,27 @@ namespace SHA1_NS
 			using Span = gsl::span<T>;
 
 
-			SHA1();
+			constexpr SHA1();
 
-			void reset();
-			SHA1& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			constexpr void reset();
+			constexpr SHA1& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 			ResultArrayType toArray() const;
 
-			SHA1& addData(const Span<const Byte> inData);
-			SHA1& addData(const void *ptr, const long int length);
+			constexpr SHA1& addData(const Span<const Byte> inData);
+			constexpr SHA1& addData(const void *ptr, const long int length);
 
 		private:
-			void addDataImpl(const Span<const Byte> data);
+			constexpr void addDataImpl(const Span<const Byte> data);
 
 			static constexpr unsigned int BLOCK_SIZE = 64;
 
 			Buffer<Byte, (BLOCK_SIZE * 2)> m_buffer;  // x2 for paddings
-			uint64_t m_sizeCounter;
+			uint64_t m_sizeCounter = 0;
 
-			uint32_t m_state[5];
+			uint32_t m_state[5] = {};
 	};
 
 
@@ -240,12 +240,12 @@ namespace SHA1_NS
 
 
 	//
-	SHA1::SHA1()
+	constexpr SHA1::SHA1()
 	{
 		reset();
 	}
 
-	void SHA1::reset()
+	constexpr void SHA1::reset()
 	{
 		m_buffer.clear();
 		m_sizeCounter = 0;
@@ -257,7 +257,7 @@ namespace SHA1_NS
 		m_state[4] = 0xC3D2E1F0;
 	}
 
-	SHA1& SHA1::finalize()
+	constexpr SHA1& SHA1::finalize()
 	{
 		m_sizeCounter += m_buffer.size();
 
@@ -321,7 +321,7 @@ namespace SHA1_NS
 		return ret;
 	}
 
-	SHA1& SHA1::addData(const Span<const Byte> inData)
+	constexpr SHA1& SHA1::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
 
@@ -355,13 +355,13 @@ namespace SHA1_NS
 		return (*this);
 	}
 
-	SHA1& SHA1::addData(const void *ptr, const long int length)
+	constexpr SHA1& SHA1::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
 		return addData({reinterpret_cast<const Byte*>(ptr), length});
 	}
 
-	void SHA1::addDataImpl(const Span<const Byte> data)
+	constexpr void SHA1::addDataImpl(const Span<const Byte> data)
 	{
 		assert((data.size() % BLOCK_SIZE) == 0);
 
@@ -377,7 +377,7 @@ namespace SHA1_NS
 			uint32_t d = m_state[3];
 			uint32_t e = m_state[4];
 
-			uint32_t wTable[80];
+			uint32_t wTable[80] = {};
 
 			#ifdef sha1Round1
 			#error "macro name clash"

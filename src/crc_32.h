@@ -45,22 +45,24 @@ namespace CRC_32_Hash
 			using Span = gsl::span<T>;
 
 
-			CRC_32();
+			constexpr CRC_32();
 
-			void reset();
-			CRC_32& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			constexpr void reset();
+			constexpr CRC_32& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 			ResultArrayType toArray() const;
 
-			CRC_32& addData(const Span<const Byte> inData);
-			CRC_32& addData(const void *ptr, const long int length);
+			constexpr CRC_32& addData(const Span<const Byte> inData);
+			constexpr CRC_32& addData(const void *ptr, const long int length);
 
 		private:
-			void addDataImpl(const Span<const Byte> data);
+			constexpr void addDataImpl(const Span<const Byte> data);
 
-			uint32_t m_h;
+			static constexpr unsigned int BLOCK_SIZE = 16;
+
+			uint32_t m_h = 0;
 	};
 
 
@@ -101,18 +103,18 @@ namespace CRC_32_Hash
 
 
 	//
-	CRC_32::CRC_32()
+	constexpr CRC_32::CRC_32()
 	{
 		reset();
 	}
 
-	void CRC_32::reset()
+	constexpr void CRC_32::reset()
 	{
 		m_h = 0;
 		m_h = ~m_h;
 	}
 
-	CRC_32& CRC_32::finalize()
+	constexpr CRC_32& CRC_32::finalize()
 	{
 		m_h = ~m_h;
 		return (*this);
@@ -151,22 +153,20 @@ namespace CRC_32_Hash
 		return ret;
 	}
 
-	CRC_32& CRC_32::addData(const Span<const Byte> inData)
+	constexpr CRC_32& CRC_32::addData(const Span<const Byte> inData)
 	{
 		addDataImpl(inData);
 		return (*this);
 	}
 
-	CRC_32& CRC_32::addData(const void *ptr, const long int length)
+	constexpr CRC_32& CRC_32::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
 		return addData({reinterpret_cast<const Byte*>(ptr), length});
 	}
 
-	void CRC_32::addDataImpl(const Span<const Byte> data)
+	constexpr void CRC_32::addDataImpl(const Span<const Byte> data)
 	{
-		static const int BLOCK_SIZE = 16;
-
 #if 0
 		const auto generateLUT = [](uint32_t table[16][256], const uint32_t polynomial) -> void
 		{
@@ -187,7 +187,7 @@ namespace CRC_32_Hash
 		uint32_t crc32LUT[16][256];
 		generateLUT(crc32LUT, 0xEDB88320);
 #else
-		static const uint32_t crc32LUT[16][256]
+		const uint32_t crc32LUT[16][256]  // TODO: should be static
 		{
 			{
 				0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3,

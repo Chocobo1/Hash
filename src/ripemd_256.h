@@ -171,9 +171,9 @@ namespace RIPEMD_256_NS
 			using Span = gsl::span<T>;
 
 
-			RIPEMD_256();
+			constexpr RIPEMD_256();
 
-			void reset();
+			constexpr void reset();
 			RIPEMD_256& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
@@ -189,9 +189,9 @@ namespace RIPEMD_256_NS
 			static constexpr unsigned int BLOCK_SIZE = 64;
 
 			Buffer<Byte, (BLOCK_SIZE * 2)> m_buffer;  // x2 for paddings
-			uint64_t m_sizeCounter;
+			uint64_t m_sizeCounter = 0;
 
-			uint32_t m_h[8];
+			uint32_t m_h[8] = {};
 	};
 
 
@@ -241,12 +241,12 @@ namespace RIPEMD_256_NS
 
 
 	//
-	RIPEMD_256::RIPEMD_256()
+	constexpr RIPEMD_256::RIPEMD_256()
 	{
 		reset();
 	}
 
-	void RIPEMD_256::reset()
+	constexpr void RIPEMD_256::reset()
 	{
 		m_buffer.clear();
 		m_sizeCounter = 0;

@@ -169,9 +169,9 @@ namespace MD2_NS
 			using Span = gsl::span<T>;
 
 
-			MD2();
+			constexpr MD2();
 
-			void reset();
+			constexpr void reset();
 			MD2& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
@@ -188,19 +188,19 @@ namespace MD2_NS
 
 			Buffer<Byte, (BLOCK_SIZE * 2)> m_buffer;  // x2 for paddings
 
-			std::array<Byte, 48> m_x;
-			std::array<Byte, 16> m_checksum;
-			Byte m_checksumL;
+			std::array<Byte, 48> m_x {};
+			std::array<Byte, 16> m_checksum {};
+			Byte m_checksumL = 0;
 	};
 
 
 	//
-	MD2::MD2()
+	constexpr MD2::MD2()
 	{
 		reset();
 	}
 
-	void MD2::reset()
+	constexpr void MD2::reset()
 	{
 		m_buffer.clear();
 

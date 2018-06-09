@@ -170,9 +170,9 @@ namespace SM3_NS
 			using Span = gsl::span<T>;
 
 
-			SM3();
+			constexpr SM3();
 
-			void reset();
+			constexpr void reset();
 			SM3& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
@@ -188,9 +188,9 @@ namespace SM3_NS
 			static constexpr unsigned int BLOCK_SIZE = 64;
 
 			Buffer<Byte, (BLOCK_SIZE * 2)> m_buffer;  // x2 for paddings
-			uint64_t m_sizeCounter;
+			uint64_t m_sizeCounter = 0;
 
-			uint32_t m_v[8];
+			uint32_t m_v[8] = {};
 	};
 
 
@@ -240,12 +240,12 @@ namespace SM3_NS
 
 
 	//
-	SM3::SM3()
+	constexpr SM3::SM3()
 	{
 		reset();
 	}
 
-	void SM3::reset()
+	constexpr void SM3::reset()
 	{
 		m_buffer.clear();
 		m_sizeCounter = 0;

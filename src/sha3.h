@@ -176,19 +176,19 @@ namespace SHA3_NS
 			using Span = gsl::span<T>;
 
 
-			explicit Keccak(const unsigned int digestLength);
+			constexpr explicit Keccak(const unsigned int digestLength);
 
-			void reset();
-			Keccak& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			constexpr void reset();
+			constexpr Keccak& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 
-			Keccak& addData(const Span<const Byte> inData);
-			Keccak& addData(const void *ptr, const long int length);
+			constexpr Keccak& addData(const Span<const Byte> inData);
+			constexpr Keccak& addData(const void *ptr, const long int length);
 
 		private:
-			void addDataImpl(const Span<const Byte> data);
+			constexpr void addDataImpl(const Span<const Byte> data);
 			std::vector<typename Keccak::Byte> stateToVector() const;
 
 			struct
@@ -208,7 +208,7 @@ namespace SHA3_NS
 			Buffer<Byte, R> m_buffer;
 			std::vector<Byte> m_final;
 
-			uint64_t m_state[5][5];  // [y][x]
+			uint64_t m_state[5][5] = {};  // [y][x]
 	};
 
 
@@ -262,7 +262,7 @@ namespace SHA3_NS
 
 	//
 	template <int R, unsigned int P>
-	Keccak<R, P>::Keccak(const unsigned int digestLength)
+	constexpr Keccak<R, P>::Keccak(const unsigned int digestLength)
 		: m_params()
 		, m_digestLength(digestLength)
 	{
@@ -271,7 +271,7 @@ namespace SHA3_NS
 	}
 
 	template <int R, unsigned int P>
-	void Keccak<R, P>::reset()
+	constexpr void Keccak<R, P>::reset()
 	{
 		m_buffer.clear();
 		m_final.clear();
@@ -282,7 +282,7 @@ namespace SHA3_NS
 	}
 
 	template <int R, unsigned int P>
-	Keccak<R, P>& Keccak<R, P>::finalize()
+	constexpr Keccak<R, P>& Keccak<R, P>::finalize()
 	{
 		// add padding
 		// the padding is reversed due to "B.1 Conversion Functions - Algorithm 11: b2h(S)"
@@ -333,7 +333,7 @@ namespace SHA3_NS
 	}
 
 	template <int R, unsigned int P>
-	Keccak<R, P>& Keccak<R, P>::addData(const Span<const Byte> inData)
+	constexpr Keccak<R, P>& Keccak<R, P>::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
 
@@ -368,14 +368,14 @@ namespace SHA3_NS
 	}
 
 	template <int R, unsigned int P>
-	Keccak<R, P>& Keccak<R, P>::addData(const void *ptr, const long int length)
+	constexpr Keccak<R, P>& Keccak<R, P>::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
 		return addData({reinterpret_cast<const Byte*>(ptr), length});
 	}
 
 	template <int R, unsigned int P>
-	void Keccak<R, P>::addDataImpl(const Span<const Byte> data)
+	constexpr void Keccak<R, P>::addDataImpl(const Span<const Byte> data)
 	{
 		assert((data.size() % R) == 0);
 
