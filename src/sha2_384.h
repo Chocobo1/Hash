@@ -54,8 +54,10 @@ namespace Hash
 
 			constexpr Buffer(const std::initializer_list<T> initList)
 			{
+#if !defined(NDEBUG)
 				// check if out-of-bounds
 				m_array.at(m_dataEndIdx + initList.size() - 1);
+#endif
 
 				for (const auto &i : initList)
 				{
@@ -85,8 +87,10 @@ namespace Hash
 
 			constexpr void fill(const T &value, const size_type count = 1)
 			{
+#if !defined(NDEBUG)
 				// check if out-of-bounds
 				m_array.at(m_dataEndIdx + count - 1);
+#endif
 
 				for (size_type i = 0; i < count; ++i)
 				{
