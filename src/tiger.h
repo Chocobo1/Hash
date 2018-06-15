@@ -531,7 +531,7 @@ namespace Tiger_NS
 				}
 			};
 
-			uint64_t x[8];
+			uint64_t x[8] {};
 			for (int j = 0; j < 8; ++j)
 				x[j] = block[j];
 

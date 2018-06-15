@@ -183,7 +183,7 @@ namespace SHA3_NS
 			constexpr explicit Keccak(const unsigned int digestLength);
 
 			constexpr void reset();
-			constexpr Keccak& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			Keccak& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
@@ -286,7 +286,7 @@ namespace SHA3_NS
 	}
 
 	template <int R, unsigned int P>
-	constexpr Keccak<R, P>& Keccak<R, P>::finalize()
+	Keccak<R, P>& Keccak<R, P>::finalize()
 	{
 		// add padding
 		// the padding is reversed due to "B.1 Conversion Functions - Algorithm 11: b2h(S)"

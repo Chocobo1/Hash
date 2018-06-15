@@ -50,7 +50,7 @@ namespace CShake_NS
 			using Span = gsl::span<T>;
 
 
-			explicit constexpr  CShake(const unsigned int digestLength, const std::string &name = {}, const std::string &customize = {});
+			explicit CShake(const unsigned int digestLength, const std::string &name = {}, const std::string &customize = {});
 
 			constexpr void reset();
 			constexpr CShake& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
@@ -94,7 +94,7 @@ namespace CShake_NS
 
 	//
 	template <typename S, typename K, unsigned int P>
-	constexpr CShake<S, K, P>::CShake(const unsigned int digestLength, const std::string &name, const std::string &customize)
+	CShake<S, K, P>::CShake(const unsigned int digestLength, const std::string &name, const std::string &customize)
 		: m_customized(!(name.empty() && customize.empty()))
 	{
 		if (!m_customized)

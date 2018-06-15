@@ -56,7 +56,7 @@ namespace TupleHash_NS
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 
-			constexpr TupleHash& nextData(const Span<const Byte> inData);  // pass in next element in tuple
+			TupleHash& nextData(const Span<const Byte> inData);  // pass in next element in tuple
 			constexpr TupleHash& nextData(const void *ptr, const long int length);
 
 		private:
@@ -113,7 +113,7 @@ namespace TupleHash_NS
 	}
 
 	template <typename Alg>
-	constexpr TupleHash<Alg>& TupleHash<Alg>::nextData(const Span<const Byte> inData)
+	TupleHash<Alg>& TupleHash<Alg>::nextData(const Span<const Byte> inData)
 	{
 		const std::vector<uint8_t> encoded = Chocobo1::Hash::CShake_NS::leftEncode(inData.size() * 8);
 		addDataImpl(encoded);
