@@ -62,6 +62,11 @@ TEST_CASE("tuple_hash-256")
 	const std::vector<char> s5(270, '\0');
 	REQUIRE("b81bab65f7c5d025eb158d1049fabd2fe7d11f6eae1db15f79cc2e990de6ea29"
 			== Hash2(32).nextData(s5.data() + 1, s5.size() - 1).finalize().toString());
+
+	const int s6[2] = {0};
+	const char s6_2[8] = {0};
+	REQUIRE(Hash(32).nextData(gsl::span<const int>(s6)).finalize().toString()
+			== Hash(32).nextData(s6_2).finalize().toString());
 }
 
 
@@ -108,4 +113,9 @@ TEST_CASE("tuple_hash-128")
 	const std::vector<char> s5(270, '\0');
 	REQUIRE("f9cd41bd6216be4c01a8366e752cfa83990a131ad776dc40a5463bca166933a2"
 			== Hash2(32).nextData(s5.data() + 1, s5.size() - 1).finalize().toString());
+
+	const int s6[2] = {0};
+	const char s6_2[8] = {0};
+	REQUIRE(Hash(32).nextData(gsl::span<const int>(s6)).finalize().toString()
+			== Hash(32).nextData(s6_2).finalize().toString());
 }

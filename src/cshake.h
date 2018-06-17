@@ -60,6 +60,10 @@ namespace CShake_NS
 
 			constexpr CShake& addData(const Span<const Byte> inData);
 			constexpr CShake& addData(const void *ptr, const long int length);
+			template <typename T, std::size_t N>
+			CShake& addData(const T (&array)[N]);
+			template <typename T>
+			CShake& addData(const Span<T> inSpan);
 
 		private:
 			constexpr void addDataImpl(const Span<const Byte> data);
@@ -181,7 +185,21 @@ namespace CShake_NS
 	constexpr CShake<S, K, P>& CShake<S, K, P>::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
-		return addData({reinterpret_cast<const Byte*>(ptr), length});
+		return addData({static_cast<const Byte*>(ptr), length});
+	}
+
+	template <typename S, typename K, unsigned int P>
+	template <typename T, std::size_t N>
+	CShake<S, K, P>& CShake<S, K, P>::addData(const T (&array)[N])
+	{
+		return addData({reinterpret_cast<const Byte*>(array), (sizeof(T) * N)});
+	}
+
+	template <typename S, typename K, unsigned int P>
+	template <typename T>
+	CShake<S, K, P>& CShake<S, K, P>::addData(const Span<T> inSpan)
+	{
+		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
 	}
 
 	template <typename S, typename K, unsigned int P>

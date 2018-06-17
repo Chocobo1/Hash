@@ -37,6 +37,14 @@ namespace Chocobo1
 
 namespace Hash
 {
+#ifndef CONSTEXPR_CPP17_CHOCOBO1_HASH
+#if __cplusplus >= 201703L
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH constexpr
+#else
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH
+#endif
+#endif
+
 #ifndef CHOCOBO1_HASH_BUFFER_IMPL
 #define CHOCOBO1_HASH_BUFFER_IMPL
 	template <typename T, std::size_t N>
@@ -181,10 +189,14 @@ namespace Blake1_224_NS
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
-			ResultArrayType toArray() const;
+			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
 
 			constexpr Blake1_224& addData(const Span<const Byte> inData);
 			constexpr Blake1_224& addData(const void *ptr, const long int length);
+			template <typename T, std::size_t N>
+			Blake1_224& addData(const T (&array)[N]);
+			template <typename T>
+			Blake1_224& addData(const Span<T> inSpan);
 
 		private:
 			constexpr void addDataImpl(const Span<const Byte> data, const uint32_t paddingLen = 0);
@@ -195,7 +207,15 @@ namespace Blake1_224_NS
 			uint64_t m_sizeCounter = 0;
 
 			uint32_t m_h[8] = {};
+
+			static constexpr uint32_t cTable[16] =
+			{
+				0x243f6a88, 0x85a308d3, 0x13198a2e, 0x03707344, 0xa4093822, 0x299f31d0, 0x082efa98, 0xec4e6c89,
+				0x452821e6, 0x38d01377, 0xbe5466cf, 0x34e90c6c, 0xc0ac29b7, 0xc97c50dd, 0x3f84d5b5, 0xb5470917
+			};
 	};
+
+	constexpr uint32_t Blake1_224::cTable[16];
 
 
 	// helpers
@@ -311,13 +331,13 @@ namespace Blake1_224_NS
 		return {a.begin(), a.end()};
 	}
 
-	Blake1_224::ResultArrayType Blake1_224::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH Blake1_224::ResultArrayType Blake1_224::toArray() const
 	{
 		const Span<const uint32_t> state(std::begin(m_h), (std::end(m_h) - 1));
 		const int dataSize = sizeof(decltype(state)::value_type);
 
 		int retCounter = 0;
-		ResultArrayType ret;
+		ResultArrayType ret {};
 		for (const auto i : state)
 		{
 			for (int j = (dataSize - 1); j >= 0; --j)
@@ -364,7 +384,19 @@ namespace Blake1_224_NS
 	constexpr Blake1_224& Blake1_224::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
-		return addData({reinterpret_cast<const Byte*>(ptr), length});
+		return addData({static_cast<const Byte*>(ptr), length});
+	}
+
+	template <typename T, std::size_t N>
+	Blake1_224& Blake1_224::addData(const T (&array)[N])
+	{
+		return addData({reinterpret_cast<const Byte*>(array), (sizeof(T) * N)});
+	}
+
+	template <typename T>
+	Blake1_224& Blake1_224::addData(const Span<T> inSpan)
+	{
+		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
 	}
 
 	constexpr void Blake1_224::addDataImpl(const Span<const Byte> data, const uint32_t paddingLen)
@@ -373,13 +405,9 @@ namespace Blake1_224_NS
 
 		for (size_t iter = 0, iend = static_cast<size_t>(data.size() / BLOCK_SIZE); iter < iend; ++iter)
 		{
-			const Loader<uint32_t> m(reinterpret_cast<const Byte *>(data.data() + (iter * BLOCK_SIZE)));
+			const Loader<uint32_t> m(static_cast<const Byte *>(data.data() + (iter * BLOCK_SIZE)));
 
-			const uint32_t cTable[16] =  // TODO: should be static
-			{
-				0x243f6a88, 0x85a308d3, 0x13198a2e, 0x03707344, 0xa4093822, 0x299f31d0, 0x082efa98, 0xec4e6c89,
-				0x452821e6, 0x38d01377, 0xbe5466cf, 0x34e90c6c, 0xc0ac29b7, 0xc97c50dd, 0x3f84d5b5, 0xb5470917
-			};
+			// TODO: cTable was here, move it back when static variable in constexpr function is allowed
 
 			uint32_t v[16] =
 			{

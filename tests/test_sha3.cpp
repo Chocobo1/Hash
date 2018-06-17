@@ -59,6 +59,11 @@ TEST_CASE("sha3-512")
 	const std::vector<char> s14(73, 'a');
 	REQUIRE("a8ae722a78e10cbbc413886c02eb5b369a03f6560084aff566bd597bb7ad8c1ccd86e81296852359bf2faddb5153c0a7445722987875e74287adac21adebe952"
 			== Hash().addData(s14.data() + 1, s14.size() - 1).finalize().toString());
+
+	const int s15[2] = {0};
+	const char s15_2[8] = {0};
+	REQUIRE(Hash().addData(gsl::span<const int>(s15)).finalize().toString()
+			== Hash().addData(s15_2).finalize().toString());
 }
 
 
@@ -105,6 +110,11 @@ TEST_CASE("sha3-384")
 	const std::vector<char> s14(73, 'a');
 	REQUIRE("36ed8cf277398426c25d4c8cdbf29dd22db8c1298ce34882a7bcc633d65b8db249c2bd6c64e5a4f2edc5a5fc5adc8140"
 			== Hash().addData(s14.data() + 1, s14.size() - 1).finalize().toString());
+
+	const int s15[2] = {0};
+	const char s15_2[8] = {0};
+	REQUIRE(Hash().addData(gsl::span<const int>(s15)).finalize().toString()
+			== Hash().addData(s15_2).finalize().toString());
 }
 
 
@@ -151,6 +161,11 @@ TEST_CASE("sha3-256")
 	const std::vector<char> s14(73, 'a');
 	REQUIRE("faf7e2ca748a48eff17f1f0c6b495ab3f2c3dd34c8d335aee79ceff5fe780a01"
 			== Hash().addData(s14.data() + 1, s14.size() - 1).finalize().toString());
+
+	const int s15[2] = {0};
+	const char s15_2[8] = {0};
+	REQUIRE(Hash().addData(gsl::span<const int>(s15)).finalize().toString()
+			== Hash().addData(s15_2).finalize().toString());
 }
 
 
@@ -197,4 +212,9 @@ TEST_CASE("sha3-224")
 	const std::vector<char> s14(73, 'a');
 	REQUIRE("0b98a46d4e243d8c5bfcdd957629fc435c671b15c0d195e39de8efd1"
 			== Hash().addData(s14.data() + 1, s14.size() - 1).finalize().toString());
+
+	const int s15[2] = {0};
+	const char s15_2[8] = {0};
+	REQUIRE(Hash().addData(gsl::span<const int>(s15)).finalize().toString()
+			== Hash().addData(s15_2).finalize().toString());
 }

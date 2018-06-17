@@ -38,6 +38,14 @@ namespace Chocobo1
 
 namespace Hash
 {
+#ifndef CONSTEXPR_CPP17_CHOCOBO1_HASH
+#if __cplusplus >= 201703L
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH constexpr
+#else
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH
+#endif
+#endif
+
 #ifndef CHOCOBO1_HASH_BUFFER_IMPL
 #define CHOCOBO1_HASH_BUFFER_IMPL
 	template <typename T, std::size_t N>
@@ -178,17 +186,21 @@ namespace RIPEMD_256_NS
 			constexpr RIPEMD_256();
 
 			constexpr void reset();
-			RIPEMD_256& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_256& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
-			ResultArrayType toArray() const;
+			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
 
-			RIPEMD_256& addData(const Span<const Byte> inData);
-			RIPEMD_256& addData(const void *ptr, const long int length);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_256& addData(const Span<const Byte> inData);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_256& addData(const void *ptr, const long int length);
+			template <typename T, std::size_t N>
+			RIPEMD_256& addData(const T (&array)[N]);
+			template <typename T>
+			RIPEMD_256& addData(const Span<T> inSpan);
 
 		private:
-			void addDataImpl(const Span<const Byte> data);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH void addDataImpl(const Span<const Byte> data);
 
 			static constexpr unsigned int BLOCK_SIZE = 64;
 
@@ -265,7 +277,7 @@ namespace RIPEMD_256_NS
 		m_h[7] = 0x01234567;
 	}
 
-	RIPEMD_256& RIPEMD_256::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_256& RIPEMD_256::finalize()
 	{
 		m_sizeCounter += m_buffer.size();
 
@@ -313,13 +325,13 @@ namespace RIPEMD_256_NS
 		return {a.begin(), a.end()};
 	}
 
-	RIPEMD_256::ResultArrayType RIPEMD_256::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_256::ResultArrayType RIPEMD_256::toArray() const
 	{
 		const Span<const uint32_t> state(m_h);
 		const int dataSize = sizeof(decltype(state)::value_type);
 
 		int retCounter = 0;
-		ResultArrayType ret;
+		ResultArrayType ret {};
 		for (const auto i : state)
 		{
 			for (int j = 0; j < dataSize; ++j)
@@ -329,7 +341,7 @@ namespace RIPEMD_256_NS
 		return ret;
 	}
 
-	RIPEMD_256& RIPEMD_256::addData(const Span<const Byte> inData)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_256& RIPEMD_256::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
 
@@ -363,13 +375,25 @@ namespace RIPEMD_256_NS
 		return (*this);
 	}
 
-	RIPEMD_256& RIPEMD_256::addData(const void *ptr, const long int length)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_256& RIPEMD_256::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
-		return addData({reinterpret_cast<const Byte*>(ptr), length});
+		return addData({static_cast<const Byte*>(ptr), length});
 	}
 
-	void RIPEMD_256::addDataImpl(const Span<const Byte> data)
+	template <typename T, std::size_t N>
+	RIPEMD_256& RIPEMD_256::addData(const T (&array)[N])
+	{
+		return addData({reinterpret_cast<const Byte*>(array), (sizeof(T) * N)});
+	}
+
+	template <typename T>
+	RIPEMD_256& RIPEMD_256::addData(const Span<T> inSpan)
+	{
+		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
+	}
+
+	CONSTEXPR_CPP17_CHOCOBO1_HASH void RIPEMD_256::addDataImpl(const Span<const Byte> data)
 	{
 		assert((data.size() % BLOCK_SIZE) == 0);
 
@@ -377,7 +401,7 @@ namespace RIPEMD_256_NS
 
 		for (size_t i = 0, iend = static_cast<size_t>(data.size() / BLOCK_SIZE); i < iend; ++i)
 		{
-			const Loader<uint32_t> x(reinterpret_cast<const Byte *>(data.data() + (i * BLOCK_SIZE)));
+			const Loader<uint32_t> x(static_cast<const Byte *>(data.data() + (i * BLOCK_SIZE)));
 
 			const auto f1 = [](const uint32_t x, const uint32_t y, const uint32_t z) -> uint32_t
 			{
@@ -411,6 +435,14 @@ namespace RIPEMD_256_NS
 			uint32_t dd = m_h[7];
 			const auto &lineRight = lineLeft;
 
+			const auto swap = [](auto &left, auto &right)
+			{
+				// TODO: std::swap is finally constexpr at c++20
+				const auto temp = left;
+				left = right;
+				right = temp;
+			};
+
 			lineLeft(a, b, c, d, f1, 0x00000000, 0, 11);
 			lineLeft(d, a, b, c, f1, 0x00000000, 1, 14);
 			lineRight(aa, bb, cc, dd, f4, 0x50A28BE6, 5, 8);
@@ -443,7 +475,7 @@ namespace RIPEMD_256_NS
 			lineLeft(b, c, d, a, f1, 0x00000000, 15, 8);
 			lineRight(cc, dd, aa, bb, f4, 0x50A28BE6, 3, 12);
 			lineRight(bb, cc, dd, aa, f4, 0x50A28BE6, 12, 6);
-			std::swap(a, aa);
+			swap(a, aa);
 
 			lineLeft(a, b, c, d, f2, 0x5A827999, 7, 7);
 			lineLeft(d, a, b, c, f2, 0x5A827999, 4, 6);
@@ -477,7 +509,7 @@ namespace RIPEMD_256_NS
 			lineLeft(b, c, d, a, f2, 0x5A827999, 8, 12);
 			lineRight(cc, dd, aa, bb, f3, 0x5C4DD124, 1, 13);
 			lineRight(bb, cc, dd, aa, f3, 0x5C4DD124, 2, 11);
-			std::swap(b, bb);
+			swap(b, bb);
 
 			lineLeft(a, b, c, d, f3, 0x6ED9EBA1, 3, 11);
 			lineLeft(d, a, b, c, f3, 0x6ED9EBA1, 10, 13);
@@ -511,7 +543,7 @@ namespace RIPEMD_256_NS
 			lineLeft(b, c, d, a, f3, 0x6ED9EBA1, 12, 5);
 			lineRight(cc, dd, aa, bb, f2, 0x6D703EF3, 4, 7);
 			lineRight(bb, cc, dd, aa, f2, 0x6D703EF3, 13, 5);
-			std::swap(c, cc);
+			swap(c, cc);
 
 			lineLeft(a, b, c, d, f4, 0x8F1BBCDC, 1, 11);
 			lineLeft(d, a, b, c, f4, 0x8F1BBCDC, 9, 12);
@@ -545,7 +577,7 @@ namespace RIPEMD_256_NS
 			lineLeft(b, c, d, a, f4, 0x8F1BBCDC, 2, 12);
 			lineRight(cc, dd, aa, bb, f1, 0x00000000, 10, 15);
 			lineRight(bb, cc, dd, aa, f1, 0x00000000, 14, 8);
-			std::swap(d, dd);
+			swap(d, dd);
 
 			m_h[0] += a;
 			m_h[1] += b;

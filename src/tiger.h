@@ -43,6 +43,14 @@ namespace Chocobo1
 
 namespace Hash
 {
+#ifndef CONSTEXPR_CPP17_CHOCOBO1_HASH
+#if __cplusplus >= 201703L
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH constexpr
+#else
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH
+#endif
+#endif
+
 #ifndef CHOCOBO1_HASH_BUFFER_IMPL
 #define CHOCOBO1_HASH_BUFFER_IMPL
 	template <typename T, std::size_t N>
@@ -188,10 +196,14 @@ namespace Tiger_NS
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
-			ResultArrayType toArray() const;
+			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
 
 			constexpr Tiger& addData(const Span<const Byte> inData);
 			constexpr Tiger& addData(const void *ptr, const long int length);
+			template <typename T, std::size_t N>
+			Tiger& addData(const T (&array)[N]);
+			template <typename T>
+			Tiger& addData(const Span<T> inSpan);
 
 		private:
 			constexpr void addDataImpl(const Span<const Byte> data);
@@ -202,196 +214,8 @@ namespace Tiger_NS
 			uint64_t m_sizeCounter = 0;
 
 			uint64_t m_h[3] = {};
-	};
 
-
-	// helpers
-	template <typename T>
-	class Loader
-	{
-		// this class workaround loading data from unaligned memory boundaries
-		// also eliminate endianness issues
-		public:
-			explicit constexpr Loader(const void *ptr)
-				: m_ptr(static_cast<const uint8_t *>(ptr))
-			{
-			}
-
-			constexpr T operator[](const size_t idx) const
-			{
-				static_assert(std::is_same<T, uint64_t>::value, "");
-				// handle specific endianness here
-				const uint8_t *ptr = m_ptr + (sizeof(T) * idx);
-				return  ( (static_cast<T>(*(ptr + 0)) <<  0)
-						| (static_cast<T>(*(ptr + 1)) <<  8)
-						| (static_cast<T>(*(ptr + 2)) << 16)
-						| (static_cast<T>(*(ptr + 3)) << 24)
-						| (static_cast<T>(*(ptr + 4)) << 32)
-						| (static_cast<T>(*(ptr + 5)) << 40)
-						| (static_cast<T>(*(ptr + 6)) << 48)
-						| (static_cast<T>(*(ptr + 7)) << 56));
-			}
-
-		private:
-			const uint8_t *m_ptr;
-	};
-
-	template <typename R, typename T>
-	constexpr R ror(const T x, const unsigned int s)
-	{
-		static_assert(std::is_unsigned<R>::value, "");
-		const R mask = -1;
-		return ((x >> s) & mask);
-	}
-
-	template <typename T>
-	constexpr T rotr(const T x, const unsigned int s)
-	{
-		static_assert(std::is_unsigned<T>::value, "");
-		if (s == 0)
-			return x;
-		return ((x >> s) | (x << ((sizeof(T) * 8) - s)));
-	}
-
-	//
-	template <int V, int D>
-	constexpr Tiger<V, D>::Tiger()
-	{
-		reset();
-	}
-
-	template <int V, int D>
-	constexpr void Tiger<V, D>::reset()
-	{
-		m_buffer.clear();
-		m_sizeCounter = 0;
-
-		m_h[0] = 0x0123456789ABCDEF;
-		m_h[1] = 0xFEDCBA9876543210;
-		m_h[2] = 0xF096A5B4C3B2E187;
-	}
-
-	template <int V, int D>
-	constexpr Tiger<V, D>& Tiger<V, D>::finalize()
-	{
-		m_sizeCounter += m_buffer.size();
-
-		// append 1 bit
-		m_buffer.fill((V == 1) ? 1 : (1 << 7));
-
-		// append paddings
-		const size_t len = BLOCK_SIZE - ((m_buffer.size() + 8) % BLOCK_SIZE);
-		m_buffer.fill(0, (len + 8));
-
-		// append size in bits
-		const uint64_t sizeCounterBits = m_sizeCounter * 8;
-		const uint32_t sizeCounterBitsL = ror<uint32_t>(sizeCounterBits, 0);
-		const uint32_t sizeCounterBitsH = ror<uint32_t>(sizeCounterBits, 32);
-		for (int i = 0; i < 4; ++i)
-		{
-			m_buffer[m_buffer.size() - 8 + i] = ror<Byte>(sizeCounterBitsL, (8 * i));
-			m_buffer[m_buffer.size() - 4 + i] = ror<Byte>(sizeCounterBitsH, (8 * i));
-		}
-
-		addDataImpl({m_buffer.begin(), m_buffer.end()});
-		m_buffer.clear();
-
-		return (*this);
-	}
-
-	template <int V, int D>
-	std::string Tiger<V, D>::toString() const
-	{
-		const auto a = toArray();
-		std::string ret;
-		ret.reserve(2 * a.size());
-		for (const auto c : a)
-		{
-			char buf[3];
-			snprintf(buf, sizeof(buf), "%02x", c);
-			ret.append(buf);
-		}
-
-		return ret;
-	}
-
-	template <int V, int D>
-	std::vector<typename Tiger<V, D>::Byte> Tiger<V, D>::toVector() const
-	{
-		const auto a = toArray();
-		return {a.begin(), a.end()};
-	}
-
-	template <int V, int D>
-	typename Tiger<V, D>::ResultArrayType Tiger<V, D>::toArray() const
-	{
-		const Span<const uint64_t> state(m_h);
-		const int dataSize = sizeof(typename decltype(state)::value_type);
-
-		int retCounter = 0;
-		ResultArrayType ret;
-		for (const auto i : state)
-		{
-			for (int j = 0, jMax = dataSize; j < jMax; ++j)
-				ret[retCounter++] = ror<Byte>(i, (j * 8));
-		}
-		return ret;
-	}
-
-	template <int V, int D>
-	constexpr Tiger<V, D>& Tiger<V, D>::addData(const Span<const Byte> inData)
-	{
-		Span<const Byte> data = inData;
-
-		if (!m_buffer.empty())
-		{
-			const size_t len = std::min<size_t>((BLOCK_SIZE - m_buffer.size()), data.size());  // try fill to BLOCK_SIZE bytes
-			m_buffer.push_back(data.begin(), (data.begin() + len));
-
-			if (m_buffer.size() < BLOCK_SIZE)  // still doesn't fill the buffer
-				return (*this);
-
-			addDataImpl({m_buffer.begin(), m_buffer.end()});
-			m_buffer.clear();
-
-			data = data.subspan(len);
-		}
-
-		const size_t dataSize = data.size();
-		if (dataSize < BLOCK_SIZE)
-		{
-			m_buffer = {data.begin(), data.end()};
-			return (*this);
-		}
-
-		const size_t len = dataSize - (dataSize % BLOCK_SIZE);  // align on BLOCK_SIZE bytes
-		addDataImpl(data.first(len));
-
-		if (len < dataSize)  // didn't consume all data
-			m_buffer = {(data.begin() + len), data.end()};
-
-		return (*this);
-	}
-
-	template <int V, int D>
-	constexpr Tiger<V, D>& Tiger<V, D>::addData(const void *ptr, const long int length)
-	{
-		// gsl::span::index_type = long int
-		return addData({reinterpret_cast<const Byte*>(ptr), length});
-	}
-
-	template <int V, int D>
-	constexpr void Tiger<V, D>::addDataImpl(const Span<const Byte> data)
-	{
-		assert((data.size() % BLOCK_SIZE) == 0);
-
-		m_sizeCounter += data.size();
-
-		for (size_t iter = 0, iend = static_cast<size_t>(data.size() / BLOCK_SIZE); iter < iend; ++iter)
-		{
-			const Loader<uint64_t> block(reinterpret_cast<const Byte *>(data.data() + (iter * BLOCK_SIZE)));
-
-			const uint64_t tTable[4][256] =  // TODO: should be static
+			static constexpr uint64_t tTable[4][256] =
 			{
 				{
 					0x02AAB17CF7E90C5E, 0xAC424B03E243A8EC, 0x72CD5BE30DD5FCD3, 0x6D019B93F6F97F3A, 0xCD9978FFD21F9193, 0x7573A1C9708029E2, 0xB164326B922A83C3, 0x46883EEE04915870,
@@ -530,14 +354,221 @@ namespace Tiger_NS
 					0xBF6C70E5F776CBB1, 0x411218F2EF552BED, 0xCB0C0708705A36A3, 0xE74D14754F986044, 0xCD56D9430EA8280E, 0xC12591D7535F5065, 0xC83223F1720AEF96, 0xC3A0396F7363A51F
 				}
 			};
+	};
+
+	template <int V, int D>
+	constexpr uint64_t Tiger<V, D>::tTable[4][256];
+
+
+	// helpers
+	template <typename T>
+	class Loader
+	{
+		// this class workaround loading data from unaligned memory boundaries
+		// also eliminate endianness issues
+		public:
+			explicit constexpr Loader(const void *ptr)
+				: m_ptr(static_cast<const uint8_t *>(ptr))
+			{
+			}
+
+			constexpr T operator[](const size_t idx) const
+			{
+				static_assert(std::is_same<T, uint64_t>::value, "");
+				// handle specific endianness here
+				const uint8_t *ptr = m_ptr + (sizeof(T) * idx);
+				return  ( (static_cast<T>(*(ptr + 0)) <<  0)
+						| (static_cast<T>(*(ptr + 1)) <<  8)
+						| (static_cast<T>(*(ptr + 2)) << 16)
+						| (static_cast<T>(*(ptr + 3)) << 24)
+						| (static_cast<T>(*(ptr + 4)) << 32)
+						| (static_cast<T>(*(ptr + 5)) << 40)
+						| (static_cast<T>(*(ptr + 6)) << 48)
+						| (static_cast<T>(*(ptr + 7)) << 56));
+			}
+
+		private:
+			const uint8_t *m_ptr;
+	};
+
+	template <typename R, typename T>
+	constexpr R ror(const T x, const unsigned int s)
+	{
+		static_assert(std::is_unsigned<R>::value, "");
+		const R mask = -1;
+		return ((x >> s) & mask);
+	}
+
+	template <typename T>
+	constexpr T rotr(const T x, const unsigned int s)
+	{
+		static_assert(std::is_unsigned<T>::value, "");
+		if (s == 0)
+			return x;
+		return ((x >> s) | (x << ((sizeof(T) * 8) - s)));
+	}
+
+	//
+	template <int V, int D>
+	constexpr Tiger<V, D>::Tiger()
+	{
+		reset();
+	}
+
+	template <int V, int D>
+	constexpr void Tiger<V, D>::reset()
+	{
+		m_buffer.clear();
+		m_sizeCounter = 0;
+
+		m_h[0] = 0x0123456789ABCDEF;
+		m_h[1] = 0xFEDCBA9876543210;
+		m_h[2] = 0xF096A5B4C3B2E187;
+	}
+
+	template <int V, int D>
+	constexpr Tiger<V, D>& Tiger<V, D>::finalize()
+	{
+		m_sizeCounter += m_buffer.size();
+
+		// append 1 bit
+		m_buffer.fill((V == 1) ? 1 : (1 << 7));
+
+		// append paddings
+		const size_t len = BLOCK_SIZE - ((m_buffer.size() + 8) % BLOCK_SIZE);
+		m_buffer.fill(0, (len + 8));
+
+		// append size in bits
+		const uint64_t sizeCounterBits = m_sizeCounter * 8;
+		const uint32_t sizeCounterBitsL = ror<uint32_t>(sizeCounterBits, 0);
+		const uint32_t sizeCounterBitsH = ror<uint32_t>(sizeCounterBits, 32);
+		for (int i = 0; i < 4; ++i)
+		{
+			m_buffer[m_buffer.size() - 8 + i] = ror<Byte>(sizeCounterBitsL, (8 * i));
+			m_buffer[m_buffer.size() - 4 + i] = ror<Byte>(sizeCounterBitsH, (8 * i));
+		}
+
+		addDataImpl({m_buffer.begin(), m_buffer.end()});
+		m_buffer.clear();
+
+		return (*this);
+	}
+
+	template <int V, int D>
+	std::string Tiger<V, D>::toString() const
+	{
+		const auto a = toArray();
+		std::string ret;
+		ret.reserve(2 * a.size());
+		for (const auto c : a)
+		{
+			char buf[3];
+			snprintf(buf, sizeof(buf), "%02x", c);
+			ret.append(buf);
+		}
+
+		return ret;
+	}
+
+	template <int V, int D>
+	std::vector<typename Tiger<V, D>::Byte> Tiger<V, D>::toVector() const
+	{
+		const auto a = toArray();
+		return {a.begin(), a.end()};
+	}
+
+	template <int V, int D>
+	CONSTEXPR_CPP17_CHOCOBO1_HASH typename Tiger<V, D>::ResultArrayType Tiger<V, D>::toArray() const
+	{
+		const Span<const uint64_t> state(m_h);
+		const int dataSize = sizeof(typename decltype(state)::value_type);
+
+		int retCounter = 0;
+		ResultArrayType ret {};
+		for (const auto i : state)
+		{
+			for (int j = 0, jMax = dataSize; j < jMax; ++j)
+				ret[retCounter++] = ror<Byte>(i, (j * 8));
+		}
+		return ret;
+	}
+
+	template <int V, int D>
+	constexpr Tiger<V, D>& Tiger<V, D>::addData(const Span<const Byte> inData)
+	{
+		Span<const Byte> data = inData;
+
+		if (!m_buffer.empty())
+		{
+			const size_t len = std::min<size_t>((BLOCK_SIZE - m_buffer.size()), data.size());  // try fill to BLOCK_SIZE bytes
+			m_buffer.push_back(data.begin(), (data.begin() + len));
+
+			if (m_buffer.size() < BLOCK_SIZE)  // still doesn't fill the buffer
+				return (*this);
+
+			addDataImpl({m_buffer.begin(), m_buffer.end()});
+			m_buffer.clear();
+
+			data = data.subspan(len);
+		}
+
+		const size_t dataSize = data.size();
+		if (dataSize < BLOCK_SIZE)
+		{
+			m_buffer = {data.begin(), data.end()};
+			return (*this);
+		}
+
+		const size_t len = dataSize - (dataSize % BLOCK_SIZE);  // align on BLOCK_SIZE bytes
+		addDataImpl(data.first(len));
+
+		if (len < dataSize)  // didn't consume all data
+			m_buffer = {(data.begin() + len), data.end()};
+
+		return (*this);
+	}
+
+	template <int V, int D>
+	constexpr Tiger<V, D>& Tiger<V, D>::addData(const void *ptr, const long int length)
+	{
+		// gsl::span::index_type = long int
+		return addData({static_cast<const Byte*>(ptr), length});
+	}
+
+	template <int V, int D>
+	template <typename T, std::size_t N>
+	Tiger<V, D>& Tiger<V, D>::addData(const T (&array)[N])
+	{
+		return addData({reinterpret_cast<const Byte*>(array), (sizeof(T) * N)});
+	}
+
+	template <int V, int D>
+	template <typename T>
+	Tiger<V, D>& Tiger<V, D>::addData(const Span<T> inSpan)
+	{
+		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
+	}
+
+	template <int V, int D>
+	constexpr void Tiger<V, D>::addDataImpl(const Span<const Byte> data)
+	{
+		assert((data.size() % BLOCK_SIZE) == 0);
+
+		m_sizeCounter += data.size();
+
+		for (size_t iter = 0, iend = static_cast<size_t>(data.size() / BLOCK_SIZE); iter < iend; ++iter)
+		{
+			const Loader<uint64_t> block(static_cast<const Byte *>(data.data() + (iter * BLOCK_SIZE)));
+
+			// TODO: tTable was here, move it back when static variable in constexpr function is allowed
 
 			uint64_t x[8] {};
 			for (int j = 0; j < 8; ++j)
 				x[j] = block[j];
 
-			const auto pass = [&x, &tTable](uint64_t &a, uint64_t &b, uint64_t &c, const unsigned int mul) -> void
+			const auto pass = [&x](uint64_t &a, uint64_t &b, uint64_t &c, const unsigned int mul) -> void
 			{
-				const auto round = [&tTable](uint64_t &a, uint64_t &b, uint64_t &c, const uint64_t x, const unsigned int mul) -> void
+				const auto round = [](uint64_t &a, uint64_t &b, uint64_t &c, const uint64_t x, const unsigned int mul) -> void
 				{
 					c ^= x;
 					a -= tTable[0][ror<Byte>(c, (0 * 8))] ^ tTable[1][ror<Byte>(c, (2 * 8))] ^ tTable[2][ror<Byte>(c, (4 * 8))] ^ tTable[3][ror<Byte>(c, (6 * 8))];

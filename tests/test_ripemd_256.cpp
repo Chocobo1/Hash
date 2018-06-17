@@ -70,4 +70,9 @@ TEST_CASE("ripemd-256")
 	const std::vector<char> s14(1000001, 'a');
 	REQUIRE("ac953744e10e31514c150d4d8d7b677342e33399788296e43ae4850ce4f97978"
 			== Hash().addData(s14.data() + 1, s14.size() - 1).finalize().toString());
+
+	const int s15[2] = {0};
+	const char s15_2[8] = {0};
+	REQUIRE(Hash().addData(gsl::span<const int>(s15)).finalize().toString()
+			== Hash().addData(s15_2).finalize().toString());
 }

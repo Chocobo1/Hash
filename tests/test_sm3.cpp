@@ -269,4 +269,9 @@ TEST_CASE("sm3")
 	const std::vector<char> s33(65, 'a');
 	REQUIRE("616ec433c359e7c2b19f360e2b8f2a1b6e9ed76b8dc1a7d207b31a5341c611e9"
 			== Hash().addData(s33.data() + 1, s33.size() - 1).finalize().toString());
+
+	const int s34[2] = {0};
+	const char s34_2[8] = {0};
+	REQUIRE(Hash().addData(gsl::span<const int>(s34)).finalize().toString()
+			== Hash().addData(s34_2).finalize().toString());
 }

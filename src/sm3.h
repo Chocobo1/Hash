@@ -37,6 +37,14 @@ namespace Chocobo1
 
 namespace Hash
 {
+#ifndef CONSTEXPR_CPP17_CHOCOBO1_HASH
+#if __cplusplus >= 201703L
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH constexpr
+#else
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH
+#endif
+#endif
+
 #ifndef CHOCOBO1_HASH_BUFFER_IMPL
 #define CHOCOBO1_HASH_BUFFER_IMPL
 	template <typename T, std::size_t N>
@@ -177,17 +185,21 @@ namespace SM3_NS
 			constexpr SM3();
 
 			constexpr void reset();
-			SM3& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			CONSTEXPR_CPP17_CHOCOBO1_HASH SM3& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
-			ResultArrayType toArray() const;
+			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
 
-			SM3& addData(const Span<const Byte> inData);
-			SM3& addData(const void *ptr, const long int length);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH SM3& addData(const Span<const Byte> inData);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH SM3& addData(const void *ptr, const long int length);
+			template <typename T, std::size_t N>
+			SM3& addData(const T (&array)[N]);
+			template <typename T>
+			SM3& addData(const Span<T> inSpan);
 
 		private:
-			void addDataImpl(const Span<const Byte> data);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH void addDataImpl(const Span<const Byte> data);
 
 			static constexpr unsigned int BLOCK_SIZE = 64;
 
@@ -264,7 +276,7 @@ namespace SM3_NS
 		m_v[7] = 0xb0fb0e4e;
 	}
 
-	SM3& SM3::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH SM3& SM3::finalize()
 	{
 		m_sizeCounter += m_buffer.size();
 
@@ -312,13 +324,13 @@ namespace SM3_NS
 		return {a.begin(), a.end()};
 	}
 
-	SM3::ResultArrayType SM3::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH SM3::ResultArrayType SM3::toArray() const
 	{
 		const Span<const uint32_t> state(m_v);
 		const int dataSize = sizeof(decltype(state)::value_type);
 
 		int retCounter = 0;
-		ResultArrayType ret;
+		ResultArrayType ret {};
 		for (const auto i : state)
 		{
 			for (int j = (dataSize - 1); j >= 0; --j)
@@ -328,7 +340,7 @@ namespace SM3_NS
 		return ret;
 	}
 
-	SM3& SM3::addData(const Span<const Byte> inData)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH SM3& SM3::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
 
@@ -362,13 +374,25 @@ namespace SM3_NS
 		return (*this);
 	}
 
-	SM3& SM3::addData(const void *ptr, const long int length)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH SM3& SM3::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
-		return addData({reinterpret_cast<const Byte*>(ptr), length});
+		return addData({static_cast<const Byte*>(ptr), length});
 	}
 
-	void SM3::addDataImpl(const Span<const Byte> data)
+	template <typename T, std::size_t N>
+	SM3& SM3::addData(const T (&array)[N])
+	{
+		return addData({reinterpret_cast<const Byte*>(array), (sizeof(T) * N)});
+	}
+
+	template <typename T>
+	SM3& SM3::addData(const Span<T> inSpan)
+	{
+		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
+	}
+
+	CONSTEXPR_CPP17_CHOCOBO1_HASH void SM3::addDataImpl(const Span<const Byte> data)
 	{
 		assert((data.size() % BLOCK_SIZE) == 0);
 
@@ -376,14 +400,14 @@ namespace SM3_NS
 
 		for (size_t i = 0, iend = static_cast<size_t>(data.size() / BLOCK_SIZE); i < iend; ++i)
 		{
-			const Loader<uint32_t> m(reinterpret_cast<const Byte *>(data.data() + (i * BLOCK_SIZE)));
+			const Loader<uint32_t> m(static_cast<const Byte *>(data.data() + (i * BLOCK_SIZE)));
 
 			const auto permutation1 = [](const uint32_t x) -> uint32_t
 			{
 				return x ^ rotl(x, 15) ^ rotl(x, 23);
 			};
 
-			uint32_t expanedMsg[68];
+			uint32_t expanedMsg[68] {};
 			for (int t = 0; t < 16; ++t)
 				expanedMsg[t] = m[t];
 			for (int t = 16; t < 68; ++t)

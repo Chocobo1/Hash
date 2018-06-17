@@ -58,4 +58,9 @@ TEST_CASE("md2")
 	const std::vector<char> s14(65, 'a');
 	REQUIRE("14db72af1a6b6290199f6be37fd78339"
 			== Hash().addData(s14.data() + 1, s14.size() - 1).finalize().toString());
+
+	const int s15[2] = {0};
+	const char s15_2[8] = {0};
+	REQUIRE(Hash().addData(gsl::span<const int>(s15)).finalize().toString()
+			== Hash().addData(s15_2).finalize().toString());
 }

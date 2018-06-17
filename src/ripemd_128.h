@@ -37,6 +37,14 @@ namespace Chocobo1
 
 namespace Hash
 {
+#ifndef CONSTEXPR_CPP17_CHOCOBO1_HASH
+#if __cplusplus >= 201703L
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH constexpr
+#else
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH
+#endif
+#endif
+
 #ifndef CHOCOBO1_HASH_BUFFER_IMPL
 #define CHOCOBO1_HASH_BUFFER_IMPL
 	template <typename T, std::size_t N>
@@ -177,17 +185,21 @@ namespace RIPEMD_128_NS
 			constexpr RIPEMD_128();
 
 			constexpr void reset();
-			RIPEMD_128& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_128& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
-			ResultArrayType toArray() const;
+			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
 
-			RIPEMD_128& addData(const Span<const Byte> inData);
-			RIPEMD_128& addData(const void *ptr, const long int length);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_128& addData(const Span<const Byte> inData);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_128& addData(const void *ptr, const long int length);
+			template <typename T, std::size_t N>
+			RIPEMD_128& addData(const T (&array)[N]);
+			template <typename T>
+			RIPEMD_128& addData(const Span<T> inSpan);
 
 		private:
-			void addDataImpl(const Span<const Byte> data);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH void addDataImpl(const Span<const Byte> data);
 
 			static constexpr unsigned int BLOCK_SIZE = 64;
 
@@ -260,7 +272,7 @@ namespace RIPEMD_128_NS
 		m_h[3] = 0x10325476;
 	}
 
-	RIPEMD_128& RIPEMD_128::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_128& RIPEMD_128::finalize()
 	{
 		m_sizeCounter += m_buffer.size();
 
@@ -308,13 +320,13 @@ namespace RIPEMD_128_NS
 		return {a.begin(), a.end()};
 	}
 
-	RIPEMD_128::ResultArrayType RIPEMD_128::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_128::ResultArrayType RIPEMD_128::toArray() const
 	{
 		const Span<const uint32_t> state(m_h);
 		const int dataSize = sizeof(decltype(state)::value_type);
 
 		int retCounter = 0;
-		ResultArrayType ret;
+		ResultArrayType ret {};
 		for (const auto i : state)
 		{
 			for (int j = 0; j < dataSize; ++j)
@@ -324,7 +336,7 @@ namespace RIPEMD_128_NS
 		return ret;
 	}
 
-	RIPEMD_128& RIPEMD_128::addData(const Span<const Byte> inData)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_128& RIPEMD_128::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
 
@@ -358,13 +370,25 @@ namespace RIPEMD_128_NS
 		return (*this);
 	}
 
-	RIPEMD_128& RIPEMD_128::addData(const void *ptr, const long int length)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_128& RIPEMD_128::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
-		return addData({reinterpret_cast<const Byte*>(ptr), length});
+		return addData({static_cast<const Byte*>(ptr), length});
 	}
 
-	void RIPEMD_128::addDataImpl(const Span<const Byte> data)
+	template <typename T, std::size_t N>
+	RIPEMD_128& RIPEMD_128::addData(const T (&array)[N])
+	{
+		return addData({reinterpret_cast<const Byte*>(array), (sizeof(T) * N)});
+	}
+
+	template <typename T>
+	RIPEMD_128& RIPEMD_128::addData(const Span<T> inSpan)
+	{
+		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
+	}
+
+	CONSTEXPR_CPP17_CHOCOBO1_HASH void RIPEMD_128::addDataImpl(const Span<const Byte> data)
 	{
 		assert((data.size() % BLOCK_SIZE) == 0);
 
@@ -372,7 +396,7 @@ namespace RIPEMD_128_NS
 
 		for (size_t i = 0, iend = static_cast<size_t>(data.size() / BLOCK_SIZE); i < iend; ++i)
 		{
-			const Loader<uint32_t> x(reinterpret_cast<const Byte *>(data.data() + (i * BLOCK_SIZE)));
+			const Loader<uint32_t> x(static_cast<const Byte *>(data.data() + (i * BLOCK_SIZE)));
 
 			const auto f1 = [](const uint32_t x, const uint32_t y, const uint32_t z) -> uint32_t
 			{

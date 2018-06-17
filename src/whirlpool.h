@@ -37,6 +37,14 @@ namespace Chocobo1
 
 namespace Hash
 {
+#ifndef CONSTEXPR_CPP17_CHOCOBO1_HASH
+#if __cplusplus >= 201703L
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH constexpr
+#else
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH
+#endif
+#endif
+
 #ifndef CHOCOBO1_HASH_BUFFER_IMPL
 #define CHOCOBO1_HASH_BUFFER_IMPL
 	template <typename T, std::size_t N>
@@ -239,17 +247,21 @@ namespace Whirlpool_NS
 			constexpr Whirlpool();
 
 			constexpr void reset();
-			Whirlpool& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			CONSTEXPR_CPP17_CHOCOBO1_HASH Whirlpool& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
-			ResultArrayType toArray() const;
+			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
 
-			Whirlpool& addData(const Span<const Byte> inData);
-			Whirlpool& addData(const void *ptr, const long int length);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH Whirlpool& addData(const Span<const Byte> inData);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH Whirlpool& addData(const void *ptr, const long int length);
+			template <typename T, std::size_t N>
+			Whirlpool& addData(const T (&array)[N]);
+			template <typename T>
+			Whirlpool& addData(const Span<T> inSpan);
 
 		private:
-			void addDataImpl(const Span<const Byte> data);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH void addDataImpl(const Span<const Byte> data);
 
 			static constexpr unsigned int BLOCK_SIZE = 64;
 			static const int ROUND = 10;
@@ -258,179 +270,8 @@ namespace Whirlpool_NS
 			Uint128 m_sizeCounter;  // limitation: shrink from 2^256 to 2^128 bits
 
 			uint64_t m_h[8] = {};
-	};
 
-
-	// helpers
-	template <typename T>
-	class Loader
-	{
-		// this class workaround loading data from unaligned memory boundaries
-		// also eliminate endianness issues
-		public:
-			explicit constexpr Loader(const void *ptr)
-				: m_ptr(static_cast<const uint8_t *>(ptr))
-			{
-			}
-
-			constexpr T operator[](const size_t idx) const
-			{
-				static_assert(std::is_same<T, uint64_t>::value, "");
-				// handle specific endianness here
-				const uint8_t *ptr = m_ptr + (sizeof(T) * idx);
-				return  ( (static_cast<T>(*(ptr + 0)) << 56)
-						| (static_cast<T>(*(ptr + 1)) << 48)
-						| (static_cast<T>(*(ptr + 2)) << 40)
-						| (static_cast<T>(*(ptr + 3)) << 32)
-						| (static_cast<T>(*(ptr + 4)) << 24)
-						| (static_cast<T>(*(ptr + 5)) << 16)
-						| (static_cast<T>(*(ptr + 6)) <<  8)
-						| (static_cast<T>(*(ptr + 7)) <<  0));
-			}
-
-		private:
-			const uint8_t *m_ptr;
-	};
-
-	template <typename R, typename T>
-	constexpr R ror(const T x, const unsigned int s)
-	{
-		static_assert(std::is_unsigned<R>::value, "");
-		const R mask = -1;
-		return ((x >> s) & mask);
-	}
-
-
-	//
-	constexpr Whirlpool::Whirlpool()
-	{
-		reset();
-	}
-
-	constexpr void Whirlpool::reset()
-	{
-		m_buffer.clear();
-		m_sizeCounter = 0;
-
-		for (auto &i : m_h)
-			i = 0;
-	}
-
-	Whirlpool& Whirlpool::finalize()
-	{
-		m_sizeCounter += m_buffer.size();
-
-		// append 1 bit
-		m_buffer.fill(1 << 7);
-
-		// append paddings
-		const size_t len = BLOCK_SIZE - ((m_buffer.size() + 32) % BLOCK_SIZE);
-		m_buffer.fill(0, (len + 32));
-
-		// append size in bits
-		const Uint128 sizeCounterBits = m_sizeCounter * 8;
-		const uint64_t sizeCounterBitsL = sizeCounterBits.low();
-		const uint64_t sizeCounterBitsH = sizeCounterBits.high();
-		for (int i = 0; i < 8; ++i)
-		{
-			m_buffer[m_buffer.size() - 16 + i] = ror<Byte>(sizeCounterBitsH, (8 * (7 - i)));
-			m_buffer[m_buffer.size() - 8 + i] = ror<Byte>(sizeCounterBitsL, (8 * (7 - i)));
-		}
-
-		addDataImpl({m_buffer.begin(), m_buffer.end()});
-		m_buffer.clear();
-
-		return (*this);
-	}
-
-	std::string Whirlpool::toString() const
-	{
-		const auto a = toArray();
-		std::string ret;
-		ret.reserve(2 * a.size());
-		for (const auto c : a)
-		{
-			char buf[3];
-			snprintf(buf, sizeof(buf), "%02x", c);
-			ret.append(buf);
-		}
-
-		return ret;
-	}
-
-	std::vector<Whirlpool::Byte> Whirlpool::toVector() const
-	{
-		const auto a = toArray();
-		return {a.begin(), a.end()};
-	}
-
-	Whirlpool::ResultArrayType Whirlpool::toArray() const
-	{
-		const Span<const uint64_t> state(m_h);
-		const int dataSize = sizeof(decltype(state)::value_type);
-
-		int retCounter = 0;
-		ResultArrayType ret;
-		for (const auto i : state)
-		{
-			for (int j = (dataSize - 1); j >= 0; --j)
-				ret[retCounter++] = ror<Byte>(i, (j * 8));
-		}
-
-		return ret;
-	}
-
-	Whirlpool& Whirlpool::addData(const Span<const Byte> inData)
-	{
-		Span<const Byte> data = inData;
-
-		if (!m_buffer.empty())
-		{
-			const size_t len = std::min<size_t>((BLOCK_SIZE - m_buffer.size()), data.size());  // try fill to BLOCK_SIZE bytes
-			m_buffer.push_back(data.begin(), (data.begin() + len));
-
-			if (m_buffer.size() < BLOCK_SIZE)  // still doesn't fill the buffer
-				return (*this);
-
-			addDataImpl({m_buffer.begin(), m_buffer.end()});
-			m_buffer.clear();
-
-			data = data.subspan(len);
-		}
-
-		const size_t dataSize = data.size();
-		if (dataSize < BLOCK_SIZE)
-		{
-			m_buffer = {data.begin(), data.end()};
-			return (*this);
-		}
-
-		const size_t len = dataSize - (dataSize % BLOCK_SIZE);  // align on BLOCK_SIZE bytes
-		addDataImpl(data.first(len));
-
-		if (len < dataSize)  // didn't consume all data
-			m_buffer = {(data.begin() + len), data.end()};
-
-		return (*this);
-	}
-
-	Whirlpool& Whirlpool::addData(const void *ptr, const long int length)
-	{
-		// gsl::span::index_type = long int
-		return addData({reinterpret_cast<const Byte*>(ptr), length});
-	}
-
-	void Whirlpool::addDataImpl(const Span<const Byte> data)
-	{
-		assert((data.size() % BLOCK_SIZE) == 0);
-
-		m_sizeCounter += data.size();
-
-		for (size_t iter = 0, iend = static_cast<size_t>(data.size() / BLOCK_SIZE); iter < iend; ++iter)
-		{
-			const Loader<uint64_t> m(reinterpret_cast<const Byte *>(data.data() + (iter * BLOCK_SIZE)));
-
-			static const uint64_t cTable[8][256] =
+			static constexpr uint64_t cTable[8][256] =
 			{
 				{
 					0x18186018c07830d8, 0x23238c2305af4626, 0xc6c63fc67ef991b8, 0xe8e887e8136fcdfb, 0x878726874ca113cb, 0xb8b8dab8a9626d11, 0x0101040108050209, 0x4f4f214f426e9e0d,
@@ -706,12 +547,201 @@ namespace Whirlpool_NS
 				}
 			};
 
-#if 1
-			static const uint64_t roundConstant[ROUND] =
+			static constexpr uint64_t roundConstant[ROUND] =
 			{
 				0x1823c6e887b8014f, 0x36a6d2f5796f9152, 0x60bc9b8ea30c7b35, 0x1de0d7c22e4bfe57, 0x157737e59ff04ada,
 				0x58c9290ab1a06b85, 0xbd5d10f4cb3e0567, 0xe427418ba77d95d8, 0xfbee7c66dd17479e, 0xca2dbf07ad5a8333
 			};
+	};
+
+	constexpr uint64_t Whirlpool::cTable[8][256];
+	constexpr uint64_t Whirlpool::roundConstant[ROUND];
+
+
+	// helpers
+	template <typename T>
+	class Loader
+	{
+		// this class workaround loading data from unaligned memory boundaries
+		// also eliminate endianness issues
+		public:
+			explicit constexpr Loader(const void *ptr)
+				: m_ptr(static_cast<const uint8_t *>(ptr))
+			{
+			}
+
+			constexpr T operator[](const size_t idx) const
+			{
+				static_assert(std::is_same<T, uint64_t>::value, "");
+				// handle specific endianness here
+				const uint8_t *ptr = m_ptr + (sizeof(T) * idx);
+				return  ( (static_cast<T>(*(ptr + 0)) << 56)
+						| (static_cast<T>(*(ptr + 1)) << 48)
+						| (static_cast<T>(*(ptr + 2)) << 40)
+						| (static_cast<T>(*(ptr + 3)) << 32)
+						| (static_cast<T>(*(ptr + 4)) << 24)
+						| (static_cast<T>(*(ptr + 5)) << 16)
+						| (static_cast<T>(*(ptr + 6)) <<  8)
+						| (static_cast<T>(*(ptr + 7)) <<  0));
+			}
+
+		private:
+			const uint8_t *m_ptr;
+	};
+
+	template <typename R, typename T>
+	constexpr R ror(const T x, const unsigned int s)
+	{
+		static_assert(std::is_unsigned<R>::value, "");
+		const R mask = -1;
+		return ((x >> s) & mask);
+	}
+
+
+	//
+	constexpr Whirlpool::Whirlpool()
+	{
+		reset();
+	}
+
+	constexpr void Whirlpool::reset()
+	{
+		m_buffer.clear();
+		m_sizeCounter = 0;
+
+		for (auto &i : m_h)
+			i = 0;
+	}
+
+	CONSTEXPR_CPP17_CHOCOBO1_HASH Whirlpool& Whirlpool::finalize()
+	{
+		m_sizeCounter += m_buffer.size();
+
+		// append 1 bit
+		m_buffer.fill(1 << 7);
+
+		// append paddings
+		const size_t len = BLOCK_SIZE - ((m_buffer.size() + 32) % BLOCK_SIZE);
+		m_buffer.fill(0, (len + 32));
+
+		// append size in bits
+		const Uint128 sizeCounterBits = m_sizeCounter * 8;
+		const uint64_t sizeCounterBitsL = sizeCounterBits.low();
+		const uint64_t sizeCounterBitsH = sizeCounterBits.high();
+		for (int i = 0; i < 8; ++i)
+		{
+			m_buffer[m_buffer.size() - 16 + i] = ror<Byte>(sizeCounterBitsH, (8 * (7 - i)));
+			m_buffer[m_buffer.size() - 8 + i] = ror<Byte>(sizeCounterBitsL, (8 * (7 - i)));
+		}
+
+		addDataImpl({m_buffer.begin(), m_buffer.end()});
+		m_buffer.clear();
+
+		return (*this);
+	}
+
+	std::string Whirlpool::toString() const
+	{
+		const auto a = toArray();
+		std::string ret;
+		ret.reserve(2 * a.size());
+		for (const auto c : a)
+		{
+			char buf[3];
+			snprintf(buf, sizeof(buf), "%02x", c);
+			ret.append(buf);
+		}
+
+		return ret;
+	}
+
+	std::vector<Whirlpool::Byte> Whirlpool::toVector() const
+	{
+		const auto a = toArray();
+		return {a.begin(), a.end()};
+	}
+
+	CONSTEXPR_CPP17_CHOCOBO1_HASH Whirlpool::ResultArrayType Whirlpool::toArray() const
+	{
+		const Span<const uint64_t> state(m_h);
+		const int dataSize = sizeof(decltype(state)::value_type);
+
+		int retCounter = 0;
+		ResultArrayType ret {};
+		for (const auto i : state)
+		{
+			for (int j = (dataSize - 1); j >= 0; --j)
+				ret[retCounter++] = ror<Byte>(i, (j * 8));
+		}
+
+		return ret;
+	}
+
+	CONSTEXPR_CPP17_CHOCOBO1_HASH Whirlpool& Whirlpool::addData(const Span<const Byte> inData)
+	{
+		Span<const Byte> data = inData;
+
+		if (!m_buffer.empty())
+		{
+			const size_t len = std::min<size_t>((BLOCK_SIZE - m_buffer.size()), data.size());  // try fill to BLOCK_SIZE bytes
+			m_buffer.push_back(data.begin(), (data.begin() + len));
+
+			if (m_buffer.size() < BLOCK_SIZE)  // still doesn't fill the buffer
+				return (*this);
+
+			addDataImpl({m_buffer.begin(), m_buffer.end()});
+			m_buffer.clear();
+
+			data = data.subspan(len);
+		}
+
+		const size_t dataSize = data.size();
+		if (dataSize < BLOCK_SIZE)
+		{
+			m_buffer = {data.begin(), data.end()};
+			return (*this);
+		}
+
+		const size_t len = dataSize - (dataSize % BLOCK_SIZE);  // align on BLOCK_SIZE bytes
+		addDataImpl(data.first(len));
+
+		if (len < dataSize)  // didn't consume all data
+			m_buffer = {(data.begin() + len), data.end()};
+
+		return (*this);
+	}
+
+	CONSTEXPR_CPP17_CHOCOBO1_HASH Whirlpool& Whirlpool::addData(const void *ptr, const long int length)
+	{
+		// gsl::span::index_type = long int
+		return addData({static_cast<const Byte*>(ptr), length});
+	}
+
+	template <typename T, std::size_t N>
+	Whirlpool& Whirlpool::addData(const T (&array)[N])
+	{
+		return addData({reinterpret_cast<const Byte*>(array), (sizeof(T) * N)});
+	}
+
+	template <typename T>
+	Whirlpool& Whirlpool::addData(const Span<T> inSpan)
+	{
+		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
+	}
+
+	CONSTEXPR_CPP17_CHOCOBO1_HASH void Whirlpool::addDataImpl(const Span<const Byte> data)
+	{
+		assert((data.size() % BLOCK_SIZE) == 0);
+
+		m_sizeCounter += data.size();
+
+		for (size_t iter = 0, iend = static_cast<size_t>(data.size() / BLOCK_SIZE); iter < iend; ++iter)
+		{
+			const Loader<uint64_t> m(static_cast<const Byte *>(data.data() + (iter * BLOCK_SIZE)));
+
+			// TODO: cTable was here, move it back when static variable in constexpr function is allowed
+#if 1
+			// TODO: roundConstant was here, move it back when static variable in constexpr function is allowed
 #else
 			const auto roundConstant = [](const unsigned int round) -> uint64_t
 			{
@@ -723,8 +753,8 @@ namespace Whirlpool_NS
 #endif
 
 			// key addition: sigma[k]
-			uint64_t state[8];
-			uint64_t roundKey[8];
+			uint64_t state[8] {};
+			uint64_t roundKey[8] {};
 			for (int j = 0; j < 8; ++j)
 			{
 				roundKey[j] = m_h[j];
@@ -742,15 +772,16 @@ namespace Whirlpool_NS
 				};
 
 				// compute K^r from K^(r - 1)
-				uint64_t tmp[8];
-				tmp[0] = func(roundKey, 0, 7, 6, 5, 4, 3, 2, 1) ^ roundConstant[round];
-				tmp[1] = func(roundKey, 1, 0, 7, 6, 5, 4, 3, 2);
-				tmp[2] = func(roundKey, 2, 1, 0, 7, 6, 5, 4, 3);
-				tmp[3] = func(roundKey, 3, 2, 1, 0, 7, 6, 5, 4);
-				tmp[4] = func(roundKey, 4, 3, 2, 1, 0, 7, 6, 5);
-				tmp[5] = func(roundKey, 5, 4, 3, 2, 1, 0, 7, 6);
-				tmp[6] = func(roundKey, 6, 5, 4, 3, 2, 1, 0, 7);
-				tmp[7] = func(roundKey, 7, 6, 5, 4, 3, 2, 1, 0);
+				uint64_t tmp[8] = {
+					func(roundKey, 0, 7, 6, 5, 4, 3, 2, 1) ^ roundConstant[round],
+					func(roundKey, 1, 0, 7, 6, 5, 4, 3, 2),
+					func(roundKey, 2, 1, 0, 7, 6, 5, 4, 3),
+					func(roundKey, 3, 2, 1, 0, 7, 6, 5, 4),
+					func(roundKey, 4, 3, 2, 1, 0, 7, 6, 5),
+					func(roundKey, 5, 4, 3, 2, 1, 0, 7, 6),
+					func(roundKey, 6, 5, 4, 3, 2, 1, 0, 7),
+					func(roundKey, 7, 6, 5, 4, 3, 2, 1, 0)
+				};
 
 				roundKey[0] = tmp[0];
 				roundKey[1] = tmp[1];

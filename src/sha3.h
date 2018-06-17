@@ -190,6 +190,10 @@ namespace SHA3_NS
 
 			constexpr Keccak& addData(const Span<const Byte> inData);
 			constexpr Keccak& addData(const void *ptr, const long int length);
+			template <typename T, std::size_t N>
+			Keccak& addData(const T (&array)[N]);
+			template <typename T>
+			Keccak& addData(const Span<T> inSpan);
 
 		private:
 			constexpr void addDataImpl(const Span<const Byte> data);
@@ -375,7 +379,21 @@ namespace SHA3_NS
 	constexpr Keccak<R, P>& Keccak<R, P>::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
-		return addData({reinterpret_cast<const Byte*>(ptr), length});
+		return addData({static_cast<const Byte*>(ptr), length});
+	}
+
+	template <int R, unsigned int P>
+	template <typename T, std::size_t N>
+	Keccak<R, P>& Keccak<R, P>::addData(const T (&array)[N])
+	{
+		return addData({reinterpret_cast<const Byte*>(array), (sizeof(T) * N)});
+	}
+
+	template <int R, unsigned int P>
+	template <typename T>
+	Keccak<R, P>& Keccak<R, P>::addData(const Span<T> inSpan)
+	{
+		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
 	}
 
 	template <int R, unsigned int P>
@@ -385,7 +403,7 @@ namespace SHA3_NS
 
 		for (size_t iter = 0, iend = static_cast<size_t>(data.size() / R); iter < iend; ++iter)
 		{
-			const Loader<uint64_t> m(reinterpret_cast<const Byte *>(data.data() + (iter * R)));
+			const Loader<uint64_t> m(static_cast<const Byte *>(data.data() + (iter * R)));
 			for (int i = 0; i < (R / 8); ++i)
 			{
  				uint64_t *statePtr = reinterpret_cast<uint64_t *>(m_state);

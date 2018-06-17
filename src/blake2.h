@@ -37,6 +37,14 @@ namespace Chocobo1
 
 namespace Hash
 {
+#ifndef CONSTEXPR_CPP17_CHOCOBO1_HASH
+#if __cplusplus >= 201703L
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH constexpr
+#else
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH
+#endif
+#endif
+
 #ifndef CHOCOBO1_HASH_BUFFER_IMPL
 #define CHOCOBO1_HASH_BUFFER_IMPL
 	template <typename T, std::size_t N>
@@ -243,10 +251,14 @@ namespace Blake2_NS
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
-			ResultArrayType toArray() const;
+			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
 
 			constexpr Blake2& addData(const Span<const Byte> inData);
 			constexpr Blake2& addData(const void *ptr, const long int length);
+			template <typename T, std::size_t N>
+			Blake2& addData(const T (&array)[N]);
+			template <typename T>
+			Blake2& addData(const Span<T> inSpan);
 
 		private:
 			constexpr void addDataImpl(const Span<const Byte> data, const bool isFinal, const uint64_t paddingLen = 0);
@@ -364,13 +376,13 @@ namespace Blake2_NS
 		return {a.begin(), a.end()};
 	}
 
-	Blake2::ResultArrayType Blake2::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH Blake2::ResultArrayType Blake2::toArray() const
 	{
 		const Span<const uint64_t> state(m_h);
 		const int dataSize = sizeof(decltype(state)::value_type);
 
 		int retCounter = 0;
-		ResultArrayType ret;
+		ResultArrayType ret {};
 		for (const auto i : state)
 		{
 			for (int j = 0; j < dataSize; ++j)
@@ -418,7 +430,19 @@ namespace Blake2_NS
 	constexpr Blake2& Blake2::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
-		return addData({reinterpret_cast<const Byte*>(ptr), length});
+		return addData({static_cast<const Byte*>(ptr), length});
+	}
+
+	template <typename T, std::size_t N>
+	Blake2& Blake2::addData(const T (&array)[N])
+	{
+		return addData({reinterpret_cast<const Byte*>(array), (sizeof(T) * N)});
+	}
+
+	template <typename T>
+	Blake2& Blake2::addData(const Span<T> inSpan)
+	{
+		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
 	}
 
 	constexpr void Blake2::addDataImpl(const Span<const Byte> data, const bool isFinal, const uint64_t paddingLen)
@@ -427,7 +451,7 @@ namespace Blake2_NS
 
 		for (size_t iter = 0, iend = static_cast<size_t>(data.size() / BLOCK_SIZE); iter < iend; ++iter)
 		{
-			const Loader<uint64_t> m(reinterpret_cast<const Byte *>(data.data() + (iter * BLOCK_SIZE)));
+			const Loader<uint64_t> m(static_cast<const Byte *>(data.data() + (iter * BLOCK_SIZE)));
 
 			m_sizeCounter += (BLOCK_SIZE - paddingLen);
 

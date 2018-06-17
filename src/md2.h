@@ -36,6 +36,14 @@ namespace Chocobo1
 
 namespace Hash
 {
+#ifndef CONSTEXPR_CPP17_CHOCOBO1_HASH
+#if __cplusplus >= 201703L
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH constexpr
+#else
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH
+#endif
+#endif
+
 #ifndef CHOCOBO1_HASH_BUFFER_IMPL
 #define CHOCOBO1_HASH_BUFFER_IMPL
 	template <typename T, std::size_t N>
@@ -176,17 +184,21 @@ namespace MD2_NS
 			constexpr MD2();
 
 			constexpr void reset();
-			MD2& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
-			ResultArrayType toArray() const;
+			constexpr ResultArrayType toArray() const;
 
 			MD2& addData(const Span<const Byte> inData);
 			MD2& addData(const void *ptr, const long int length);
+			template <typename T, std::size_t N>
+			MD2& addData(const T (&array)[N]);
+			template <typename T>
+			MD2& addData(const Span<T> inSpan);
 
 		private:
-			void addDataImpl(const Span<const Byte> data);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH void addDataImpl(const Span<const Byte> data);
 
 			static constexpr unsigned int BLOCK_SIZE = 16;
 
@@ -195,7 +207,29 @@ namespace MD2_NS
 			std::array<Byte, 48> m_x {};
 			std::array<Byte, 16> m_checksum {};
 			Byte m_checksumL = 0;
+
+			static constexpr Byte piSubst[256] =
+			{
+				 41,  46,  67, 201, 162, 216, 124,   1,  61,  54,  84, 161, 236, 240,   6,  19,
+				 98, 167,   5, 243, 192, 199, 115, 140, 152, 147,  43, 217, 188,  76, 130, 202,
+				 30, 155,  87,  60, 253, 212, 224,  22, 103,  66, 111,  24, 138,  23, 229,  18,
+				190,  78, 196, 214, 218, 158, 222,  73, 160, 251, 245, 142, 187,  47, 238, 122,
+				169, 104, 121, 145,  21, 178,   7,  63, 148, 194,  16, 137,  11,  34,  95,  33,
+				128, 127,  93, 154,  90, 144,  50,  39,  53,  62, 204, 231, 191, 247, 151,   3,
+				255,  25,  48, 179,  72, 165, 181, 209, 215,  94, 146,  42, 172,  86, 170, 198,
+				 79, 184,  56, 210, 150, 164, 125, 182, 118, 252, 107, 226, 156, 116,   4, 241,
+				 69, 157, 112,  89, 100, 113, 135,  32, 134,  91, 207, 101, 230,  45, 168,   2,
+				 27,  96,  37, 173, 174, 176, 185, 246,  28,  70,  97, 105,  52,  64, 126,  15,
+				 85,  71, 163,  35, 221,  81, 175,  58, 195,  92, 249, 206, 186, 197, 234,  38,
+				 44,  83,  13, 110, 133,  40, 132,   9, 211, 223, 205, 244,  65, 129,  77,  82,
+				106, 220,  55, 200, 108, 193, 171, 250,  36, 225, 123,   8,  12, 189, 177,  74,
+				120, 136, 149, 139, 227,  99, 232, 109, 233, 203, 213, 254,  59,   0,  29,  57,
+				242, 239, 183,  14, 102,  88, 208, 228, 166, 119, 114, 248, 235, 117,  75,  10,
+				 49,  68,  80, 180, 143, 237,  31,  26, 219, 153, 141,  51, 159,  17, 131,  20
+			};
 	};
+
+	constexpr MD2::Byte MD2::piSubst[256];
 
 
 	//
@@ -213,7 +247,7 @@ namespace MD2_NS
 		m_checksumL = 0;
 	}
 
-	MD2& MD2::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& MD2::finalize()
 	{
 		// append padding bytes
 		const unsigned int len = BLOCK_SIZE - (m_buffer.size() % BLOCK_SIZE);
@@ -249,11 +283,9 @@ namespace MD2_NS
 		return {a.begin(), a.end()};
 	}
 
-	MD2::ResultArrayType MD2::toArray() const
+	constexpr MD2::ResultArrayType MD2::toArray() const
 	{
-		ResultArrayType ret;
-		std::copy(m_x.begin(), (m_x.begin() + 16), ret.begin());
-		return ret;
+		return {{m_x[0], m_x[1], m_x[2], m_x[3], m_x[4], m_x[5], m_x[6], m_x[7], m_x[8], m_x[9], m_x[10], m_x[11], m_x[12], m_x[13], m_x[14], m_x[15]}};
 	}
 
 	MD2& MD2::addData(const Span<const Byte> inData)
@@ -293,35 +325,31 @@ namespace MD2_NS
 	MD2& MD2::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
-		return addData({reinterpret_cast<const Byte *>(ptr), length});
+		return addData({static_cast<const Byte*>(ptr), length});
 	}
 
-	void MD2::addDataImpl(const Span<const Byte> data)
+	template <typename T, std::size_t N>
+	MD2& MD2::addData(const T (&array)[N])
+	{
+		return addData({reinterpret_cast<const Byte*>(array), (sizeof(T) * N)});
+	}
+
+	template <typename T>
+	MD2& MD2::addData(const Span<T> inSpan)
+	{
+		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
+	}
+
+	CONSTEXPR_CPP17_CHOCOBO1_HASH void MD2::addDataImpl(const Span<const Byte> data)
 	{
 		for (size_t i = 0, iend = static_cast<size_t>(data.size() / BLOCK_SIZE); i < iend; ++i)
 		{
-			const Span<const Byte> m(reinterpret_cast<const Byte *>(data.data() + (i * BLOCK_SIZE)), 16);
+			const Span<const Byte> m(static_cast<const Byte *>(data.data() + (i * BLOCK_SIZE)), 16);
 
 			// calculate checksum
-			static const Byte piSubst[256] =
-			{
-				 41,  46,  67, 201, 162, 216, 124,   1,  61,  54,  84, 161, 236, 240,   6,  19,
-				 98, 167,   5, 243, 192, 199, 115, 140, 152, 147,  43, 217, 188,  76, 130, 202,
-				 30, 155,  87,  60, 253, 212, 224,  22, 103,  66, 111,  24, 138,  23, 229,  18,
-				190,  78, 196, 214, 218, 158, 222,  73, 160, 251, 245, 142, 187,  47, 238, 122,
-				169, 104, 121, 145,  21, 178,   7,  63, 148, 194,  16, 137,  11,  34,  95,  33,
-				128, 127,  93, 154,  90, 144,  50,  39,  53,  62, 204, 231, 191, 247, 151,   3,
-				255,  25,  48, 179,  72, 165, 181, 209, 215,  94, 146,  42, 172,  86, 170, 198,
-				 79, 184,  56, 210, 150, 164, 125, 182, 118, 252, 107, 226, 156, 116,   4, 241,
-				 69, 157, 112,  89, 100, 113, 135,  32, 134,  91, 207, 101, 230,  45, 168,   2,
-				 27,  96,  37, 173, 174, 176, 185, 246,  28,  70,  97, 105,  52,  64, 126,  15,
-				 85,  71, 163,  35, 221,  81, 175,  58, 195,  92, 249, 206, 186, 197, 234,  38,
-				 44,  83,  13, 110, 133,  40, 132,   9, 211, 223, 205, 244,  65, 129,  77,  82,
-				106, 220,  55, 200, 108, 193, 171, 250,  36, 225, 123,   8,  12, 189, 177,  74,
-				120, 136, 149, 139, 227,  99, 232, 109, 233, 203, 213, 254,  59,   0,  29,  57,
-				242, 239, 183,  14, 102,  88, 208, 228, 166, 119, 114, 248, 235, 117,  75,  10,
-				 49,  68,  80, 180, 143, 237,  31,  26, 219, 153, 141,  51, 159,  17, 131,  20
-			};
+
+			// TODO: piSubst was here, move it back when static variable in constexpr function is allowed
+
 			for (int j = 0; j < 16; ++j)
 			{
 				m_checksum[j] ^= piSubst[m[j] ^ m_checksumL];

@@ -37,6 +37,14 @@ namespace Chocobo1
 
 namespace Hash
 {
+#ifndef CONSTEXPR_CPP17_CHOCOBO1_HASH
+#if __cplusplus >= 201703L
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH constexpr
+#else
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH
+#endif
+#endif
+
 #ifndef CHOCOBO1_HASH_BUFFER_IMPL
 #define CHOCOBO1_HASH_BUFFER_IMPL
 	template <typename T, std::size_t N>
@@ -177,17 +185,21 @@ namespace SHA2_256_NS
 			constexpr SHA2_256();
 
 			constexpr void reset();
-			SHA2_256& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			CONSTEXPR_CPP17_CHOCOBO1_HASH SHA2_256& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
-			ResultArrayType toArray() const;
+			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
 
-			SHA2_256& addData(const Span<const Byte> inData);
-			SHA2_256& addData(const void *ptr, const long int length);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH SHA2_256& addData(const Span<const Byte> inData);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH SHA2_256& addData(const void *ptr, const long int length);
+			template <typename T, std::size_t N>
+			SHA2_256& addData(const T (&array)[N]);
+			template <typename T>
+			SHA2_256& addData(const Span<T> inSpan);
 
 		private:
-			void addDataImpl(const Span<const Byte> data);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH void addDataImpl(const Span<const Byte> data);
 
 			static constexpr unsigned int BLOCK_SIZE = 64;
 
@@ -195,7 +207,29 @@ namespace SHA2_256_NS
 			uint64_t m_sizeCounter = 0;
 
 			uint32_t m_h[8] = {};
+
+			static constexpr uint32_t kTable[64] =
+			{
+				0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+				0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+				0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+				0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+				0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
+				0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+				0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+				0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+				0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+				0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+				0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
+				0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+				0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
+				0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+				0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+				0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+			};
 	};
+
+	constexpr uint32_t SHA2_256::kTable[64];
 
 
 	// helpers
@@ -264,7 +298,7 @@ namespace SHA2_256_NS
 		m_h[7] = 0x5be0cd19;
 	}
 
-	SHA2_256& SHA2_256::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH SHA2_256& SHA2_256::finalize()
 	{
 		m_sizeCounter += m_buffer.size();
 
@@ -312,13 +346,13 @@ namespace SHA2_256_NS
 		return {a.begin(), a.end()};
 	}
 
-	SHA2_256::ResultArrayType SHA2_256::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH SHA2_256::ResultArrayType SHA2_256::toArray() const
 	{
 		const Span<const uint32_t> state(m_h);
 		const int dataSize = sizeof(decltype(state)::value_type);
 
 		int retCounter = 0;
-		ResultArrayType ret;
+		ResultArrayType ret {};
 		for (const auto i : state)
 		{
 			for (int j = (dataSize - 1); j >= 0; --j)
@@ -328,7 +362,7 @@ namespace SHA2_256_NS
 		return ret;
 	}
 
-	SHA2_256& SHA2_256::addData(const Span<const Byte> inData)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH SHA2_256& SHA2_256::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
 
@@ -362,13 +396,25 @@ namespace SHA2_256_NS
 		return (*this);
 	}
 
-	SHA2_256& SHA2_256::addData(const void *ptr, const long int length)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH SHA2_256& SHA2_256::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
-		return addData({reinterpret_cast<const Byte*>(ptr), length});
+		return addData({static_cast<const Byte*>(ptr), length});
 	}
 
-	void SHA2_256::addDataImpl(const Span<const Byte> data)
+	template <typename T, std::size_t N>
+	SHA2_256& SHA2_256::addData(const T (&array)[N])
+	{
+		return addData({reinterpret_cast<const Byte*>(array), (sizeof(T) * N)});
+	}
+
+	template <typename T>
+	SHA2_256& SHA2_256::addData(const Span<T> inSpan)
+	{
+		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
+	}
+
+	CONSTEXPR_CPP17_CHOCOBO1_HASH void SHA2_256::addDataImpl(const Span<const Byte> data)
 	{
 		assert((data.size() % BLOCK_SIZE) == 0);
 
@@ -376,27 +422,9 @@ namespace SHA2_256_NS
 
 		for (size_t i = 0, iend = static_cast<size_t>(data.size() / BLOCK_SIZE); i < iend; ++i)
 		{
-			const Loader<uint32_t> m(reinterpret_cast<const Byte *>(data.data() + (i * BLOCK_SIZE)));
+			const Loader<uint32_t> m(static_cast<const Byte *>(data.data() + (i * BLOCK_SIZE)));
 
-			static const uint32_t kTable[64] =
-			{
-				0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
-				0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
-				0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
-				0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
-				0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
-				0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
-				0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
-				0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
-				0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
-				0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
-				0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
-				0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
-				0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
-				0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-				0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
-				0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
-			};
+			// TODO: kTable was here, move it back when static variable in constexpr function is allowed
 
 			const auto ssig0 = [](const uint32_t x) -> uint32_t
 			{
@@ -406,7 +434,7 @@ namespace SHA2_256_NS
 			{
 				return (rotr(x, 17) ^ rotr(x, 19) ^ ror<uint32_t>(x, 10));
 			};
-			uint32_t wTable[64];
+			uint32_t wTable[64] {};
 			for (int t = 0; t < 16; ++t)
 				wTable[t] = m[t];
 			for (int t = 16; t < 64; ++t)

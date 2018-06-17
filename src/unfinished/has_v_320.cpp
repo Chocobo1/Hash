@@ -191,7 +191,7 @@ HAS_V_320& HAS_V_320::addData(const Span<const Byte> inData)
 HAS_V_320& HAS_V_320::addData(const void *ptr, const long int length)
 {
 	// gsl::span::index_type = long int
-	return addData({reinterpret_cast<const Byte*>(ptr), length});
+	return addData({static_cast<const Byte*>(ptr), length});
 }
 
 void HAS_V_320::addDataImpl(const Span<const Byte> data)
@@ -202,7 +202,7 @@ void HAS_V_320::addDataImpl(const Span<const Byte> data)
 
 	for (size_t iter = 0, iend = static_cast<size_t>(data.size() / BLOCK_SIZE); iter < iend; ++iter)
 	{
-		const Loader<uint32_t> x(reinterpret_cast<const Byte *>(data.data() + (iter * BLOCK_SIZE)));
+		const Loader<uint32_t> x(static_cast<const Byte *>(data.data() + (iter * BLOCK_SIZE)));
 
 		static const unsigned int sTable[20] =
 		{

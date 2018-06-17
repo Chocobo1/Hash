@@ -64,6 +64,10 @@ To use this library in your project:
       // Feed data & data length to it
       sha1.addData("abc", 3);
 
+      // or
+      char data[] = "def";
+      sha1.addData(data);
+
       // Tell it to wrap it up
       sha1.finalize();
 

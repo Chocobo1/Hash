@@ -37,6 +37,14 @@ namespace Chocobo1
 
 namespace Hash
 {
+#ifndef CONSTEXPR_CPP17_CHOCOBO1_HASH
+#if __cplusplus >= 201703L
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH constexpr
+#else
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH
+#endif
+#endif
+
 #ifndef CHOCOBO1_HASH_BUFFER_IMPL
 #define CHOCOBO1_HASH_BUFFER_IMPL
 	template <typename T, std::size_t N>
@@ -181,10 +189,14 @@ namespace SHA1_NS
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
-			ResultArrayType toArray() const;
+			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
 
 			constexpr SHA1& addData(const Span<const Byte> inData);
 			constexpr SHA1& addData(const void *ptr, const long int length);
+			template <typename T, std::size_t N>
+			SHA1& addData(const T (&array)[N]);
+			template <typename T>
+			SHA1& addData(const Span<T> inSpan);
 
 		private:
 			constexpr void addDataImpl(const Span<const Byte> data);
@@ -309,13 +321,13 @@ namespace SHA1_NS
 		return {a.begin(), a.end()};
 	}
 
-	SHA1::ResultArrayType SHA1::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH SHA1::ResultArrayType SHA1::toArray() const
 	{
 		const Span<const uint32_t> state(m_state);
 		const int dataSize = sizeof(decltype(state)::value_type);
 
 		int retCounter = 0;
-		ResultArrayType ret;
+		ResultArrayType ret {};
 		for (const auto i : state)
 		{
 			for (int j = (dataSize - 1); j >= 0; --j)
@@ -362,7 +374,19 @@ namespace SHA1_NS
 	constexpr SHA1& SHA1::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
-		return addData({reinterpret_cast<const Byte*>(ptr), length});
+		return addData({static_cast<const Byte*>(ptr), length});
+	}
+
+	template <typename T, std::size_t N>
+	SHA1& SHA1::addData(const T (&array)[N])
+	{
+		return addData({reinterpret_cast<const Byte*>(array), (sizeof(T) * N)});
+	}
+
+	template <typename T>
+	SHA1& SHA1::addData(const Span<T> inSpan)
+	{
+		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
 	}
 
 	constexpr void SHA1::addDataImpl(const Span<const Byte> data)
@@ -373,7 +397,7 @@ namespace SHA1_NS
 
 		for (size_t i = 0, iend = static_cast<size_t>(data.size() / BLOCK_SIZE); i < iend; ++i)
 		{
-			const Loader<uint32_t> m(reinterpret_cast<const Byte *>(data.data() + (i * BLOCK_SIZE)));
+			const Loader<uint32_t> m(static_cast<const Byte *>(data.data() + (i * BLOCK_SIZE)));
 
 			uint32_t a = m_state[0];
 			uint32_t b = m_state[1];

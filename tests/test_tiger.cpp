@@ -67,6 +67,11 @@ TEST_CASE("tiger1-192")
 	const std::vector<char> s14(1000001, 'a');
 	REQUIRE("6db0e2729cbead93d715c6a7d36302e9b3cee0d2bc314b41"
 			== Hash().addData(s14.data() + 1, s14.size() - 1).finalize().toString());
+
+	const int s15[2] = {0};
+	const char s15_2[8] = {0};
+	REQUIRE(Hash().addData(gsl::span<const int>(s15)).finalize().toString()
+			== Hash().addData(s15_2).finalize().toString());
 }
 
 
@@ -121,4 +126,9 @@ TEST_CASE("tiger2-192")
 	const std::vector<char> s14(1000001, 'a');
 	REQUIRE("e068281f060f551628cc5715b9d0226796914d45f7717cf4"
 			== Hash().addData(s14.data() + 1, s14.size() - 1).finalize().toString());
+
+	const int s15[2] = {0};
+	const char s15_2[8] = {0};
+	REQUIRE(Hash().addData(gsl::span<const int>(s15)).finalize().toString()
+			== Hash().addData(s15_2).finalize().toString());
 }

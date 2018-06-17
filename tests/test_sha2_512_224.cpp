@@ -52,4 +52,9 @@ TEST_CASE("sha2-512/224")
 	const std::vector<char> s14(65, 'a');
 	REQUIRE("02682009a96ba45d69a5d10c95e108f0f9c0fb095e14a8a0abd62856"
 			== Hash().addData(s14.data() + 1, s14.size() - 1).finalize().toString());
+
+	const int s15[2] = {0};
+	const char s15_2[8] = {0};
+	REQUIRE(Hash().addData(gsl::span<const int>(s15)).finalize().toString()
+			== Hash().addData(s15_2).finalize().toString());
 }

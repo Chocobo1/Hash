@@ -31,7 +31,18 @@ namespace Chocobo1
 namespace Chocobo1
 {
 // users should ignore things in this namespace
-namespace CRC_32_Hash
+
+namespace Hash
+{
+#ifndef CONSTEXPR_CPP17_CHOCOBO1_HASH
+#if __cplusplus >= 201703L
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH constexpr
+#else
+#define CONSTEXPR_CPP17_CHOCOBO1_HASH
+#endif
+#endif
+
+namespace CRC_32_NS
 {
 	class CRC_32
 	{
@@ -52,10 +63,14 @@ namespace CRC_32_Hash
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
-			ResultArrayType toArray() const;
+			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
 
 			constexpr CRC_32& addData(const Span<const Byte> inData);
 			constexpr CRC_32& addData(const void *ptr, const long int length);
+			template <typename T, std::size_t N>
+			CRC_32& addData(const T (&array)[N]);
+			template <typename T>
+			CRC_32& addData(const Span<T> inSpan);
 
 		private:
 			constexpr void addDataImpl(const Span<const Byte> data);
@@ -63,131 +78,8 @@ namespace CRC_32_Hash
 			static constexpr unsigned int BLOCK_SIZE = 16;
 
 			uint32_t m_h = 0;
-	};
 
-
-	// helpers
-	template <typename T>
-	class Loader
-	{
-		// this class workaround loading data from unaligned memory boundaries
-		// also eliminate endianness issues
-		public:
-			explicit constexpr Loader(const void *ptr)
-				: m_ptr(static_cast<const uint8_t *>(ptr))
-			{
-			}
-
-			constexpr T operator[](const size_t idx) const
-			{
-				static_assert(std::is_same<T, uint32_t>::value, "");
-				// handle specific endianness here
-				const uint8_t *ptr = m_ptr + (sizeof(T) * idx);
-				return  ( (static_cast<T>(*(ptr + 0)) <<  0)
-						| (static_cast<T>(*(ptr + 1)) <<  8)
-						| (static_cast<T>(*(ptr + 2)) << 16)
-						| (static_cast<T>(*(ptr + 3)) << 24));
-			}
-
-		private:
-			const uint8_t *m_ptr;
-	};
-
-	template <typename R, typename T>
-	constexpr R ror(const T x, const unsigned int s)
-	{
-		static_assert(std::is_unsigned<R>::value, "");
-		const R mask = -1;
-		return ((x >> s) & mask);
-	}
-
-
-	//
-	constexpr CRC_32::CRC_32()
-	{
-		reset();
-	}
-
-	constexpr void CRC_32::reset()
-	{
-		m_h = 0;
-		m_h = ~m_h;
-	}
-
-	constexpr CRC_32& CRC_32::finalize()
-	{
-		m_h = ~m_h;
-		return (*this);
-	}
-
-	std::string CRC_32::toString() const
-	{
-		const auto a = toArray();
-		std::string ret;
-		ret.reserve(2 * a.size());
-		for (const auto c : a)
-		{
-			char buf[3];
-			snprintf(buf, sizeof(buf), "%02x", c);
-			ret.append(buf);
-		}
-
-		return ret;
-	}
-
-	std::vector<CRC_32::Byte> CRC_32::toVector() const
-	{
-		const auto a = toArray();
-		return {a.begin(), a.end()};
-	}
-
-	CRC_32::ResultArrayType CRC_32::toArray() const
-	{
-		const int dataSize = sizeof(m_h);
-
-		int retCounter = 0;
-		ResultArrayType ret;
-		for (int j = (dataSize - 1); j >= 0; --j)
-			ret[retCounter++] = ror<Byte>(m_h, (j * 8));
-
-		return ret;
-	}
-
-	constexpr CRC_32& CRC_32::addData(const Span<const Byte> inData)
-	{
-		addDataImpl(inData);
-		return (*this);
-	}
-
-	constexpr CRC_32& CRC_32::addData(const void *ptr, const long int length)
-	{
-		// gsl::span::index_type = long int
-		return addData({reinterpret_cast<const Byte*>(ptr), length});
-	}
-
-	constexpr void CRC_32::addDataImpl(const Span<const Byte> data)
-	{
-#if 0
-		const auto generateLUT = [](uint32_t table[16][256], const uint32_t polynomial) -> void
-		{
-			for (int i = 0; i < 256; ++i)
-			{
-				uint32_t crc = i;
-				for (int j = 0; j < 8; ++j)
-					crc = (crc >> 1) ^ ((crc & 1) * polynomial);
-				table[0][i] = crc;
-			}
-			for (int i = 0; i < 256; ++i)
-			{
-				for (int slice = 1; slice < 16; ++slice)
-					table[slice][i] = (table[slice - 1][i] >> 8) ^ table[0][(table[slice - 1][i] & 0xFF)];
-			}
-		};
-
-		uint32_t crc32LUT[16][256];
-		generateLUT(crc32LUT, 0xEDB88320);
-#else
-		const uint32_t crc32LUT[16][256]  // TODO: should be static
+			static constexpr uint32_t crc32LUT[16][256]
 		{
 			{
 				0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3,
@@ -734,11 +626,150 @@ namespace CRC_32_Hash
 				0xF088C1A2, 0x5EE05033, 0x7728E4C1, 0xD9407550, 0x24B98D25, 0x8AD11CB4, 0xA319A846, 0x0D7139D7
 			}
 		};
+	};
+
+	constexpr uint32_t CRC_32::crc32LUT[16][256];
+
+
+	// helpers
+	template <typename T>
+	class Loader
+	{
+		// this class workaround loading data from unaligned memory boundaries
+		// also eliminate endianness issues
+		public:
+			explicit constexpr Loader(const void *ptr)
+				: m_ptr(static_cast<const uint8_t *>(ptr))
+			{
+			}
+
+			constexpr T operator[](const size_t idx) const
+			{
+				static_assert(std::is_same<T, uint32_t>::value, "");
+				// handle specific endianness here
+				const uint8_t *ptr = m_ptr + (sizeof(T) * idx);
+				return  ( (static_cast<T>(*(ptr + 0)) <<  0)
+						| (static_cast<T>(*(ptr + 1)) <<  8)
+						| (static_cast<T>(*(ptr + 2)) << 16)
+						| (static_cast<T>(*(ptr + 3)) << 24));
+			}
+
+		private:
+			const uint8_t *m_ptr;
+	};
+
+	template <typename R, typename T>
+	constexpr R ror(const T x, const unsigned int s)
+	{
+		static_assert(std::is_unsigned<R>::value, "");
+		const R mask = -1;
+		return ((x >> s) & mask);
+	}
+
+
+	//
+	constexpr CRC_32::CRC_32()
+	{
+		reset();
+	}
+
+	constexpr void CRC_32::reset()
+	{
+		m_h = 0;
+		m_h = ~m_h;
+	}
+
+	constexpr CRC_32& CRC_32::finalize()
+	{
+		m_h = ~m_h;
+		return (*this);
+	}
+
+	std::string CRC_32::toString() const
+	{
+		const auto a = toArray();
+		std::string ret;
+		ret.reserve(2 * a.size());
+		for (const auto c : a)
+		{
+			char buf[3];
+			snprintf(buf, sizeof(buf), "%02x", c);
+			ret.append(buf);
+		}
+
+		return ret;
+	}
+
+	std::vector<CRC_32::Byte> CRC_32::toVector() const
+	{
+		const auto a = toArray();
+		return {a.begin(), a.end()};
+	}
+
+	CONSTEXPR_CPP17_CHOCOBO1_HASH CRC_32::ResultArrayType CRC_32::toArray() const
+	{
+		const int dataSize = sizeof(m_h);
+
+		int retCounter = 0;
+		ResultArrayType ret {};
+		for (int j = (dataSize - 1); j >= 0; --j)
+			ret[retCounter++] = ror<Byte>(m_h, (j * 8));
+
+		return ret;
+	}
+
+	constexpr CRC_32& CRC_32::addData(const Span<const Byte> inData)
+	{
+		addDataImpl(inData);
+		return (*this);
+	}
+
+	constexpr CRC_32& CRC_32::addData(const void *ptr, const long int length)
+	{
+		// gsl::span::index_type = long int
+		return addData({static_cast<const Byte*>(ptr), length});
+	}
+
+	template <typename T, std::size_t N>
+	CRC_32& CRC_32::addData(const T (&array)[N])
+	{
+		return addData({reinterpret_cast<const Byte*>(array), (sizeof(T) * N)});
+	}
+
+	template <typename T>
+	CRC_32& CRC_32::addData(const Span<T> inSpan)
+	{
+		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
+	}
+
+	constexpr void CRC_32::addDataImpl(const Span<const Byte> data)
+	{
+#if 0
+		const auto generateLUT = [](uint32_t table[16][256], const uint32_t polynomial) -> void
+		{
+			for (int i = 0; i < 256; ++i)
+			{
+				uint32_t crc = i;
+				for (int j = 0; j < 8; ++j)
+					crc = (crc >> 1) ^ ((crc & 1) * polynomial);
+				table[0][i] = crc;
+			}
+			for (int i = 0; i < 256; ++i)
+			{
+				for (int slice = 1; slice < 16; ++slice)
+					table[slice][i] = (table[slice - 1][i] >> 8) ^ table[0][(table[slice - 1][i] & 0xFF)];
+			}
+		};
+
+		uint32_t crc32LUT[16][256];
+		generateLUT(crc32LUT, 0xEDB88320);
+#else
+		// TODO: crc32LUT was here, move it back when static variable in constexpr function is allowed
 #endif
 
 		for (size_t i = 0, iend = static_cast<size_t>(data.size() / BLOCK_SIZE); i < iend; ++i)
 		{
-			const Loader<uint32_t> m(reinterpret_cast<const Byte *>(data.data() + (i * BLOCK_SIZE)));
+			const Loader<uint32_t> m(static_cast<const Byte *>(data.data() + (i * BLOCK_SIZE)));
 
 			const uint32_t a = m[0] ^ m_h;
 			const uint32_t b = m[1];
@@ -772,7 +803,8 @@ namespace CRC_32_Hash
 		}
 	}
 }
-	using CRC_32 = CRC_32_Hash::CRC_32;
+}
+	using CRC_32 = Hash::CRC_32_NS::CRC_32;
 }
 
 #endif  // CHOCOBO1_CRC_32_H

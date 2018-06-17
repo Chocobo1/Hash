@@ -63,4 +63,9 @@ TEST_CASE("blake1-256")
 	const std::vector<char> s15(65, 'a');
 	REQUIRE("84d7f3bbf2cfc3ee940ddb6d25045c6d3f756c4b2077a8128e171d5d165be170"
 			== Hash().addData(s15.data() + 1, s15.size() - 1).finalize().toString());
+
+	const int s16[2] = {0};
+	const char s16_2[8] = {0};
+	REQUIRE(Hash().addData(gsl::span<const int>(s16)).finalize().toString()
+			== Hash().addData(s16_2).finalize().toString());
 }
