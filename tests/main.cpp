@@ -10,7 +10,7 @@
  */
 
 #define CATCH_CONFIG_RUNNER
-#include "catch/single_include/catch.hpp"
+#include "catch2/single_include/catch2/catch.hpp"
 
 
 int main(int argc, char *argv[])

@@ -11,7 +11,7 @@
 
 #include "../src/crc_32.h"
 
-#include "catch/single_include/catch.hpp"
+#include "catch2/single_include/catch2/catch.hpp"
 
 #include <cstring>
 
