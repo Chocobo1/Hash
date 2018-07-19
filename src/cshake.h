@@ -16,6 +16,7 @@
 
 #include "gsl/span"
 
+#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <memory>
@@ -101,6 +102,8 @@ namespace CShake_NS
 	CShake<S, K, P>::CShake(const unsigned int digestLength, const std::string &name, const std::string &customize)
 		: m_customized(!(name.empty() && customize.empty()))
 	{
+		static_assert((CHAR_BIT == 8), "Sorry, we don't support exotic CPUs");
+
 		if (!m_customized)
 		{
 			m_shake = std::unique_ptr<S>(new S(digestLength));

@@ -16,6 +16,7 @@
 
 #include "gsl/span"
 
+#include <climits>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -88,6 +89,7 @@ namespace TupleHash_NS
 		: m_cshake(digestLength, "TupleHash", customize)
 		, m_digestLength(digestLength)
 	{
+		static_assert((CHAR_BIT == 8), "Sorry, we don't support exotic CPUs");
 	}
 
 	template <typename Alg>

@@ -16,6 +16,7 @@
 
 #include <array>
 #include <cassert>
+#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <initializer_list>
@@ -263,6 +264,7 @@ namespace Blake2s_NS
 	//
 	constexpr Blake2s::Blake2s()
 	{
+		static_assert((CHAR_BIT == 8), "Sorry, we don't support exotic CPUs");
 		reset();
 	}
 

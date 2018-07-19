@@ -16,6 +16,7 @@
 
 #include <array>
 #include <cassert>
+#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <initializer_list>
@@ -350,6 +351,7 @@ namespace SHA2_384_NS
 	//
 	constexpr SHA2_384::SHA2_384()
 	{
+		static_assert((CHAR_BIT == 8), "Sorry, we don't support exotic CPUs");
 		reset();
 	}
 

@@ -16,6 +16,7 @@
 
 #include <array>
 #include <cassert>
+#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <initializer_list>
@@ -258,6 +259,7 @@ namespace HAS160_NS
 	//
 	constexpr HAS_160::HAS_160()
 	{
+		static_assert((CHAR_BIT == 8), "Sorry, we don't support exotic CPUs");
 		reset();
 	}
 

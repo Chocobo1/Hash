@@ -16,6 +16,7 @@
 
 #include <array>
 #include <cassert>
+#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <initializer_list>
@@ -259,6 +260,7 @@ namespace RIPEMD_320_NS
 	//
 	constexpr RIPEMD_320::RIPEMD_320()
 	{
+		static_assert((CHAR_BIT == 8), "Sorry, we don't support exotic CPUs");
 		reset();
 	}
 

@@ -16,6 +16,7 @@
 
 #include <array>
 #include <cassert>
+#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <initializer_list>
@@ -274,6 +275,8 @@ namespace SHA3_NS
 		: m_params()
 		, m_digestLength(digestLength)
 	{
+		static_assert((CHAR_BIT == 8), "Sorry, we don't support exotic CPUs");
+
 		m_final.reserve(m_digestLength);
 		reset();
 	}

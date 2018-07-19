@@ -14,6 +14,7 @@
 
 #include "gsl/span"
 
+#include <climits>
 #include <cmath>
 #include <cstdint>
 #include <string>
@@ -670,6 +671,7 @@ namespace CRC_32_NS
 	//
 	constexpr CRC_32::CRC_32()
 	{
+		static_assert((CHAR_BIT == 8), "Sorry, we don't support exotic CPUs");
 		reset();
 	}
 
