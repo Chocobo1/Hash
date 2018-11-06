@@ -33,8 +33,8 @@ namespace Chocobo1
 	// SHA3_384();
 	// SHA3_512();
 
-	// SHAKE_128(const unsigned int digestLengthInBytes);
-	// SHAKE_256(const unsigned int digestLengthInBytes);
+	// SHAKE_128(const int digestLengthInBytes);
+	// SHAKE_256(const int digestLengthInBytes);
 }
 
 
@@ -46,12 +46,12 @@ namespace Hash
 {
 #ifndef CHOCOBO1_HASH_BUFFER_IMPL
 #define CHOCOBO1_HASH_BUFFER_IMPL
-	template <typename T, std::size_t N>
+	template <typename T, gsl::index N>
 	class Buffer
 	{
 		public:
 			using value_type = T;
-			using size_type = std::size_t;
+			using index_type = gsl::index;
 			using reference = T&;
 			using iterator = T*;
 			using const_iterator = const T*;
@@ -82,24 +82,24 @@ namespace Hash
 				}
 			}
 
-			constexpr T& operator[](const size_type pos)
+			constexpr T& operator[](const index_type pos)
 			{
 				return m_array[pos];
 			}
 
-			constexpr T operator[](const size_type pos) const
+			constexpr T operator[](const index_type pos) const
 			{
 				return m_array[pos];
 			}
 
-			constexpr void fill(const T &value, const size_type count = 1)
+			constexpr void fill(const T &value, const index_type count = 1)
 			{
 #if !defined(NDEBUG)
 				// check if out-of-bounds
 				m_array.at(m_dataEndIdx + count - 1);
 #endif
 
-				for (size_type i = 0; i < count; ++i)
+				for (index_type i = 0; i < count; ++i)
 				{
 					m_array[m_dataEndIdx] = value;
 					++m_dataEndIdx;
@@ -126,7 +126,7 @@ namespace Hash
 				return (m_dataEndIdx == 0);
 			}
 
-			constexpr size_type size() const
+			constexpr index_type size() const
 			{
 				return m_dataEndIdx;
 			}
@@ -162,14 +162,14 @@ namespace Hash
 
 		private:
 			std::array<T, N> m_array {};
-			size_type m_dataEndIdx = 0;
+			index_type m_dataEndIdx = 0;
 	};
 #endif
 
 
 namespace SHA3_NS
 {
-	template<int R, unsigned int P>  // `R`: see m_params. `P`: suffix + padding
+	template<int R, int P>  // `R`: see m_params. `P`: suffix + padding
 	class Keccak
 	{
 		// https://dx.doi.org/10.6028/NIST.FIPS.202
@@ -181,7 +181,7 @@ namespace SHA3_NS
 			using Span = gsl::span<T>;
 
 
-			constexpr explicit Keccak(const unsigned int digestLength);
+			constexpr explicit Keccak(const int digestLength);
 
 			constexpr void reset();
 			Keccak& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
@@ -206,13 +206,13 @@ namespace SHA3_NS
 				//                 KECCAK[ c  ](   _   ,  d )
 
 				// loosely related to the spec
-//				unsigned int b = 1600;  // fixed for all Keccak instances
-//				unsigned int c = 1024;
-//				unsigned int d = 512 / 8;  // digest size
-//				unsigned int r = 576 / 8;  // (b - c)  // IOW, BLOCK_SIZE
-				unsigned int w = 64;       // (b / 25)
+//				int b = 1600;  // fixed for all Keccak instances
+//				int c = 1024;
+//				int d = 512 / 8;  // digest size
+//				int r = 576 / 8;  // (b - c)  // IOW, BLOCK_SIZE
+				int w = 64;       // (b / 25)
 			} const m_params;
-			const unsigned int m_digestLength;
+			const int m_digestLength;
 
 			Buffer<Byte, R> m_buffer;
 			std::vector<Byte> m_final;
@@ -233,7 +233,7 @@ namespace SHA3_NS
 			{
 			}
 
-			constexpr T operator[](const size_t idx) const
+			constexpr T operator[](const gsl::index idx) const
 			{
 				static_assert(std::is_same<T, uint64_t>::value, "");
 				// handle specific endianness here
@@ -256,8 +256,8 @@ namespace SHA3_NS
 	constexpr R ror(const T x, const unsigned int s)
 	{
 		static_assert(std::is_unsigned<R>::value, "");
-		const R mask = -1;
-		return ((x >> s) & mask);
+		static_assert(std::is_unsigned<T>::value, "");
+		return static_cast<R>(x >> s);
 	}
 
 	template <typename T>
@@ -270,18 +270,20 @@ namespace SHA3_NS
 	}
 
 	//
-	template <int R, unsigned int P>
-	constexpr Keccak<R, P>::Keccak(const unsigned int digestLength)
+	template <int R, int P>
+	constexpr Keccak<R, P>::Keccak(const int digestLength)
 		: m_params()
 		, m_digestLength(digestLength)
 	{
+		static_assert((R >= 0), "Template parameter value invalid: R");
+		static_assert((P >= 0), "Template parameter value invalid: P");
 		static_assert((CHAR_BIT == 8), "Sorry, we don't support exotic CPUs");
 
 		m_final.reserve(m_digestLength);
 		reset();
 	}
 
-	template <int R, unsigned int P>
+	template <int R, int P>
 	constexpr void Keccak<R, P>::reset()
 	{
 		m_buffer.clear();
@@ -292,7 +294,7 @@ namespace SHA3_NS
 				m_state[y][x] = 0;
 	}
 
-	template <int R, unsigned int P>
+	template <int R, int P>
 	Keccak<R, P>& Keccak<R, P>::finalize()
 	{
 		// add padding
@@ -311,7 +313,7 @@ namespace SHA3_NS
 		{
 			const std::vector<Byte> state = stateToVector();
 			m_final.insert(m_final.end(), state.begin(), (state.begin() + R));
-			if (m_final.size() >= m_digestLength)
+			if (m_final.size() >= static_cast<size_t>(m_digestLength))
 				break;
 
 			addDataImpl(std::array<Byte, R> {});
@@ -321,7 +323,7 @@ namespace SHA3_NS
 		return (*this);
 	}
 
-	template <int R, unsigned int P>
+	template <int R, int P>
 	std::string Keccak<R, P>::toString() const
 	{
 		const auto v = toVector();
@@ -337,13 +339,13 @@ namespace SHA3_NS
 		return ret;
 	}
 
-	template <int R, unsigned int P>
+	template <int R, int P>
 	std::vector<typename Keccak<R, P>::Byte> Keccak<R, P>::toVector() const
 	{
 		return m_final;
 	}
 
-	template <int R, unsigned int P>
+	template <int R, int P>
 	constexpr Keccak<R, P>& Keccak<R, P>::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
@@ -378,28 +380,28 @@ namespace SHA3_NS
 		return (*this);
 	}
 
-	template <int R, unsigned int P>
+	template <int R, int P>
 	constexpr Keccak<R, P>& Keccak<R, P>::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
 		return addData({static_cast<const Byte*>(ptr), length});
 	}
 
-	template <int R, unsigned int P>
+	template <int R, int P>
 	template <typename T, std::size_t N>
 	Keccak<R, P>& Keccak<R, P>::addData(const T (&array)[N])
 	{
 		return addData({reinterpret_cast<const Byte*>(array), (sizeof(T) * N)});
 	}
 
-	template <int R, unsigned int P>
+	template <int R, int P>
 	template <typename T>
 	Keccak<R, P>& Keccak<R, P>::addData(const Span<T> inSpan)
 	{
 		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
 	}
 
-	template <int R, unsigned int P>
+	template <int R, int P>
 	constexpr void Keccak<R, P>::addDataImpl(const Span<const Byte> data)
 	{
 		assert((data.size() % R) == 0);
@@ -517,7 +519,7 @@ namespace SHA3_NS
 		}
 	}
 
-	template <int R, unsigned int P>
+	template <int R, int P>
 	std::vector<typename Keccak<R, P>::Byte> Keccak<R, P>::stateToVector() const
 	{
 		const Span<const uint64_t> state(reinterpret_cast<const uint64_t *>(m_state), 25);
@@ -539,8 +541,8 @@ namespace SHA3_NS
 	struct SHA3_256 : Hash::SHA3_NS::Keccak<(1088 / 8), 0x06> { SHA3_256() : Hash::SHA3_NS::Keccak<(1088 / 8), 0x06>(256 / 8) {} };
 	struct SHA3_384 : Hash::SHA3_NS::Keccak<( 832 / 8), 0x06> { SHA3_384() : Hash::SHA3_NS::Keccak<( 832 / 8), 0x06>(384 / 8) {} };
 	struct SHA3_512 : Hash::SHA3_NS::Keccak<( 576 / 8), 0x06> { SHA3_512() : Hash::SHA3_NS::Keccak<( 576 / 8), 0x06>(512 / 8) {} };
-	struct SHAKE_128 : Hash::SHA3_NS::Keccak<(1344 / 8), 0x1F> { explicit SHAKE_128(const unsigned int d) : Hash::SHA3_NS::Keccak<(1344 / 8), 0x1F>(d) {} };
-	struct SHAKE_256 : Hash::SHA3_NS::Keccak<(1088 / 8), 0x1F> { explicit SHAKE_256(const unsigned int d) : Hash::SHA3_NS::Keccak<(1088 / 8), 0x1F>(d) {} };
+	struct SHAKE_128 : Hash::SHA3_NS::Keccak<(1344 / 8), 0x1F> { explicit SHAKE_128(const int d) : Hash::SHA3_NS::Keccak<(1344 / 8), 0x1F>(d) {} };
+	struct SHAKE_256 : Hash::SHA3_NS::Keccak<(1088 / 8), 0x1F> { explicit SHAKE_256(const int d) : Hash::SHA3_NS::Keccak<(1088 / 8), 0x1F>(d) {} };
 }
 
 #endif  // CHOCOBO1_SHA3_H

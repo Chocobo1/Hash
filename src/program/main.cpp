@@ -47,7 +47,7 @@
 #include <vector>
 
 
-#define ARRAY_LENGTH(a) (std::extent<decltype(a)>::value)
+#define ARRAY_LENGTH(a) (static_cast<gsl::index>(std::extent<decltype(a)>::value))
 
 
 enum class Hash : int
@@ -150,7 +150,7 @@ Hash getHash(const std::string &hash)
 		"-whirlpool"
 	};
 
-	for (unsigned int i = 0; i < ARRAY_LENGTH(names); ++i)
+	for (int i = 0; i < ARRAY_LENGTH(names); ++i)
 	{
 		if (hash == names[i])
 			return static_cast<Hash>(i);
@@ -168,7 +168,7 @@ bool runHash(const Hash hash, const int argc, const char *argv[])
 		else
 			inStream.reset(new std::ifstream(filename, (std::ios_base::in | std::ios_base::binary)));
 
-		const size_t bufSize = 1024 * 1024;
+		const int bufSize = 1024 * 1024;
 		std::unique_ptr<char[]> buf(new char[bufSize]);
 		while (inStream->good())
 		{
@@ -187,7 +187,7 @@ bool runHash(const Hash hash, const int argc, const char *argv[])
 		else
 			inStream.reset(new std::ifstream(filename));
 
-		const size_t tmpSize = 1024 * 1024;
+		const int tmpSize = 1024 * 1024;
 		std::unique_ptr<char[]> tmp(new char[tmpSize]);
 
 		std::vector<char> buf;
@@ -272,10 +272,10 @@ bool runHash(const Hash hash, const int argc, const char *argv[])
 			if (argc != 5)
 				return false;
 
-			size_t digestLength = 0;
+			int digestLength = 0;
 			try
 			{
-				digestLength = std::stoul(argv[2]);
+				digestLength = std::stoi(argv[2]);
 			}
 			catch (const std::invalid_argument &e)
 			{
@@ -291,10 +291,10 @@ bool runHash(const Hash hash, const int argc, const char *argv[])
 			if (argc != 5)
 				return false;
 
-			size_t digestLength = 0;
+			int digestLength = 0;
 			try
 			{
-				digestLength = std::stoul(argv[2]);
+				digestLength = std::stoi(argv[2]);
 			}
 			catch (const std::invalid_argument &e)
 			{
@@ -481,10 +481,10 @@ bool runHash(const Hash hash, const int argc, const char *argv[])
 			if (argc != 4)
 				return false;
 
-			size_t digestLength = 0;
+			int digestLength = 0;
 			try
 			{
-				digestLength = std::stoul(argv[2]);
+				digestLength = std::stoi(argv[2]);
 			}
 			catch (const std::invalid_argument &e)
 			{
@@ -500,10 +500,10 @@ bool runHash(const Hash hash, const int argc, const char *argv[])
 			if (argc != 4)
 				return false;
 
-			size_t digestLength = 0;
+			int digestLength = 0;
 			try
 			{
-				digestLength = std::stoul(argv[2]);
+				digestLength = std::stoi(argv[2]);
 			}
 			catch (const std::invalid_argument &e)
 			{
@@ -582,10 +582,10 @@ bool runHash(const Hash hash, const int argc, const char *argv[])
 			if (argc != 5)
 				return false;
 
-			size_t digestLength = 0;
+			int digestLength = 0;
 			try
 			{
-				digestLength = std::stoul(argv[2]);
+				digestLength = std::stoi(argv[2]);
 			}
 			catch (const std::invalid_argument &e)
 			{
@@ -601,10 +601,10 @@ bool runHash(const Hash hash, const int argc, const char *argv[])
 			if (argc != 5)
 				return false;
 
-			size_t digestLength = 0;
+			int digestLength = 0;
 			try
 			{
-				digestLength = std::stoul(argv[2]);
+				digestLength = std::stoi(argv[2]);
 			}
 			catch (const std::invalid_argument &e)
 			{

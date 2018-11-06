@@ -16,7 +16,7 @@
 #include <cstring>
 
 
-#define ARRAY_LENGTH(a) (std::extent<decltype(a)>::value)
+#define ARRAY_LENGTH(a) (static_cast<gsl::index>(std::extent<decltype(a)>::value))
 
 
 TEST_CASE("sm3")

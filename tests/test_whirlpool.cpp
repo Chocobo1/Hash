@@ -16,9 +16,6 @@
 #include <cstring>
 
 
-#define ARRAY_LENGTH(a) (std::extent<decltype(a)>::value)
-
-
 TEST_CASE("whirlpool")
 {
 	using Hash = Chocobo1::Whirlpool;

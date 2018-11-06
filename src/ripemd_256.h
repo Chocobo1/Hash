@@ -49,12 +49,12 @@ namespace Hash
 
 #ifndef CHOCOBO1_HASH_BUFFER_IMPL
 #define CHOCOBO1_HASH_BUFFER_IMPL
-	template <typename T, std::size_t N>
+	template <typename T, gsl::index N>
 	class Buffer
 	{
 		public:
 			using value_type = T;
-			using size_type = std::size_t;
+			using index_type = gsl::index;
 			using reference = T&;
 			using iterator = T*;
 			using const_iterator = const T*;
@@ -85,24 +85,24 @@ namespace Hash
 				}
 			}
 
-			constexpr T& operator[](const size_type pos)
+			constexpr T& operator[](const index_type pos)
 			{
 				return m_array[pos];
 			}
 
-			constexpr T operator[](const size_type pos) const
+			constexpr T operator[](const index_type pos) const
 			{
 				return m_array[pos];
 			}
 
-			constexpr void fill(const T &value, const size_type count = 1)
+			constexpr void fill(const T &value, const index_type count = 1)
 			{
 #if !defined(NDEBUG)
 				// check if out-of-bounds
 				m_array.at(m_dataEndIdx + count - 1);
 #endif
 
-				for (size_type i = 0; i < count; ++i)
+				for (index_type i = 0; i < count; ++i)
 				{
 					m_array[m_dataEndIdx] = value;
 					++m_dataEndIdx;
@@ -129,7 +129,7 @@ namespace Hash
 				return (m_dataEndIdx == 0);
 			}
 
-			constexpr size_type size() const
+			constexpr index_type size() const
 			{
 				return m_dataEndIdx;
 			}
@@ -165,7 +165,7 @@ namespace Hash
 
 		private:
 			std::array<T, N> m_array {};
-			size_type m_dataEndIdx = 0;
+			index_type m_dataEndIdx = 0;
 	};
 #endif
 
@@ -203,7 +203,7 @@ namespace RIPEMD_256_NS
 		private:
 			CONSTEXPR_CPP17_CHOCOBO1_HASH void addDataImpl(const Span<const Byte> data);
 
-			static constexpr unsigned int BLOCK_SIZE = 64;
+			static constexpr int BLOCK_SIZE = 64;
 
 			Buffer<Byte, (BLOCK_SIZE * 2)> m_buffer;  // x2 for paddings
 			uint64_t m_sizeCounter = 0;
@@ -224,7 +224,7 @@ namespace RIPEMD_256_NS
 			{
 			}
 
-			constexpr T operator[](const size_t idx) const
+			constexpr T operator[](const gsl::index idx) const
 			{
 				static_assert(std::is_same<T, uint32_t>::value, "");
 				// handle specific endianness here
@@ -243,8 +243,8 @@ namespace RIPEMD_256_NS
 	constexpr R ror(const T x, const unsigned int s)
 	{
 		static_assert(std::is_unsigned<R>::value, "");
-		const R mask = -1;
-		return ((x >> s) & mask);
+		static_assert(std::is_unsigned<T>::value, "");
+		return static_cast<R>(x >> s);
 	}
 
 	template <typename T>

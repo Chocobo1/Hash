@@ -76,7 +76,7 @@ namespace CRC_32_NS
 		private:
 			constexpr void addDataImpl(const Span<const Byte> data);
 
-			static constexpr unsigned int BLOCK_SIZE = 16;
+			static constexpr int BLOCK_SIZE = 16;
 
 			uint32_t m_h = 0;
 
@@ -644,7 +644,7 @@ namespace CRC_32_NS
 			{
 			}
 
-			constexpr T operator[](const size_t idx) const
+			constexpr T operator[](const gsl::index idx) const
 			{
 				static_assert(std::is_same<T, uint32_t>::value, "");
 				// handle specific endianness here
@@ -663,8 +663,8 @@ namespace CRC_32_NS
 	constexpr R ror(const T x, const unsigned int s)
 	{
 		static_assert(std::is_unsigned<R>::value, "");
-		const R mask = -1;
-		return ((x >> s) & mask);
+		static_assert(std::is_unsigned<T>::value, "");
+		return static_cast<R>(x >> s);
 	}
 
 

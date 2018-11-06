@@ -1,6 +1,6 @@
 # compiler options
 CXX       += -fsanitize=undefined
-CXXFLAGS   = -std=c++14 -pipe -Wall -Wextra -Wpedantic -fmax-errors=2 -fdiagnostics-color=auto -O2 -g
+CXXFLAGS   = -std=c++14 -pipe -Wall -Wextra -Wpedantic -Wconversion -fmax-errors=2 -fdiagnostics-color=auto -O2 -g
 #LDFLAGS	   = -s
 SRC_NAME   = main \
 	test_blake1_224 test_blake1_256 test_blake1_384 test_blake1_512 \

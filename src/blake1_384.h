@@ -48,12 +48,12 @@ namespace Hash
 
 #ifndef CHOCOBO1_HASH_BUFFER_IMPL
 #define CHOCOBO1_HASH_BUFFER_IMPL
-	template <typename T, std::size_t N>
+	template <typename T, gsl::index N>
 	class Buffer
 	{
 		public:
 			using value_type = T;
-			using size_type = std::size_t;
+			using index_type = gsl::index;
 			using reference = T&;
 			using iterator = T*;
 			using const_iterator = const T*;
@@ -84,24 +84,24 @@ namespace Hash
 				}
 			}
 
-			constexpr T& operator[](const size_type pos)
+			constexpr T& operator[](const index_type pos)
 			{
 				return m_array[pos];
 			}
 
-			constexpr T operator[](const size_type pos) const
+			constexpr T operator[](const index_type pos) const
 			{
 				return m_array[pos];
 			}
 
-			constexpr void fill(const T &value, const size_type count = 1)
+			constexpr void fill(const T &value, const index_type count = 1)
 			{
 #if !defined(NDEBUG)
 				// check if out-of-bounds
 				m_array.at(m_dataEndIdx + count - 1);
 #endif
 
-				for (size_type i = 0; i < count; ++i)
+				for (index_type i = 0; i < count; ++i)
 				{
 					m_array[m_dataEndIdx] = value;
 					++m_dataEndIdx;
@@ -128,7 +128,7 @@ namespace Hash
 				return (m_dataEndIdx == 0);
 			}
 
-			constexpr size_type size() const
+			constexpr index_type size() const
 			{
 				return m_dataEndIdx;
 			}
@@ -164,7 +164,7 @@ namespace Hash
 
 		private:
 			std::array<T, N> m_array {};
-			size_type m_dataEndIdx = 0;
+			index_type m_dataEndIdx = 0;
 	};
 #endif
 
@@ -197,7 +197,7 @@ namespace Hash
 				// only handle `*8` case
 				assert(n == 8);
 
-				const uint8_t msb = (m_lo >> 61) & 0xff;
+				const uint8_t msb = static_cast<uint8_t>(m_lo >> 61);
 				m_hi = (m_hi << 3) | msb;
 				m_lo = m_lo << 3;
 
@@ -262,9 +262,9 @@ namespace Blake1_384_NS
 			Blake1_384& addData(const Span<T> inSpan);
 
 		private:
-			constexpr void addDataImpl(const Span<const Byte> data, const uint32_t paddingLen = 0);
+			constexpr void addDataImpl(const Span<const Byte> data, const int paddingLen = 0);
 
-			static constexpr unsigned int BLOCK_SIZE = 128;
+			static constexpr int BLOCK_SIZE = 128;
 
 			Buffer<Byte, (BLOCK_SIZE * 2)> m_buffer;  // x2 for paddings
 			Uint128 m_sizeCounter;
@@ -293,7 +293,7 @@ namespace Blake1_384_NS
 			{
 			}
 
-			constexpr T operator[](const size_t idx) const
+			constexpr T operator[](const gsl::index idx) const
 			{
 				static_assert(std::is_same<T, uint64_t>::value, "");
 				// handle specific endianness here
@@ -316,8 +316,8 @@ namespace Blake1_384_NS
 	constexpr R ror(const T x, const unsigned int s)
 	{
 		static_assert(std::is_unsigned<R>::value, "");
-		const R mask = -1;
-		return ((x >> s) & mask);
+		static_assert(std::is_unsigned<T>::value, "");
+		return static_cast<R>(x >> s);
 	}
 
 	template <typename T>
@@ -362,7 +362,7 @@ namespace Blake1_384_NS
 		m_buffer.fill(1 << 7);
 
 		// append paddings
-		const size_t len = BLOCK_SIZE - ((m_buffer.size() + 16) % BLOCK_SIZE);
+		const int len = static_cast<int>(BLOCK_SIZE - ((m_buffer.size() + 16) % BLOCK_SIZE));
 		m_buffer.fill(0, (len + 16));
 
 		// append size in bits
@@ -467,7 +467,7 @@ namespace Blake1_384_NS
 		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
 	}
 
-	constexpr void Blake1_384::addDataImpl(const Span<const Byte> data, const uint32_t paddingLen)
+	constexpr void Blake1_384::addDataImpl(const Span<const Byte> data, const int paddingLen)
 	{
 		assert((data.size() % BLOCK_SIZE) == 0);
 
@@ -483,7 +483,7 @@ namespace Blake1_384_NS
 				cTable[0], cTable[1], cTable[2], cTable[3], cTable[4], cTable[5], cTable[6], cTable[7]
 			};
 
-			const uint32_t nonPaddingBits = (BLOCK_SIZE - paddingLen) * 8;
+			const int nonPaddingBits = (BLOCK_SIZE - paddingLen) * 8;
 			m_sizeCounter += nonPaddingBits;
 			if (nonPaddingBits > 0)
 			{

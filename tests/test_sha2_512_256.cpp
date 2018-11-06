@@ -16,9 +16,6 @@
 #include <cstring>
 
 
-#define ARRAY_LENGTH(a) (std::extent<decltype(a)>::value)
-
-
 TEST_CASE("sha2-512/256")
 {
 	using Hash = Chocobo1::SHA2_512_256;

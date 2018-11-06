@@ -27,8 +27,8 @@
 namespace Chocobo1
 {
 	// Use these!!
-	// CSHAKE_128(const unsigned int digestLengthInBytes, const std::string &name = {}, const std::string &customize = {});
-	// CSHAKE_256(const unsigned int digestLengthInBytes, const std::string &name = {}, const std::string &customize = {});
+	// CSHAKE_128(const int digestLengthInBytes, const std::string &name = {}, const std::string &customize = {});
+	// CSHAKE_256(const int digestLengthInBytes, const std::string &name = {}, const std::string &customize = {});
 }
 
 
@@ -39,7 +39,7 @@ namespace Hash
 {
 namespace CShake_NS
 {
-	template <typename S, typename K, unsigned int P>
+	template <typename S, typename K, int P>
 	class CShake
 	{
 		// https://doi.org/10.6028/NIST.SP.800-185
@@ -51,7 +51,7 @@ namespace CShake_NS
 			using Span = gsl::span<T>;
 
 
-			explicit CShake(const unsigned int digestLength, const std::string &name = {}, const std::string &customize = {});
+			explicit CShake(const int digestLength, const std::string &name = {}, const std::string &customize = {});
 
 			constexpr void reset();
 			constexpr CShake& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
@@ -77,16 +77,17 @@ namespace CShake_NS
 
 
 	// helpers
-	template <typename R, typename T, typename std::enable_if<(std::is_unsigned<T>::value), int>::type = 0>
-	constexpr R ror(const T n, const unsigned int r)
+	template <typename R, typename T>
+	constexpr R ror(const T x, const unsigned int s)
 	{
-		const R mask = -1;
-		return ((n >> r) & mask);
+		static_assert(std::is_unsigned<R>::value, "");
+		static_assert(std::is_unsigned<T>::value, "");
+		return static_cast<R>(x >> s);
 	}
 
 	inline std::vector<uint8_t> leftEncode(const uint64_t value)
 	{
-		const uint8_t n = (value == 0) ? 1 : std::lround((std::log2(value) / 8) + 0.5);
+		const uint8_t n = (value == 0) ? 1 : static_cast<uint8_t>(std::lround((std::log2(value) / 8) + 0.5));
 		std::vector<uint8_t> ret = {n};
 		ret.reserve(n + 1);
 
@@ -98,10 +99,11 @@ namespace CShake_NS
 
 
 	//
-	template <typename S, typename K, unsigned int P>
-	CShake<S, K, P>::CShake(const unsigned int digestLength, const std::string &name, const std::string &customize)
+	template <typename S, typename K, int P>
+	CShake<S, K, P>::CShake(const int digestLength, const std::string &name, const std::string &customize)
 		: m_customized(!(name.empty() && customize.empty()))
 	{
+		static_assert((P >= 0), "Template parameter value invalid: P");
 		static_assert((CHAR_BIT == 8), "Sorry, we don't support exotic CPUs");
 
 		if (!m_customized)
@@ -140,7 +142,7 @@ namespace CShake_NS
 		addData(zeros);
 	}
 
-	template <typename S, typename K, unsigned int P>
+	template <typename S, typename K, int P>
 	constexpr void CShake<S, K, P>::reset()
 	{
 		if (!m_customized)
@@ -149,7 +151,7 @@ namespace CShake_NS
 			m_keccak->reset();
 	}
 
-	template <typename S, typename K, unsigned int P>
+	template <typename S, typename K, int P>
 	constexpr CShake<S, K, P>& CShake<S, K, P>::finalize()
 	{
 		if (!m_customized)
@@ -159,7 +161,7 @@ namespace CShake_NS
 		return (*this);
 	}
 
-	template <typename S, typename K, unsigned int P>
+	template <typename S, typename K, int P>
 	std::string CShake<S, K, P>::toString() const
 	{
 		if (!m_customized)
@@ -168,7 +170,7 @@ namespace CShake_NS
 			return m_keccak->toString();
 	}
 
-	template <typename S, typename K, unsigned int P>
+	template <typename S, typename K, int P>
 	std::vector<typename CShake<S, K, P>::Byte> CShake<S, K, P>::toVector() const
 	{
 		if (!m_customized)
@@ -177,35 +179,35 @@ namespace CShake_NS
 			return m_keccak->toVector();
 	}
 
-	template <typename S, typename K, unsigned int P>
+	template <typename S, typename K, int P>
 	constexpr CShake<S, K, P>& CShake<S, K, P>::addData(const Span<const Byte> inData)
 	{
 		addDataImpl(inData);
 		return (*this);
 	}
 
-	template <typename S, typename K, unsigned int P>
+	template <typename S, typename K, int P>
 	constexpr CShake<S, K, P>& CShake<S, K, P>::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
 		return addData({static_cast<const Byte*>(ptr), length});
 	}
 
-	template <typename S, typename K, unsigned int P>
+	template <typename S, typename K, int P>
 	template <typename T, std::size_t N>
 	CShake<S, K, P>& CShake<S, K, P>::addData(const T (&array)[N])
 	{
 		return addData({reinterpret_cast<const Byte*>(array), (sizeof(T) * N)});
 	}
 
-	template <typename S, typename K, unsigned int P>
+	template <typename S, typename K, int P>
 	template <typename T>
 	CShake<S, K, P>& CShake<S, K, P>::addData(const Span<T> inSpan)
 	{
 		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
 	}
 
-	template <typename S, typename K, unsigned int P>
+	template <typename S, typename K, int P>
 	constexpr void CShake<S, K, P>::addDataImpl(const Span<const Byte> data)
 	{
 		if (!m_customized)
@@ -215,8 +217,8 @@ namespace CShake_NS
 	}
 }
 }
-	struct CSHAKE_128 : Hash::CShake_NS::CShake<SHAKE_128, Hash::SHA3_NS::Keccak<(1344 / 8), 0x04>, (1344 / 8)> { explicit CSHAKE_128(const unsigned int l, const std::string &n = {}, const std::string &c = {}) : Hash::CShake_NS::CShake<SHAKE_128, Hash::SHA3_NS::Keccak<(1344 / 8), 0x04>, (1344 / 8)>(l, n, c) {} };
-	struct CSHAKE_256 : Hash::CShake_NS::CShake<SHAKE_256, Hash::SHA3_NS::Keccak<(1088 / 8), 0x04>, (1088 / 8)> { explicit CSHAKE_256(const unsigned int l, const std::string &n = {}, const std::string &c = {}) : Hash::CShake_NS::CShake<SHAKE_256, Hash::SHA3_NS::Keccak<(1088 / 8), 0x04>, (1088 / 8)>(l, n, c) {} };
+	struct CSHAKE_128 : Hash::CShake_NS::CShake<SHAKE_128, Hash::SHA3_NS::Keccak<(1344 / 8), 0x04>, (1344 / 8)> { explicit CSHAKE_128(const int l, const std::string &n = {}, const std::string &c = {}) : Hash::CShake_NS::CShake<SHAKE_128, Hash::SHA3_NS::Keccak<(1344 / 8), 0x04>, (1344 / 8)>(l, n, c) {} };
+	struct CSHAKE_256 : Hash::CShake_NS::CShake<SHAKE_256, Hash::SHA3_NS::Keccak<(1088 / 8), 0x04>, (1088 / 8)> { explicit CSHAKE_256(const int l, const std::string &n = {}, const std::string &c = {}) : Hash::CShake_NS::CShake<SHAKE_256, Hash::SHA3_NS::Keccak<(1088 / 8), 0x04>, (1088 / 8)>(l, n, c) {} };
 }
 
 #endif  // CHOCOBO1_CSHAKE_H
