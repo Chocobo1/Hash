@@ -26,7 +26,6 @@ addons:
       # packages list: https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
       - g++-5
       - clang-4.0
-      - python3-pip
 
 
 install:
@@ -45,14 +44,23 @@ install:
         CXX="ccache clang++-4.0 -Qunused-arguments"
       fi
 
-      # ninja
-      mkdir ~/ninja
-      wget "https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-linux.zip" -O ~/ninja/ninja-linux.zip
-      unzip ~/ninja/ninja-linux.zip -d ~/ninja
-      PATH="$PATH":~/ninja
+      # python
+      pyenv versions
+      pyenv global 3.6
+      python3 --version
+
+      # python-pip
+      pip3 --version
 
       # meson
       pip3 install --user meson
+
+      # ninja
+      mkdir ~/ninja
+      wget "https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-linux.zip" -O ~/ninja/ninja-linux.zip
+      unzip ~/ninja/ninja-linux.zip -d ~/ninja
+      PATH="$PATH":~/ninja
+      ninja --version
     fi
 
 
