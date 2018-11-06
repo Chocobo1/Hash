@@ -16,15 +16,15 @@ clone_folder: *REPO_DIR
 
 
 install:
+  # python
+  - set PATH=%PYTHON3_DIR%;%PYTHON3_DIR%\Scripts;%PATH%
+  - python --version
   # ninja
   - cd \
   - appveyor DownloadFile "%NINJA_URL%" -FileName "ninja.zip"
   - 7z e "ninja.zip" -o"%NINJA_DIR%"
   - set PATH=%PATH%;%NINJA_DIR%
   - ninja --version
-  # python
-  - set PATH=%PYTHON3_DIR%;%PYTHON3_DIR%\Scripts;%PATH%
-  - python --version
 
 
 build_script:

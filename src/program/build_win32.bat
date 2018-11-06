@@ -6,12 +6,12 @@ rem   meson: http://mesonbuild.com/
 rem   ninja: https://ninja-build.org/
 
 if not defined CL_EXIST (
-	call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
+	call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
 	set CL_EXIST=1
 )
 
 if not exist "_venv" (
-	virtualenv "_venv"
+	python -m venv "_venv"
 	call "_venv\Scripts\activate.bat"
 	pip3 install meson
 ) else (
@@ -19,7 +19,7 @@ if not exist "_venv" (
 )
 
 if not exist "_build" (
-	python "_venv\Scripts\meson.py" "_build"
+	"_venv\Scripts\meson.exe" "_build"
 	rem --backend vs
 )
 
