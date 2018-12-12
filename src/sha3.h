@@ -53,8 +53,6 @@ namespace Hash
 			using value_type = T;
 			using index_type = gsl::index;
 			using reference = T&;
-			using iterator = T*;
-			using const_iterator = const T*;
 
 			constexpr Buffer() = default;
 			constexpr explicit Buffer(const Buffer &) = default;
@@ -134,30 +132,6 @@ namespace Hash
 			constexpr const T* data() const
 			{
 				return m_array.data();
-			}
-
-			constexpr iterator begin()
-			{
-				return m_array.data();
-			}
-
-			constexpr const_iterator begin() const
-			{
-				return m_array.data();
-			}
-
-			constexpr iterator end()
-			{
-				if (N == 0)
-					return m_array.data();
-				return &m_array[m_dataEndIdx];
-			}
-
-			constexpr const_iterator end() const
-			{
-				if (N == 0)
-					return m_array.data();
-				return &m_array[m_dataEndIdx];
 			}
 
 		private:
@@ -305,7 +279,7 @@ namespace SHA3_NS
 		m_buffer.fill(0, len);
 		m_buffer[m_buffer.size() - 1] |= (1 << 7);
 
-		addDataImpl({m_buffer.begin(), m_buffer.end()});
+		addDataImpl({m_buffer.data(), m_buffer.size()});
 		m_buffer.clear();
 
 		// squish out
@@ -358,7 +332,7 @@ namespace SHA3_NS
 			if (m_buffer.size() < R)  // still doesn't fill the buffer
 				return (*this);
 
-			addDataImpl({m_buffer.begin(), m_buffer.end()});
+			addDataImpl({m_buffer.data(), m_buffer.size()});
 			m_buffer.clear();
 
 			data = data.subspan(len);

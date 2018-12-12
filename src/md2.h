@@ -54,8 +54,6 @@ namespace Hash
 			using value_type = T;
 			using index_type = gsl::index;
 			using reference = T&;
-			using iterator = T*;
-			using const_iterator = const T*;
 
 			constexpr Buffer() = default;
 			constexpr explicit Buffer(const Buffer &) = default;
@@ -135,30 +133,6 @@ namespace Hash
 			constexpr const T* data() const
 			{
 				return m_array.data();
-			}
-
-			constexpr iterator begin()
-			{
-				return m_array.data();
-			}
-
-			constexpr const_iterator begin() const
-			{
-				return m_array.data();
-			}
-
-			constexpr iterator end()
-			{
-				if (N == 0)
-					return m_array.data();
-				return &m_array[m_dataEndIdx];
-			}
-
-			constexpr const_iterator end() const
-			{
-				if (N == 0)
-					return m_array.data();
-				return &m_array[m_dataEndIdx];
 			}
 
 		private:
@@ -254,7 +228,7 @@ namespace MD2_NS
 		// append padding bytes
 		const int len = static_cast<int>(BLOCK_SIZE - (m_buffer.size() % BLOCK_SIZE));
 		m_buffer.fill(static_cast<Byte>(len), len);
-		addDataImpl({m_buffer.begin(), m_buffer.end()});
+		addDataImpl({m_buffer.data(), m_buffer.size()});
 		m_buffer.clear();
 
 		// append checksum
@@ -302,7 +276,7 @@ namespace MD2_NS
 			if (m_buffer.size() < BLOCK_SIZE)  // still doesn't fill the buffer
 				return (*this);
 
-			addDataImpl({m_buffer.begin(), m_buffer.end()});
+			addDataImpl({m_buffer.data(), m_buffer.size()});
 			m_buffer.clear();
 
 			data = data.subspan(len);

@@ -55,8 +55,6 @@ namespace Hash
 			using value_type = T;
 			using index_type = gsl::index;
 			using reference = T&;
-			using iterator = T*;
-			using const_iterator = const T*;
 
 			constexpr Buffer() = default;
 			constexpr explicit Buffer(const Buffer &) = default;
@@ -136,30 +134,6 @@ namespace Hash
 			constexpr const T* data() const
 			{
 				return m_array.data();
-			}
-
-			constexpr iterator begin()
-			{
-				return m_array.data();
-			}
-
-			constexpr const_iterator begin() const
-			{
-				return m_array.data();
-			}
-
-			constexpr iterator end()
-			{
-				if (N == 0)
-					return m_array.data();
-				return &m_array[m_dataEndIdx];
-			}
-
-			constexpr const_iterator end() const
-			{
-				if (N == 0)
-					return m_array.data();
-				return &m_array[m_dataEndIdx];
 			}
 
 		private:
@@ -285,7 +259,7 @@ namespace Blake2s_NS
 		const int len = static_cast<int>(BLOCK_SIZE - m_buffer.size());
 		m_buffer.fill(0, len);
 
-		addDataImpl({m_buffer.begin(), m_buffer.end()}, true, len);
+		addDataImpl({m_buffer.data(), m_buffer.size()}, true, len);
 		m_buffer.clear();
 
 		return (*this);
@@ -337,7 +311,7 @@ namespace Blake2s_NS
 
 		if (m_buffer.size() == BLOCK_SIZE)
 		{
-			addDataImpl({m_buffer.begin(), m_buffer.end()}, false);
+			addDataImpl({m_buffer.data(), m_buffer.size()}, false);
 			m_buffer.clear();
 		}
 		else if (!m_buffer.empty())
