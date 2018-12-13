@@ -3,6 +3,8 @@ language: cpp
 os:
   - linux
   - osx
+
+dist: xenial
 osx_image: xcode9
 
 compiler:
@@ -13,13 +15,10 @@ cache:
   - ccache: true
   - pip
 
-dist: trusty
-
 addons:
   apt:
     sources:
-      # sources list: https://github.com/travis-ci/apt-source-whitelist/blob/master/ubuntu.json
-      - llvm-toolchain-trusty-4.0
+      # sources list: https://github.com/travis-ci/apt-source-safelist/blob/master/ubuntu.json
       - ubuntu-toolchain-r-test
     packages:
       # packages list: https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
@@ -28,6 +27,11 @@ addons:
 
 
 install:
+  - CXXFLAGS="$CXXFLAGS -Wno-unknown-attributes"
+  - |
+    if [ "$CXX" = "clang++" ]; then
+      CXXFLAGS="$CXXFLAGS -Qunused-arguments"
+    fi
   - |
     if [ "$TRAVIS_OS_NAME" = "osx" ]; then
       brew update > /dev/null
@@ -36,11 +40,10 @@ install:
       # ccache
       PATH="/usr/local/opt/ccache/libexec:$PATH"
     else
-      # gcc
       if [ "$CXX" = "g++" ]; then
         CXX="ccache g++-5"
       else
-        CXX="ccache clang++-4.0 -Qunused-arguments"
+        CXX="ccache clang++-4.0"
       fi
 
       # python
@@ -66,10 +69,10 @@ install:
 script:
   # tests
   - cd "$TRAVIS_BUILD_DIR/tests"
-  - meson "_build"
+  - CXXFLAGS="$CXXFLAGS" meson "_build"
   - cd "_build" && ninja -j1
   - ./run_tests -d yes
   # program
   - cd "$TRAVIS_BUILD_DIR/src/program"
-  - meson "_build"
+  - CXXFLAGS="$CXXFLAGS" meson "_build"
   - cd "_build" && ninja -j1
