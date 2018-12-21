@@ -56,7 +56,7 @@ namespace Hash
 			using reference = T&;
 
 			constexpr Buffer() = default;
-			constexpr explicit Buffer(const Buffer &) = default;
+			constexpr Buffer(const Buffer &) = default;
 
 			constexpr Buffer(const std::initializer_list<T> initList)
 			{
