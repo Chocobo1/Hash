@@ -375,12 +375,16 @@ namespace SHA2_512_224_NS
 	{
 		const auto a = toArray();
 		std::string ret;
-		ret.reserve(2 * a.size());
+		ret.resize(2 * a.size());
+
+		auto retPtr = &ret.front();
 		for (const auto c : a)
 		{
-			char buf[3];
-			snprintf(buf, sizeof(buf), "%02x", c);
-			ret.append(buf);
+			const Byte upper = ror<Byte>(c, 4);
+			*(retPtr++) = static_cast<char>((upper < 10) ? (upper + '0') : (upper - 10 + 'a'));
+
+			const Byte lower = c & 0xf;
+			*(retPtr++) = static_cast<char>((lower < 10) ? (lower + '0') : (lower - 10 + 'a'));
 		}
 
 		return ret;
@@ -397,17 +401,17 @@ namespace SHA2_512_224_NS
 		const Span<const uint64_t> state(m_h, 3);
 		const int dataSize = sizeof(decltype(state)::value_type);
 
-		int retCounter = 0;
 		ResultArrayType ret {};
+		auto retPtr = ret.data();
 		for (const auto i : state)
 		{
 			for (int j = (dataSize - 1); j >= 0; --j)
-				ret[retCounter++] = ror<Byte>(i, (j * 8));
+				*(retPtr++) = ror<Byte>(i, (j * 8));
 		}
-		ret[retCounter++] = ror<Byte>(m_h[3], 56);
-		ret[retCounter++] = ror<Byte>(m_h[3], 48);
-		ret[retCounter++] = ror<Byte>(m_h[3], 40);
-		ret[retCounter++] = ror<Byte>(m_h[3], 32);
+		*(retPtr++) = ror<Byte>(m_h[3], 56);
+		*(retPtr++) = ror<Byte>(m_h[3], 48);
+		*(retPtr++) = ror<Byte>(m_h[3], 40);
+		*(retPtr++) = ror<Byte>(m_h[3], 32);
 
 		return ret;
 	}

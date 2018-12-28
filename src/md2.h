@@ -207,6 +207,15 @@ namespace MD2_NS
 	constexpr MD2::Byte MD2::piSubst[256];
 
 
+	template <typename R, typename T>
+	constexpr R ror(const T x, const unsigned int s)
+	{
+		static_assert(std::is_unsigned<R>::value, "");
+		static_assert(std::is_unsigned<T>::value, "");
+		return static_cast<R>(x >> s);
+	}
+
+
 	//
 	constexpr MD2::MD2()
 	{
@@ -242,12 +251,16 @@ namespace MD2_NS
 	{
 		const auto a = toArray();
 		std::string ret;
-		ret.reserve(2 * a.size());
+		ret.resize(2 * a.size());
+
+		auto retPtr = &ret.front();
 		for (const auto c : a)
 		{
-			char buf[3];
-			snprintf(buf, sizeof(buf), "%02x", c);
-			ret.append(buf);
+			const Byte upper = ror<Byte>(c, 4);
+			*(retPtr++) = static_cast<char>((upper < 10) ? (upper + '0') : (upper - 10 + 'a'));
+
+			const Byte lower = c & 0xf;
+			*(retPtr++) = static_cast<char>((lower < 10) ? (lower + '0') : (lower - 10 + 'a'));
 		}
 
 		return ret;

@@ -302,12 +302,16 @@ namespace SHA3_NS
 	{
 		const auto v = toVector();
 		std::string ret;
-		ret.reserve(2 * v.size());
+		ret.resize(2 * v.size());
+
+		auto retPtr = &ret.front();
 		for (const auto c : v)
 		{
-			char buf[3];
-			snprintf(buf, sizeof(buf), "%02x", c);
-			ret.append(buf);
+			const Byte upper = ror<Byte>(c, 4);
+			*(retPtr++) = static_cast<char>((upper < 10) ? (upper + '0') : (upper - 10 + 'a'));
+
+			const Byte lower = c & 0xf;
+			*(retPtr++) = static_cast<char>((lower < 10) ? (lower + '0') : (lower - 10 + 'a'));
 		}
 
 		return ret;
