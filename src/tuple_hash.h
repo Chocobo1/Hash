@@ -17,6 +17,7 @@
 #include "gsl/span"
 
 #include <climits>
+#include <cmath>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -57,7 +58,7 @@ namespace TupleHash_NS
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 
-			TupleHash& nextData(const Span<const Byte> inData);  // pass in next element in tuple
+			constexpr TupleHash& nextData(const Span<const Byte> inData);  // pass in next element in tuple
 			constexpr TupleHash& nextData(const void *ptr, const long int length);
 			template <typename T, std::size_t N>
 			TupleHash& nextData(const T (&array)[N]);
@@ -73,14 +74,17 @@ namespace TupleHash_NS
 
 
 	// helpers
-	inline std::vector<uint8_t> rightEncode(const uint64_t value)
+	const auto rightEncode = [](const uint64_t value) -> Buffer<uint8_t, sizeof(value)>
 	{
-		std::vector<uint8_t> ret = Chocobo1::Hash::CShake_NS::leftEncode(value);
-		const uint8_t first = ret.front();
-		ret.erase(ret.begin());
-		ret.emplace_back(first);
+		const uint8_t n = (value == 0) ? 1 : static_cast<uint8_t>(std::lround((std::log2(value) / 8) + 0.5));
+
+		Buffer<uint8_t, sizeof(value)> ret;
+		for (int i = (n - 1); i >= 0; --i)
+			ret.fill(Chocobo1::Hash::CShake_NS::ror<uint8_t>(value, (8 * i)));
+		ret.fill(n);
+
 		return ret;
-	}
+	};
 
 
 	//
@@ -101,7 +105,8 @@ namespace TupleHash_NS
 	template <typename Alg>
 	constexpr TupleHash<Alg>& TupleHash<Alg>::finalize()
 	{
-		addDataImpl(rightEncode(m_digestLength * 8));
+		const auto encoded = rightEncode(m_digestLength * 8);
+		addDataImpl({encoded.data(), encoded.size()});
 		m_cshake.finalize();
 		return (*this);
 	}
@@ -119,10 +124,10 @@ namespace TupleHash_NS
 	}
 
 	template <typename Alg>
-	TupleHash<Alg>& TupleHash<Alg>::nextData(const Span<const Byte> inData)
+	constexpr TupleHash<Alg>& TupleHash<Alg>::nextData(const Span<const Byte> inData)
 	{
-		const std::vector<uint8_t> encoded = Chocobo1::Hash::CShake_NS::leftEncode(inData.size() * 8);
-		addDataImpl(encoded);
+		const auto encoded = Chocobo1::Hash::CShake_NS::leftEncode(inData.size() * 8);
+		addDataImpl({encoded.data(), encoded.size()});
 		addDataImpl(inData);
 
 		return (*this);

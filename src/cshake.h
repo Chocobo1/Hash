@@ -51,7 +51,7 @@ namespace CShake_NS
 			using Span = gsl::span<T>;
 
 
-			explicit CShake(const int digestLength, const std::string &name = {}, const std::string &customize = {});
+			explicit constexpr CShake(const int digestLength, const std::string &name = {}, const std::string &customize = {});
 
 			constexpr void reset();
 			constexpr CShake& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
@@ -85,22 +85,21 @@ namespace CShake_NS
 		return static_cast<R>(x >> s);
 	}
 
-	inline std::vector<uint8_t> leftEncode(const uint64_t value)
+	const auto leftEncode = [](const uint64_t value) -> Buffer<uint8_t, sizeof(value)>
 	{
 		const uint8_t n = (value == 0) ? 1 : static_cast<uint8_t>(std::lround((std::log2(value) / 8) + 0.5));
-		std::vector<uint8_t> ret = {n};
-		ret.reserve(n + 1);
 
+		Buffer<uint8_t, sizeof(value)> ret = {n};
 		for (int i = (n - 1); i >= 0; --i)
-			ret.emplace_back(ror<uint8_t>(value, (8 * i)));
+			ret.fill(ror<uint8_t>(value, (8 * i)));
 
 		return ret;
-	}
+	};
 
 
 	//
 	template <typename S, typename K, int P>
-	CShake<S, K, P>::CShake(const int digestLength, const std::string &name, const std::string &customize)
+	constexpr CShake<S, K, P>::CShake(const int digestLength, const std::string &name, const std::string &customize)
 		: m_customized(!(name.empty() && customize.empty()))
 	{
 		static_assert((P >= 0), "Template parameter value invalid: P");
@@ -119,7 +118,7 @@ namespace CShake_NS
 		const auto processString = [this](const std::string &str, size_t &length) -> void
 		{
 			const auto encodedStr = leftEncode(str.size() * 8);
-			addData(encodedStr);
+			addData({encodedStr.data(), encodedStr.size()});
 			length += encodedStr.size();
 			addData(str.data(), str.size());
 			length += str.size();
@@ -132,14 +131,15 @@ namespace CShake_NS
 		size_t length = 0;
 
 		const auto encodedW = leftEncode(P);
-		addData(encodedW);
+		addData({encodedW.data(), encodedW.size()});
 		length += encodedW.size();
 
 		processString(name, length);
 		processString(customize, length);
 
-		const std::vector<Byte> zeros(bytepadCount(length, P), 0);
-		addData(zeros);
+		const Buffer<Byte, 1> zero {0};
+		for (int i = 0; i < static_cast<int>(bytepadCount(length, P)); ++i)
+			addData({zero.data(), zero.size()});
 	}
 
 	template <typename S, typename K, int P>

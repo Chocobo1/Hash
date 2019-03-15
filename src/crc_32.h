@@ -804,7 +804,7 @@ namespace CRC_32_NS
 		size_t processed = ((data.size() / BLOCK_SIZE) * BLOCK_SIZE);
 		while (processed < static_cast<size_t>(data.size()))
 		{
-			m_h = (m_h >> 8) ^ crc32LUT[0][(ror<uint8_t>(m_h, 0)) ^ data[processed]];
+			m_h = (m_h >> 8) ^ crc32LUT[0][(ror<Byte>(m_h, 0)) ^ data[processed]];
 			++processed;
 		}
 	}

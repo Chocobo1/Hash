@@ -160,7 +160,7 @@ namespace MD5_NS
 			constexpr MD5();
 
 			constexpr void reset();
-			MD5& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			CONSTEXPR_CPP17_CHOCOBO1_HASH MD5& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
@@ -254,7 +254,7 @@ namespace MD5_NS
 		m_state[3] = 0x10325476;
 	}
 
-	MD5& MD5::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH MD5& MD5::finalize()
 	{
 		m_sizeCounter += m_buffer.size();
 

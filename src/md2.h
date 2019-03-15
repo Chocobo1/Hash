@@ -165,8 +165,8 @@ namespace MD2_NS
 			std::vector<Byte> toVector() const;
 			constexpr ResultArrayType toArray() const;
 
-			MD2& addData(const Span<const Byte> inData);
-			MD2& addData(const void *ptr, const long int length);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& addData(const Span<const Byte> inData);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& addData(const void *ptr, const long int length);
 			template <typename T, std::size_t N>
 			MD2& addData(const T (&array)[N]);
 			template <typename T>
@@ -277,7 +277,7 @@ namespace MD2_NS
 		return {{m_x[0], m_x[1], m_x[2], m_x[3], m_x[4], m_x[5], m_x[6], m_x[7], m_x[8], m_x[9], m_x[10], m_x[11], m_x[12], m_x[13], m_x[14], m_x[15]}};
 	}
 
-	MD2& MD2::addData(const Span<const Byte> inData)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& MD2::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
 
@@ -311,7 +311,7 @@ namespace MD2_NS
 		return (*this);
 	}
 
-	MD2& MD2::addData(const void *ptr, const long int length)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& MD2::addData(const void *ptr, const long int length)
 	{
 		// gsl::span::index_type = long int
 		return addData({static_cast<const Byte*>(ptr), length});
