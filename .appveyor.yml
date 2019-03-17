@@ -8,7 +8,7 @@ environment:
   REPO_DIR: &REPO_DIR c:\hash
 
   NINJA_DIR: c:\ninja
-  NINJA_URL: https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-win.zip
+  NINJA_URL: https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-win.zip
 
   PYTHON3_DIR: C:\Python36-x64
 

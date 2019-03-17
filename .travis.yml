@@ -5,7 +5,6 @@ os:
   - osx
 
 dist: xenial
-osx_image: xcode9
 
 compiler:
   - g++
@@ -48,7 +47,7 @@ install:
 
       # python
       pyenv versions
-      pyenv global 3.6
+      pyenv global 3.7
       python3 --version
 
       # python-pip
@@ -59,7 +58,7 @@ install:
 
       # ninja
       mkdir ~/ninja
-      wget "https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-linux.zip" -O ~/ninja/ninja-linux.zip
+      wget "https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-linux.zip" -O ~/ninja/ninja-linux.zip
       unzip ~/ninja/ninja-linux.zip -d ~/ninja
       PATH="$PATH":~/ninja
       ninja --version
