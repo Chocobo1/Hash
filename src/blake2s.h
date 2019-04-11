@@ -168,6 +168,8 @@ namespace Blake2s_NS
 
 			constexpr Blake2s& addData(const Span<const Byte> inData);
 			constexpr Blake2s& addData(const void *ptr, const long int length);
+			template <std::size_t N>
+			constexpr Blake2s& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			Blake2s& addData(const T (&array)[N]);
 			template <typename T>
@@ -345,6 +347,12 @@ namespace Blake2s_NS
 	{
 		// gsl::span::index_type = long int
 		return addData({static_cast<const Byte*>(ptr), length});
+	}
+
+	template <std::size_t N>
+	constexpr Blake2s& Blake2s::addData(const Byte (&array)[N])
+	{
+		return addData({array, N});
 	}
 
 	template <typename T, std::size_t N>

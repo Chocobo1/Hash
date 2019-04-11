@@ -175,6 +175,8 @@ namespace Tiger_NS
 
 			constexpr Tiger& addData(const Span<const Byte> inData);
 			constexpr Tiger& addData(const void *ptr, const long int length);
+			template <std::size_t N>
+			constexpr Tiger& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			Tiger& addData(const T (&array)[N]);
 			template <typename T>
@@ -513,6 +515,13 @@ namespace Tiger_NS
 	{
 		// gsl::span::index_type = long int
 		return addData({static_cast<const Byte*>(ptr), length});
+	}
+
+	template <int V, int D>
+	template <std::size_t N>
+	constexpr Tiger<V, D>& Tiger<V, D>::addData(const Byte (&array)[N])
+	{
+		return addData({array, N});
 	}
 
 	template <int V, int D>

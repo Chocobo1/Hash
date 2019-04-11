@@ -67,6 +67,11 @@ TEST_CASE("tuple_hash-256")
 	const char s6_2[8] = {0};
 	REQUIRE(Hash(32).nextData(gsl::span<const int>(s6)).finalize().toString()
 			== Hash(32).nextData(s6_2).finalize().toString());
+
+	const unsigned char s7[] = {0x00, 0x0A};
+	const auto s7_1 = Hash(32).nextData(s7, 2).finalize().toVector();
+	const auto s7_2 = Hash(32).nextData(s7).finalize().toVector();
+	REQUIRE(s7_1 == s7_2);
 }
 
 
@@ -118,4 +123,9 @@ TEST_CASE("tuple_hash-128")
 	const char s6_2[8] = {0};
 	REQUIRE(Hash(32).nextData(gsl::span<const int>(s6)).finalize().toString()
 			== Hash(32).nextData(s6_2).finalize().toString());
+
+	const unsigned char s7[] = {0x00, 0x0A};
+	const auto s7_1 = Hash(32).nextData(s7, 2).finalize().toVector();
+	const auto s7_2 = Hash(32).nextData(s7).finalize().toVector();
+	REQUIRE(s7_1 == s7_2);
 }

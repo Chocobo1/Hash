@@ -169,6 +169,8 @@ namespace RIPEMD_320_NS
 
 			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_320& addData(const Span<const Byte> inData);
 			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_320& addData(const void *ptr, const long int length);
+			template <std::size_t N>
+			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_320& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			RIPEMD_320& addData(const T (&array)[N]);
 			template <typename T>
@@ -361,6 +363,12 @@ namespace RIPEMD_320_NS
 	{
 		// gsl::span::index_type = long int
 		return addData({static_cast<const Byte*>(ptr), length});
+	}
+
+	template <std::size_t N>
+	CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_320& RIPEMD_320::addData(const Byte (&array)[N])
+	{
+		return addData({array, N});
 	}
 
 	template <typename T, std::size_t N>

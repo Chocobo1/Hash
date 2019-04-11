@@ -64,6 +64,16 @@ TEST_CASE("cshake-256")
 	const std::vector<char> s15(73, 'a');
 	REQUIRE("59b187c01a1704d2942526f0ab59866dbf0d81736d37960732c911c9e99cf001315b076e491ad6da9ded9e7388b9675c4dc012a86855622894950849e1698aa789cbc3eb5cfd139bc1bec25271d23cbc770e7395ffd19c06bab2d11ff7b87db0e7feed588af8f4ee59505c749ab4408fcd5568794ad8fc916a3b46ef0ad8b8a6ade24f82a4555abeedeed33862a024efd6605337a40f27a43b5283ef1221c5b77989cc4fc8834657483dd2d89449cf4da6d05b3b48b16c3d6741494443a0fc8a29e6aa59d5fae8c443f9865fe5a0c7b522d891b907af1f53125b817adf40dc10c3062e70692ddd5648828e8b0cb587541cd82a705240af111caca2e0786269e6dd65341653fd3c229804c5ee26af7b9622101b5e7a175999599850b7cba15981466d86c081f8f777e98e4c14d6f38868d0c5d1ba307ff2fe8d56e6fedcc93eae43157146388769a53595e026326bb30d55aa8919e80621577df219f7b93fb3cdb30785f77cf3582ea91bfdd395c8e1c4de25106613a4f7c195ee351fc300eb46e525d9735347fe82fbf98e7c6f77dde6bfd891ca6eabb17dee495aa4e86544352768041e1e4de05658ceda39b0c0491f8bb03f7f14e344618002b9fe9e564eb7bf54cb0b99ed40a8c856d82f9b934f6c7b771364ad132f6152898396944b189c37a4b211058b5b25a05c2623b399d5048541a477f3a08764b1cc46dfdecbf0d7"
 			== Hash(512).addData(s15.data() + 1, s15.size() - 1).finalize().toString());
+
+	const int s16[2] = {0};
+	const char s16_2[8] = {0};
+	REQUIRE(Hash(512).addData(gsl::span<const int>(s16)).finalize().toString()
+			== Hash(512).addData(s16_2).finalize().toString());
+
+	const unsigned char s17[] = {0x00, 0x0A};
+	const auto s17_1 = Hash(512).addData(s17, 2).finalize().toVector();
+	const auto s17_2 = Hash(512).addData(s17).finalize().toVector();
+	REQUIRE(s17_1 == s17_2);
 }
 
 
@@ -117,4 +127,9 @@ TEST_CASE("cshake-128")
 	const char s16_2[8] = {0};
 	REQUIRE(Hash(512).addData(gsl::span<const int>(s16)).finalize().toString()
 			== Hash(512).addData(s16_2).finalize().toString());
+
+	const unsigned char s17[] = {0x00, 0x0A};
+	const auto s17_1 = Hash(512).addData(s17, 2).finalize().toVector();
+	const auto s17_2 = Hash(512).addData(s17).finalize().toVector();
+	REQUIRE(s17_1 == s17_2);
 }

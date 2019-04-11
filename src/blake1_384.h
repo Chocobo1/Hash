@@ -230,6 +230,8 @@ namespace Blake1_384_NS
 
 			constexpr Blake1_384& addData(const Span<const Byte> inData);
 			constexpr Blake1_384& addData(const void *ptr, const long int length);
+			template <std::size_t N>
+			constexpr Blake1_384& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			Blake1_384& addData(const T (&array)[N]);
 			template <typename T>
@@ -431,6 +433,12 @@ namespace Blake1_384_NS
 	{
 		// gsl::span::index_type = long int
 		return addData({static_cast<const Byte*>(ptr), length});
+	}
+
+	template <std::size_t N>
+	constexpr Blake1_384& Blake1_384::addData(const Byte (&array)[N])
+	{
+		return addData({array, N});
 	}
 
 	template <typename T, std::size_t N>

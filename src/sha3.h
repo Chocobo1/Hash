@@ -165,6 +165,8 @@ namespace SHA3_NS
 
 			constexpr Keccak& addData(const Span<const Byte> inData);
 			constexpr Keccak& addData(const void *ptr, const long int length);
+			template <std::size_t N>
+			constexpr Keccak& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			Keccak& addData(const T (&array)[N]);
 			template <typename T>
@@ -363,6 +365,13 @@ namespace SHA3_NS
 	{
 		// gsl::span::index_type = long int
 		return addData({static_cast<const Byte*>(ptr), length});
+	}
+
+	template <int R, int P>
+	template <std::size_t N>
+	constexpr Keccak<R, P>& Keccak<R, P>::addData(const Byte (&array)[N])
+	{
+		return addData({array, N});
 	}
 
 	template <int R, int P>

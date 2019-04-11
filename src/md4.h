@@ -168,6 +168,8 @@ namespace MD4_NS
 
 			CONSTEXPR_CPP17_CHOCOBO1_HASH MD4& addData(const Span<const Byte> inData);
 			CONSTEXPR_CPP17_CHOCOBO1_HASH MD4& addData(const void *ptr, const long int length);
+			template <std::size_t N>
+			CONSTEXPR_CPP17_CHOCOBO1_HASH MD4& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			MD4& addData(const T (&array)[N]);
 			template <typename T>
@@ -354,6 +356,12 @@ namespace MD4_NS
 	{
 		// gsl::span::index_type = long int
 		return addData({static_cast<const Byte*>(ptr), length});
+	}
+
+	template <std::size_t N>
+	CONSTEXPR_CPP17_CHOCOBO1_HASH MD4& MD4::addData(const Byte (&array)[N])
+	{
+		return addData({array, N});
 	}
 
 	template <typename T, std::size_t N>

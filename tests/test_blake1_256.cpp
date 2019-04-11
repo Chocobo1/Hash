@@ -68,4 +68,9 @@ TEST_CASE("blake1-256")
 	const char s16_2[8] = {0};
 	REQUIRE(Hash().addData(gsl::span<const int>(s16)).finalize().toString()
 			== Hash().addData(s16_2).finalize().toString());
+
+	const unsigned char s17[] = {0x00, 0x0A};
+	const auto s17_1 = Hash().addData(s17, 2).finalize().toArray();
+	const auto s17_2 = Hash().addData(s17).finalize().toArray();
+	REQUIRE(s17_1 == s17_2);
 }

@@ -274,4 +274,9 @@ TEST_CASE("sm3")
 	const char s34_2[8] = {0};
 	REQUIRE(Hash().addData(gsl::span<const int>(s34)).finalize().toString()
 			== Hash().addData(s34_2).finalize().toString());
+
+	const unsigned char s35[] = {0x00, 0x0A};
+	const auto s35_1 = Hash().addData(s35, 2).finalize().toArray();
+	const auto s35_2 = Hash().addData(s35).finalize().toArray();
+	REQUIRE(s35_1 == s35_2);
 }

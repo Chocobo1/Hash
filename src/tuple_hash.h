@@ -60,6 +60,8 @@ namespace TupleHash_NS
 
 			constexpr TupleHash& nextData(const Span<const Byte> inData);  // pass in next element in tuple
 			constexpr TupleHash& nextData(const void *ptr, const long int length);
+			template <std::size_t N>
+			constexpr TupleHash& nextData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			TupleHash& nextData(const T (&array)[N]);
 			template <typename T>
@@ -138,6 +140,13 @@ namespace TupleHash_NS
 	{
 		// gsl::span::index_type = long int
 		return nextData({static_cast<const Byte*>(ptr), length});
+	}
+
+	template <typename Alg>
+	template <std::size_t N>
+	constexpr TupleHash<Alg>& TupleHash<Alg>::nextData(const Byte (&array)[N])
+	{
+		return nextData({array, N});
 	}
 
 	template <typename Alg>

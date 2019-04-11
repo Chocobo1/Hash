@@ -168,6 +168,8 @@ namespace SHA1_NS
 
 			constexpr SHA1& addData(const Span<const Byte> inData);
 			constexpr SHA1& addData(const void *ptr, const long int length);
+			template <std::size_t N>
+			constexpr SHA1& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			SHA1& addData(const T (&array)[N]);
 			template <typename T>
@@ -355,6 +357,12 @@ namespace SHA1_NS
 	{
 		// gsl::span::index_type = long int
 		return addData({static_cast<const Byte*>(ptr), length});
+	}
+
+	template <std::size_t N>
+	constexpr SHA1& SHA1::addData(const Byte (&array)[N])
+	{
+		return addData({array, N});
 	}
 
 	template <typename T, std::size_t N>

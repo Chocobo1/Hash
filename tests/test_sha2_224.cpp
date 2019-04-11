@@ -82,4 +82,9 @@ TEST_CASE("sha2-224")
 	const char s15_2[8] = {0};
 	REQUIRE(Hash().addData(gsl::span<const int>(s15)).finalize().toString()
 			== Hash().addData(s15_2).finalize().toString());
+
+	const unsigned char s16[] = {0x00, 0x0A};
+	const auto s16_1 = Hash().addData(s16, 2).finalize().toArray();
+	const auto s16_2 = Hash().addData(s16).finalize().toArray();
+	REQUIRE(s16_1 == s16_2);
 }

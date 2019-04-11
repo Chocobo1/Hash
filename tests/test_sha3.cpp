@@ -64,6 +64,11 @@ TEST_CASE("sha3-512")
 	const char s15_2[8] = {0};
 	REQUIRE(Hash().addData(gsl::span<const int>(s15)).finalize().toString()
 			== Hash().addData(s15_2).finalize().toString());
+
+	const unsigned char s16[] = {0x00, 0x0A};
+	const auto s16_1 = Hash().addData(s16, 2).finalize().toVector();
+	const auto s16_2 = Hash().addData(s16).finalize().toVector();
+	REQUIRE(s16_1 == s16_2);
 }
 
 
@@ -115,6 +120,11 @@ TEST_CASE("sha3-384")
 	const char s15_2[8] = {0};
 	REQUIRE(Hash().addData(gsl::span<const int>(s15)).finalize().toString()
 			== Hash().addData(s15_2).finalize().toString());
+
+	const unsigned char s16[] = {0x00, 0x0A};
+	const auto s16_1 = Hash().addData(s16, 2).finalize().toVector();
+	const auto s16_2 = Hash().addData(s16).finalize().toVector();
+	REQUIRE(s16_1 == s16_2);
 }
 
 
@@ -166,6 +176,11 @@ TEST_CASE("sha3-256")
 	const char s15_2[8] = {0};
 	REQUIRE(Hash().addData(gsl::span<const int>(s15)).finalize().toString()
 			== Hash().addData(s15_2).finalize().toString());
+
+	const unsigned char s16[] = {0x00, 0x0A};
+	const auto s16_1 = Hash().addData(s16, 2).finalize().toVector();
+	const auto s16_2 = Hash().addData(s16).finalize().toVector();
+	REQUIRE(s16_1 == s16_2);
 }
 
 
@@ -217,4 +232,9 @@ TEST_CASE("sha3-224")
 	const char s15_2[8] = {0};
 	REQUIRE(Hash().addData(gsl::span<const int>(s15)).finalize().toString()
 			== Hash().addData(s15_2).finalize().toString());
+
+	const unsigned char s16[] = {0x00, 0x0A};
+	const auto s16_1 = Hash().addData(s16, 2).finalize().toVector();
+	const auto s16_2 = Hash().addData(s16).finalize().toVector();
+	REQUIRE(s16_1 == s16_2);
 }
