@@ -40,9 +40,9 @@ Now some features:
 
 ## Prerequisites
 * Library only:
-  * [C++14 compiler](http://en.cppreference.com/w/cpp/compiler_support)
+  * [C++14 compiler](https://en.cppreference.com/w/cpp/compiler_support)
 * Tests & driver program:
-  * [Meson build system](http://mesonbuild.com/)
+  * [Meson build system](https://mesonbuild.com/)
   * [Ninja](https://ninja-build.org/)
 
 
@@ -62,11 +62,10 @@ To use this library in your project:
       Chocobo1::SHA1 sha1;
 
       // Feed data & data length to it
-      sha1.addData("abc", 3);
+      sha1.addData("hello", 5);
 
-      // or
-      char data[] = "def";
-      sha1.addData(data);
+      // ... or just
+      sha1.addData("hello");
 
       // Tell it to wrap it up
       sha1.finalize();
@@ -74,8 +73,15 @@ To use this library in your project:
       // Profit! oops, not really...
       std::string result = sha1.toString();
 
-      // Or a one-liner
-      std::string result2 = Chocobo1::SHA1().addData("defg", 4).finalize().toString();
+      // A one-liner
+      std::string result2 = Chocobo1::SHA1().addData("hello").finalize().toString();
+
+      // In byte array form
+      auto bytes = Chocobo1::SHA1().addData("hello").finalize().toArray();  // std::array<uint8_t, 20>
+
+      // Some hash algorithms provides constexpr result (more under C++17)
+      constexpr uint8_t data[] = {0x00, 0xFF};
+      constexpr auto bytes2 = Chocobo1::SHA1().addData(data).finalize().toArray();
     }
     ```
 
