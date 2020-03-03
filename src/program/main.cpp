@@ -162,11 +162,11 @@ bool runHash(const Hash hash, const int argc, const char *argv[])
 {
 	const auto readNPrint = [](auto hash, const std::string &filename) -> void
 	{
-		std::shared_ptr<std::istream> inStream;
+		std::unique_ptr<std::istream, void (*)(std::istream *)> inStream {nullptr, [](auto) {}};
 		if (filename == "-")
-			inStream.reset(&std::cin, [](void *) {});
+			inStream = {&std::cin, [](auto) {}};
 		else
-			inStream = std::make_unique<std::ifstream>(filename, (std::ios_base::in | std::ios_base::binary));
+			inStream = {new std::ifstream(filename, (std::ios_base::in | std::ios_base::binary)), [](std::istream *p) {delete p;}};
 
 		const int bufSize = 1024 * 1024;
 		auto buf = std::make_unique<char[]>(bufSize);
@@ -181,11 +181,11 @@ bool runHash(const Hash hash, const int argc, const char *argv[])
 
 	const auto readAllNPrint = [](auto hash, const std::string &filename) -> void
 	{
-		std::shared_ptr<std::istream> inStream;
+		std::unique_ptr<std::istream, void (*)(std::istream *)> inStream {nullptr, [](auto) {}};
 		if (filename == "-")
-			inStream.reset(&std::cin, [](void *) {});
+			inStream = {&std::cin, [](auto) {}};
 		else
-			inStream = std::make_unique<std::ifstream>(filename);
+			inStream = {new std::ifstream(filename), [](std::istream *p) {delete p;}};
 
 		const int tmpSize = 1024 * 1024;
 		auto tmp = std::make_unique<char[]>(tmpSize);
