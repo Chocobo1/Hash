@@ -166,10 +166,10 @@ bool runHash(const Hash hash, const int argc, const char *argv[])
 		if (filename == "-")
 			inStream.reset(&std::cin, [](void *) {});
 		else
-			inStream.reset(new std::ifstream(filename, (std::ios_base::in | std::ios_base::binary)));
+			inStream = std::make_unique<std::ifstream>(filename, (std::ios_base::in | std::ios_base::binary));
 
 		const int bufSize = 1024 * 1024;
-		std::unique_ptr<char[]> buf(new char[bufSize]);
+		auto buf = std::make_unique<char[]>(bufSize);
 		while (inStream->good())
 		{
 			inStream->read(buf.get(), bufSize);
@@ -185,10 +185,10 @@ bool runHash(const Hash hash, const int argc, const char *argv[])
 		if (filename == "-")
 			inStream.reset(&std::cin, [](void *) {});
 		else
-			inStream.reset(new std::ifstream(filename));
+			inStream = std::make_unique<std::ifstream>(filename);
 
 		const int tmpSize = 1024 * 1024;
-		std::unique_ptr<char[]> tmp(new char[tmpSize]);
+		auto tmp = std::make_unique<char[]>(tmpSize);
 
 		std::vector<char> buf;
 		buf.reserve(tmpSize);

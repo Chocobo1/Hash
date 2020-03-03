@@ -109,12 +109,12 @@ namespace CShake_NS
 
 		if (!m_customized)
 		{
-			m_shake = std::unique_ptr<S>(new S(digestLength));
+			m_shake = std::make_unique<S>(digestLength);
 			return;
 		}
 		else
 		{
-			m_keccak = std::unique_ptr<K>(new K(digestLength));
+			m_keccak = std::make_unique<K>(digestLength);
 		}
 
 		const auto processString = [this](const std::string &str, size_t &length) -> void
