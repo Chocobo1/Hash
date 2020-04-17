@@ -64,7 +64,7 @@ namespace Hash
 			{
 #if !defined(NDEBUG)
 				// check if out-of-bounds
-				m_array.at(m_dataEndIdx + initList.size() - 1);
+				static_cast<void>(m_array.at(m_dataEndIdx + initList.size() - 1));
 #endif
 
 				for (const auto &i : initList)
@@ -97,7 +97,7 @@ namespace Hash
 			{
 #if !defined(NDEBUG)
 				// check if out-of-bounds
-				m_array.at(m_dataEndIdx + count - 1);
+				static_cast<void>(m_array.at(m_dataEndIdx + count - 1));
 #endif
 
 				for (index_type i = 0; i < count; ++i)
