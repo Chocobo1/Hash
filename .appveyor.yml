@@ -1,6 +1,6 @@
 version: '{branch}-{build}'
 
-image: Visual Studio 2017
+image: Visual Studio 2019
 
 clone_depth: 50
 
@@ -8,9 +8,9 @@ environment:
   REPO_DIR: &REPO_DIR c:\hash
 
   NINJA_DIR: c:\ninja
-  NINJA_URL: https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-win.zip
+  NINJA_URL: https://github.com/ninja-build/ninja/releases/download/v1.10.0/ninja-win.zip
 
-  PYTHON3_DIR: C:\Python36-x64
+  PYTHON3_DIR: C:\Python38-x64
 
 clone_folder: *REPO_DIR
 
