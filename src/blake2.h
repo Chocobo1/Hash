@@ -54,6 +54,7 @@ namespace Hash
 		public:
 			using value_type = T;
 			using index_type = gsl::index;
+			using size_type = std::size_t;
 			using reference = T&;
 
 			constexpr Buffer() = default;
@@ -126,7 +127,7 @@ namespace Hash
 				return (m_dataEndIdx == 0);
 			}
 
-			constexpr index_type size() const
+			constexpr size_type size() const
 			{
 				return m_dataEndIdx;
 			}
@@ -229,7 +230,7 @@ namespace Blake2_NS
 			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
 
 			constexpr Blake2& addData(const Span<const Byte> inData);
-			constexpr Blake2& addData(const void *ptr, const long int length);
+			constexpr Blake2& addData(const void *ptr, const std::size_t length);
 			template <std::size_t N>
 			constexpr Blake2& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
@@ -409,9 +410,9 @@ namespace Blake2_NS
 		return (*this);
 	}
 
-	constexpr Blake2& Blake2::addData(const void *ptr, const long int length)
+	constexpr Blake2& Blake2::addData(const void *ptr, const std::size_t length)
 	{
-		// gsl::span::index_type = long int
+		// gsl::span::size_type = std::size_t
 		return addData({static_cast<const Byte*>(ptr), length});
 	}
 

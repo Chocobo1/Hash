@@ -67,7 +67,7 @@ namespace CRC_32_NS
 			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
 
 			constexpr CRC_32& addData(const Span<const Byte> inData);
-			constexpr CRC_32& addData(const void *ptr, const long int length);
+			constexpr CRC_32& addData(const void *ptr, const std::size_t length);
 			template <std::size_t N>
 			constexpr CRC_32& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
@@ -732,9 +732,9 @@ namespace CRC_32_NS
 		return (*this);
 	}
 
-	constexpr CRC_32& CRC_32::addData(const void *ptr, const long int length)
+	constexpr CRC_32& CRC_32::addData(const void *ptr, const std::size_t length)
 	{
-		// gsl::span::index_type = long int
+		// gsl::span::size_type = std::size_t
 		return addData({static_cast<const Byte*>(ptr), length});
 	}
 

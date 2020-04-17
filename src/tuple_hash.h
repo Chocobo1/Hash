@@ -59,7 +59,7 @@ namespace TupleHash_NS
 			std::vector<Byte> toVector() const;
 
 			constexpr TupleHash& nextData(const Span<const Byte> inData);  // pass in next element in tuple
-			constexpr TupleHash& nextData(const void *ptr, const long int length);
+			constexpr TupleHash& nextData(const void *ptr, const std::size_t length);
 			template <std::size_t N>
 			constexpr TupleHash& nextData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
@@ -136,9 +136,9 @@ namespace TupleHash_NS
 	}
 
 	template <typename Alg>
-	constexpr TupleHash<Alg>& TupleHash<Alg>::nextData(const void *ptr, const long int length)
+	constexpr TupleHash<Alg>& TupleHash<Alg>::nextData(const void *ptr, const std::size_t length)
 	{
-		// gsl::span::index_type = long int
+		// gsl::span::size_type = std::size_t
 		return nextData({static_cast<const Byte*>(ptr), length});
 	}
 

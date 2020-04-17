@@ -60,7 +60,7 @@ namespace CShake_NS
 			std::vector<Byte> toVector() const;
 
 			constexpr CShake& addData(const Span<const Byte> inData);
-			constexpr CShake& addData(const void *ptr, const long int length);
+			constexpr CShake& addData(const void *ptr, const std::size_t length);
 			template <std::size_t N>
 			constexpr CShake& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
@@ -189,9 +189,9 @@ namespace CShake_NS
 	}
 
 	template <typename S, typename K, int P>
-	constexpr CShake<S, K, P>& CShake<S, K, P>::addData(const void *ptr, const long int length)
+	constexpr CShake<S, K, P>& CShake<S, K, P>::addData(const void *ptr, const std::size_t length)
 	{
-		// gsl::span::index_type = long int
+		// gsl::span::size_type = std::size_t
 		return addData({static_cast<const Byte*>(ptr), length});
 	}
 

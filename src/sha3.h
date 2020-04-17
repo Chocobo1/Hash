@@ -52,6 +52,7 @@ namespace Hash
 		public:
 			using value_type = T;
 			using index_type = gsl::index;
+			using size_type = std::size_t;
 			using reference = T&;
 
 			constexpr Buffer() = default;
@@ -124,7 +125,7 @@ namespace Hash
 				return (m_dataEndIdx == 0);
 			}
 
-			constexpr index_type size() const
+			constexpr size_type size() const
 			{
 				return m_dataEndIdx;
 			}
@@ -164,7 +165,7 @@ namespace SHA3_NS
 			std::vector<Byte> toVector() const;
 
 			constexpr Keccak& addData(const Span<const Byte> inData);
-			constexpr Keccak& addData(const void *ptr, const long int length);
+			constexpr Keccak& addData(const void *ptr, const std::size_t length);
 			template <std::size_t N>
 			constexpr Keccak& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
@@ -361,9 +362,9 @@ namespace SHA3_NS
 	}
 
 	template <int R, int P>
-	constexpr Keccak<R, P>& Keccak<R, P>::addData(const void *ptr, const long int length)
+	constexpr Keccak<R, P>& Keccak<R, P>::addData(const void *ptr, const std::size_t length)
 	{
-		// gsl::span::index_type = long int
+		// gsl::span::size_type = std::size_t
 		return addData({static_cast<const Byte*>(ptr), length});
 	}
 
