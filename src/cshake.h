@@ -1,7 +1,7 @@
 /*
  *  Chocobo1/Hash
  *
- *   Copyright 2017-2018 by Mike Tzou (Chocobo1)
+ *   Copyright 2017-2020 by Mike Tzou (Chocobo1)
  *     https://github.com/Chocobo1/Hash
  *
  *   Licensed under GNU General Public License 3 or later.
@@ -47,8 +47,8 @@ namespace CShake_NS
 		public:
 			using Byte = uint8_t;
 
-			template <typename T>
-			using Span = gsl::span<T>;
+			template <typename T, std::size_t Extent = gsl::dynamic_extent>
+			using Span = gsl::span<T, Extent>;
 
 
 			explicit constexpr CShake(const int digestLength, const std::string &name = {}, const std::string &customize = {});
@@ -191,7 +191,7 @@ namespace CShake_NS
 	template <typename S, typename K, int P>
 	constexpr CShake<S, K, P>& CShake<S, K, P>::addData(const void *ptr, const std::size_t length)
 	{
-		// gsl::span::size_type = std::size_t
+		// Span::size_type = std::size_t
 		return addData({static_cast<const Byte*>(ptr), length});
 	}
 

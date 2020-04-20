@@ -1,7 +1,7 @@
 /*
  *  Chocobo1/Hash
  *
- *   Copyright 2017-2018 by Mike Tzou (Chocobo1)
+ *   Copyright 2017-2020 by Mike Tzou (Chocobo1)
  *     https://github.com/Chocobo1/Hash
  *
  *   Licensed under GNU General Public License 3 or later.
@@ -52,16 +52,17 @@ namespace Hash
 #endif
 #endif
 
+	using IndexType = gsl::index;
+
 #ifndef CHOCOBO1_HASH_BUFFER_IMPL
 #define CHOCOBO1_HASH_BUFFER_IMPL
-	template <typename T, gsl::index N>
+	template <typename T, IndexType N>
 	class Buffer
 	{
 		public:
 			using value_type = T;
-			using index_type = gsl::index;
+			using index_type = IndexType;
 			using size_type = std::size_t;
-			using reference = T&;
 
 			constexpr Buffer() = default;
 			constexpr Buffer(const Buffer &) = default;
@@ -161,8 +162,8 @@ namespace Tiger_NS
 			using Byte = uint8_t;
 			using ResultArrayType = std::array<Byte, (D / 8)>;
 
-			template <typename T>
-			using Span = gsl::span<T>;
+			template <typename T, std::size_t Extent = gsl::dynamic_extent>
+			using Span = gsl::span<T, Extent>;
 
 
 			constexpr Tiger();
@@ -350,7 +351,7 @@ namespace Tiger_NS
 			{
 			}
 
-			constexpr T operator[](const gsl::index idx) const
+			constexpr T operator[](const IndexType idx) const
 			{
 				static_assert(std::is_same<T, uint64_t>::value, "");
 				// handle specific endianness here
@@ -514,7 +515,7 @@ namespace Tiger_NS
 	template <int V, int D>
 	constexpr Tiger<V, D>& Tiger<V, D>::addData(const void *ptr, const std::size_t length)
 	{
-		// gsl::span::size_type = std::size_t
+		// Span::size_type = std::size_t
 		return addData({static_cast<const Byte*>(ptr), length});
 	}
 

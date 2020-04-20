@@ -1,7 +1,7 @@
 /*
  *  Chocobo1/Hash
  *
- *   Copyright 2017-2018 by Mike Tzou (Chocobo1)
+ *   Copyright 2017-2020 by Mike Tzou (Chocobo1)
  *     https://github.com/Chocobo1/Hash
  *
  *   Licensed under GNU General Public License 3 or later.
@@ -46,8 +46,8 @@ namespace TupleHash_NS
 		public:
 			using Byte = uint8_t;
 
-			template <typename T>
-			using Span = gsl::span<T>;
+			template <typename T, std::size_t Extent = gsl::dynamic_extent>
+			using Span = gsl::span<T, Extent>;
 
 
 			explicit constexpr TupleHash(const int digestLength, const std::string &customize = {});
@@ -138,7 +138,7 @@ namespace TupleHash_NS
 	template <typename Alg>
 	constexpr TupleHash<Alg>& TupleHash<Alg>::nextData(const void *ptr, const std::size_t length)
 	{
-		// gsl::span::size_type = std::size_t
+		// Span::size_type = std::size_t
 		return nextData({static_cast<const Byte*>(ptr), length});
 	}
 
