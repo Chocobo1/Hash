@@ -4,7 +4,7 @@ os:
   - linux
   - osx
 
-dist: xenial
+dist: bionic
 
 compiler:
   - g++
@@ -13,16 +13,6 @@ compiler:
 cache:
   - ccache: true
   - pip
-
-addons:
-  apt:
-    sources:
-      # sources list: https://github.com/travis-ci/apt-source-safelist/blob/master/ubuntu.json
-      - ubuntu-toolchain-r-test
-    packages:
-      # packages list: https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
-      - g++-5
-      - clang-4.0
 
 
 install:
@@ -39,12 +29,6 @@ install:
       # ccache
       PATH="/usr/local/opt/ccache/libexec:$PATH"
     else
-      if [ "$CXX" = "g++" ]; then
-        CXX="ccache g++-5"
-      else
-        CXX="ccache clang++-4.0"
-      fi
-
       # python
       pyenv versions
       pyenv global 3.7

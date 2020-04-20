@@ -16,6 +16,9 @@ clone_folder: *REPO_DIR
 
 
 install:
+  # MSVC
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
+  - cl
   # python
   - set PATH=%PYTHON3_DIR%;%PYTHON3_DIR%\Scripts;%PATH%
   - python --version
