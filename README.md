@@ -53,8 +53,10 @@ To use this library in your project:
 
 2. Use it like:
     ```c++
-    // include the header, don't forget the "gsl" folder!
+    // include the header
     #include "pathToLib/sha1.h"
+
+    // If you are using C++14 or C++17, don't forget the "gsl" folder!
 
     void example()
     {
@@ -111,8 +113,10 @@ ninja
 ```
 
 ## Dependencies
-* [Microsoft/GSL](https://github.com/Microsoft/GSL)
-<br />  No need to download or install it. It's already included!
+* [Microsoft/GSL](https://github.com/Microsoft/GSL) \
+  This library is only requried when compiling with C++14 and C++17. In C++20 or later,
+  `std::span` will be used in place of `gsl::span`. \
+  No need to download or install it. It's already included!
 
 
 ## License
@@ -120,4 +124,4 @@ See [LICENSE](./LICENSE) file
 
 
 ## Like it?
-Cup of coffee &#X2615; or some pizza &#X1F355; is always nice you know... [donate](https://myprojects.tzou.me/donation/)
+Please consider [donate](https://myprojects.tzou.me/donation/)

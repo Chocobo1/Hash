@@ -14,14 +14,30 @@
 
 #include "sha3.h"
 
-#include "gsl/span"
-
 #include <climits>
 #include <cmath>
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
+
+#if (__cplusplus > 201703L)
+#include <version>
+#endif
+
+#ifndef USE_STD_SPAN_CHOCOBO1_HASH
+#if (__cpp_lib_span >= 202002L)
+#define USE_STD_SPAN_CHOCOBO1_HASH 1
+#else
+#define USE_STD_SPAN_CHOCOBO1_HASH 0
+#endif
+#endif
+
+#if (USE_STD_SPAN_CHOCOBO1_HASH == 1)
+#include <span>
+#else
+#include "gsl/span"
+#endif
 
 
 namespace Chocobo1
@@ -47,8 +63,13 @@ namespace CShake_NS
 		public:
 			using Byte = uint8_t;
 
+#if (USE_STD_SPAN_CHOCOBO1_HASH == 1)
+			template <typename T, std::size_t Extent = std::dynamic_extent>
+			using Span = std::span<T, Extent>;
+#else
 			template <typename T, std::size_t Extent = gsl::dynamic_extent>
 			using Span = gsl::span<T, Extent>;
+#endif
 
 
 			explicit constexpr CShake(const int digestLength, const std::string &name = {}, const std::string &customize = {});

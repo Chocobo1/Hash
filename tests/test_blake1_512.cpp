@@ -63,7 +63,7 @@ TEST_CASE("blake1-512")
 
 	const int s16[2] = {0};
 	const char s16_2[8] = {0};
-	REQUIRE(Hash().addData(gsl::span<const int>(s16)).finalize().toString()
+	REQUIRE(Hash().addData(Hash::Span<const int>(s16)).finalize().toString()
 			== Hash().addData(s16_2).finalize().toString());
 
 	const unsigned char s17[] = {0x00, 0x0A};

@@ -12,8 +12,6 @@
 #ifndef CHOCOBO1_SHA2_512_224_H
 #define CHOCOBO1_SHA2_512_224_H
 
-#include "gsl/span"
-
 #include <array>
 #include <cassert>
 #include <climits>
@@ -23,6 +21,24 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+
+#if (__cplusplus > 201703L)
+#include <version>
+#endif
+
+#ifndef USE_STD_SPAN_CHOCOBO1_HASH
+#if (__cpp_lib_span >= 202002L)
+#define USE_STD_SPAN_CHOCOBO1_HASH 1
+#else
+#define USE_STD_SPAN_CHOCOBO1_HASH 0
+#endif
+#endif
+
+#if (USE_STD_SPAN_CHOCOBO1_HASH == 1)
+#include <span>
+#else
+#include "gsl/span"
+#endif
 
 
 namespace Chocobo1
@@ -46,7 +62,11 @@ namespace Hash
 #endif
 #endif
 
+#if (USE_STD_SPAN_CHOCOBO1_HASH == 1)
+	using IndexType = std::size_t;
+#else
 	using IndexType = gsl::index;
+#endif
 
 #ifndef CHOCOBO1_HASH_BUFFER_IMPL
 #define CHOCOBO1_HASH_BUFFER_IMPL
@@ -217,8 +237,13 @@ namespace SHA2_512_224_NS
 			using Byte = uint8_t;
 			using ResultArrayType = std::array<Byte, 28>;
 
+#if (USE_STD_SPAN_CHOCOBO1_HASH == 1)
+			template <typename T, std::size_t Extent = std::dynamic_extent>
+			using Span = std::span<T, Extent>;
+#else
 			template <typename T, std::size_t Extent = gsl::dynamic_extent>
 			using Span = gsl::span<T, Extent>;
+#endif
 
 
 			constexpr SHA2_512_224();

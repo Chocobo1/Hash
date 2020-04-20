@@ -16,7 +16,7 @@
 #include <cstring>
 
 
-#define ARRAY_LENGTH(a) (static_cast<gsl::index>(std::extent<decltype(a)>::value))
+#define ARRAY_LENGTH(a) (static_cast<int>(std::extent<decltype(a)>::value))
 
 
 TEST_CASE("cshake-256")
@@ -67,7 +67,7 @@ TEST_CASE("cshake-256")
 
 	const int s16[2] = {0};
 	const char s16_2[8] = {0};
-	REQUIRE(Hash(512).addData(gsl::span<const int>(s16)).finalize().toString()
+	REQUIRE(Hash(512).addData(Hash::Span<const int>(s16)).finalize().toString()
 			== Hash(512).addData(s16_2).finalize().toString());
 
 	const unsigned char s17[] = {0x00, 0x0A};
@@ -125,7 +125,7 @@ TEST_CASE("cshake-128")
 
 	const int s16[2] = {0};
 	const char s16_2[8] = {0};
-	REQUIRE(Hash(512).addData(gsl::span<const int>(s16)).finalize().toString()
+	REQUIRE(Hash(512).addData(Hash::Span<const int>(s16)).finalize().toString()
 			== Hash(512).addData(s16_2).finalize().toString());
 
 	const unsigned char s17[] = {0x00, 0x0A};

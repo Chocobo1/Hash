@@ -16,7 +16,7 @@
 #include <cstring>
 
 
-#define ARRAY_LENGTH(a) (static_cast<gsl::index>(std::extent<decltype(a)>::value))
+#define ARRAY_LENGTH(a) (static_cast<int>(std::extent<decltype(a)>::value))
 
 
 TEST_CASE("sha2-256")
@@ -80,7 +80,7 @@ TEST_CASE("sha2-256")
 
 	const int s15[2] = {0};
 	const char s15_2[8] = {0};
-	REQUIRE(Hash().addData(gsl::span<const int>(s15)).finalize().toString()
+	REQUIRE(Hash().addData(Hash::Span<const int>(s15)).finalize().toString()
 			== Hash().addData(s15_2).finalize().toString());
 
 	const unsigned char s16[] = {0x00, 0x0A};

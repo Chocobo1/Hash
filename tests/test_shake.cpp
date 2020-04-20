@@ -62,7 +62,7 @@ TEST_CASE("shake-256")
 
 	const int s15[2] = {0};
 	const char s15_2[8] = {0};
-	REQUIRE(Hash(512).addData(gsl::span<const int>(s15)).finalize().toString()
+	REQUIRE(Hash(512).addData(Hash::Span<const int>(s15)).finalize().toString()
 			== Hash(512).addData(s15_2).finalize().toString());
 
 	const unsigned char s16[] = {0x00, 0x0A};
@@ -118,7 +118,7 @@ TEST_CASE("shake-128")
 
 	const int s15[2] = {0};
 	const char s15_2[8] = {0};
-	REQUIRE(Hash(512).addData(gsl::span<const int>(s15)).finalize().toString()
+	REQUIRE(Hash(512).addData(Hash::Span<const int>(s15)).finalize().toString()
 			== Hash(512).addData(s15_2).finalize().toString());
 
 	const unsigned char s16[] = {0x00, 0x0A};

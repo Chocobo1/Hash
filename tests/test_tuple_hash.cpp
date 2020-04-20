@@ -16,7 +16,7 @@
 #include <cstring>
 
 
-#define ARRAY_LENGTH(a) (static_cast<gsl::index>(std::extent<decltype(a)>::value))
+#define ARRAY_LENGTH(a) (static_cast<int>(std::extent<decltype(a)>::value))
 
 
 TEST_CASE("tuple_hash-256")
@@ -65,7 +65,7 @@ TEST_CASE("tuple_hash-256")
 
 	const int s6[2] = {0};
 	const char s6_2[8] = {0};
-	REQUIRE(Hash(32).nextData(gsl::span<const int>(s6)).finalize().toString()
+	REQUIRE(Hash(32).nextData(Hash::Span<const int>(s6)).finalize().toString()
 			== Hash(32).nextData(s6_2).finalize().toString());
 
 	const unsigned char s7[] = {0x00, 0x0A};
@@ -121,7 +121,7 @@ TEST_CASE("tuple_hash-128")
 
 	const int s6[2] = {0};
 	const char s6_2[8] = {0};
-	REQUIRE(Hash(32).nextData(gsl::span<const int>(s6)).finalize().toString()
+	REQUIRE(Hash(32).nextData(Hash::Span<const int>(s6)).finalize().toString()
 			== Hash(32).nextData(s6_2).finalize().toString());
 
 	const unsigned char s7[] = {0x00, 0x0A};

@@ -47,7 +47,7 @@
 #include <vector>
 
 
-#define ARRAY_LENGTH(a) (static_cast<gsl::index>(std::extent<decltype(a)>::value))
+#define ARRAY_LENGTH(a) (static_cast<int>(std::extent<decltype(a)>::value))
 
 
 enum class Hash : int

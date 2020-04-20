@@ -70,7 +70,7 @@ TEST_CASE("tiger1-192")
 
 	const int s15[2] = {0};
 	const char s15_2[8] = {0};
-	REQUIRE(Hash().addData(gsl::span<const int>(s15)).finalize().toString()
+	REQUIRE(Hash().addData(Hash::Span<const int>(s15)).finalize().toString()
 			== Hash().addData(s15_2).finalize().toString());
 
 	const unsigned char s16[] = {0x00, 0x0A};
@@ -134,7 +134,7 @@ TEST_CASE("tiger2-192")
 
 	const int s15[2] = {0};
 	const char s15_2[8] = {0};
-	REQUIRE(Hash().addData(gsl::span<const int>(s15)).finalize().toString()
+	REQUIRE(Hash().addData(Hash::Span<const int>(s15)).finalize().toString()
 			== Hash().addData(s15_2).finalize().toString());
 
 	const unsigned char s16[] = {0x00, 0x0A};
