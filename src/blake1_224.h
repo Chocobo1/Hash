@@ -40,6 +40,18 @@
 #include "gsl/span"
 #endif
 
+#ifndef USE_STD_BYTE_CHOCOBO1_HASH
+#if __cplusplus >= 201703L
+#define USE_STD_BYTE_CHOCOBO1_HASH 1
+#else
+#define USE_STD_BYTE_CHOCOBO1_HASH 0
+#endif
+#endif
+
+#if (USE_STD_SPAN_CHOCOBO1_HASH == 1)
+#include <cstddef>
+#endif
+
 
 namespace Chocobo1
 {
@@ -172,7 +184,11 @@ namespace Blake1_224_NS
 		// https://131002.net/blake/
 
 		public:
+#if (USE_STD_BYTE_CHOCOBO1_HASH == 1)
+			using Byte = std::byte;
+#else
 			using Byte = uint8_t;
+#endif
 			using ResultArrayType = std::array<Byte, 28>;
 
 #if (USE_STD_SPAN_CHOCOBO1_HASH == 1)
@@ -252,8 +268,15 @@ namespace Blake1_224_NS
 	template <typename R, typename T>
 	constexpr R ror(const T x, const unsigned int s)
 	{
-		static_assert(std::is_unsigned<R>::value, "");
-		static_assert(std::is_unsigned<T>::value, "");
+#if (USE_STD_BYTE_CHOCOBO1_HASH == 1)
+		constexpr bool predR = std::is_unsigned_v<R> || std::is_same_v<R, std::byte>;
+		constexpr bool predT = std::is_unsigned_v<T> || std::is_same_v<T, std::byte>;
+#else
+		constexpr bool predR = std::is_unsigned<R>::value;
+		constexpr bool predT = std::is_unsigned<T>::value;
+#endif
+		static_assert(predR, "");
+		static_assert(predT, "");
 		return static_cast<R>(x >> s);
 	}
 
@@ -296,11 +319,11 @@ namespace Blake1_224_NS
 		const uint32_t sizeCounterBitsH = ror<uint32_t>(sizeCounterBits, 32);
 
 		// append 1 bit
-		m_buffer.fill(1 << 7);
+		m_buffer.fill(Byte {1 << 7});
 
 		// append paddings
 		const int len = static_cast<int>(BLOCK_SIZE - ((m_buffer.size() + 8) % BLOCK_SIZE));
-		m_buffer.fill(0, (len + 8));
+		m_buffer.fill(Byte {0}, (len + 8));
 
 		// append size in bits
 		for (int i = 0; i < 4; ++i)
@@ -324,10 +347,10 @@ namespace Blake1_224_NS
 		auto retPtr = &ret.front();
 		for (const auto c : a)
 		{
-			const Byte upper = ror<Byte>(c, 4);
+			const auto upper = ror<uint8_t>(c, 4);
 			*(retPtr++) = static_cast<char>((upper < 10) ? (upper + '0') : (upper - 10 + 'a'));
 
-			const Byte lower = c & 0xf;
+			const auto lower = static_cast<uint8_t>(c) & 0xf;
 			*(retPtr++) = static_cast<char>((lower < 10) ? (lower + '0') : (lower - 10 + 'a'));
 		}
 
