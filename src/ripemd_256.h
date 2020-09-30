@@ -82,7 +82,7 @@ namespace Hash
 			constexpr Buffer() = default;
 			constexpr Buffer(const Buffer &) = default;
 
-			constexpr Buffer(const std::initializer_list<T> initList)
+			CONSTEXPR_CPP17_CHOCOBO1_HASH Buffer(const std::initializer_list<T> initList)
 			{
 #if !defined(NDEBUG)
 				// check if out-of-bounds
@@ -115,7 +115,7 @@ namespace Hash
 				return m_array[pos];
 			}
 
-			constexpr void fill(const T &value, const index_type count = 1)
+			CONSTEXPR_CPP17_CHOCOBO1_HASH void fill(const T &value, const index_type count = 1)
 			{
 #if !defined(NDEBUG)
 				// check if out-of-bounds
@@ -222,8 +222,8 @@ namespace RIPEMD_256_NS
 		// this class workaround loading data from unaligned memory boundaries
 		// also eliminate endianness issues
 		public:
-			explicit constexpr Loader(const void *ptr)
-				: m_ptr(static_cast<const uint8_t *>(ptr))
+			explicit constexpr Loader(const uint8_t *ptr)
+				: m_ptr(ptr)
 			{
 			}
 

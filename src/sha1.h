@@ -81,7 +81,7 @@ namespace Hash
 			constexpr Buffer() = default;
 			constexpr Buffer(const Buffer &) = default;
 
-			constexpr Buffer(const std::initializer_list<T> initList)
+			CONSTEXPR_CPP17_CHOCOBO1_HASH Buffer(const std::initializer_list<T> initList)
 			{
 #if !defined(NDEBUG)
 				// check if out-of-bounds
@@ -114,7 +114,7 @@ namespace Hash
 				return m_array[pos];
 			}
 
-			constexpr void fill(const T &value, const index_type count = 1)
+			CONSTEXPR_CPP17_CHOCOBO1_HASH void fill(const T &value, const index_type count = 1)
 			{
 #if !defined(NDEBUG)
 				// check if out-of-bounds
@@ -187,7 +187,7 @@ namespace SHA1_NS
 			constexpr SHA1();
 
 			constexpr void reset();
-			constexpr SHA1& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			CONSTEXPR_CPP17_CHOCOBO1_HASH SHA1& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
@@ -221,8 +221,8 @@ namespace SHA1_NS
 		// this class workaround loading data from unaligned memory boundaries
 		// also eliminate endianness issues
 		public:
-			explicit constexpr Loader(const void *ptr)
-				: m_ptr(static_cast<const uint8_t *>(ptr))
+			explicit constexpr Loader(const uint8_t *ptr)
+				: m_ptr(ptr)
 			{
 			}
 
@@ -278,7 +278,7 @@ namespace SHA1_NS
 		m_state[4] = 0xC3D2E1F0;
 	}
 
-	constexpr SHA1& SHA1::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH SHA1& SHA1::finalize()
 	{
 		m_sizeCounter += m_buffer.size();
 

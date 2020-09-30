@@ -81,7 +81,7 @@ namespace Hash
 			constexpr Buffer() = default;
 			constexpr Buffer(const Buffer &) = default;
 
-			constexpr Buffer(const std::initializer_list<T> initList)
+			CONSTEXPR_CPP17_CHOCOBO1_HASH Buffer(const std::initializer_list<T> initList)
 			{
 #if !defined(NDEBUG)
 				// check if out-of-bounds
@@ -114,7 +114,7 @@ namespace Hash
 				return m_array[pos];
 			}
 
-			constexpr void fill(const T &value, const index_type count = 1)
+			CONSTEXPR_CPP17_CHOCOBO1_HASH void fill(const T &value, const index_type count = 1)
 			{
 #if !defined(NDEBUG)
 				// check if out-of-bounds
@@ -187,7 +187,7 @@ namespace Blake1_256_NS
 			constexpr Blake1_256();
 
 			constexpr void reset();
-			constexpr Blake1_256& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			CONSTEXPR_CPP17_CHOCOBO1_HASH Blake1_256& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
@@ -229,8 +229,8 @@ namespace Blake1_256_NS
 		// this class workaround loading data from unaligned memory boundaries
 		// also eliminate endianness issues
 		public:
-			explicit constexpr Loader(const void *ptr)
-				: m_ptr(static_cast<const uint8_t *>(ptr))
+			explicit constexpr Loader(const uint8_t *ptr)
+				: m_ptr(ptr)
 			{
 			}
 
@@ -289,7 +289,7 @@ namespace Blake1_256_NS
 		m_h[7] = 0x5be0cd19;
 	}
 
-	constexpr Blake1_256& Blake1_256::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH Blake1_256& Blake1_256::finalize()
 	{
 		const uint64_t sizeCounterBits = (m_sizeCounter + (m_buffer.size() * 8));
 		const uint32_t sizeCounterBitsL = ror<uint32_t>(sizeCounterBits, 0);

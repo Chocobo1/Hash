@@ -668,8 +668,8 @@ namespace CRC_32_NS
 		// this class workaround loading data from unaligned memory boundaries
 		// also eliminate endianness issues
 		public:
-			explicit constexpr Loader(const void *ptr)
-				: m_ptr(static_cast<const uint8_t *>(ptr))
+			explicit constexpr Loader(const uint8_t *ptr)
+				: m_ptr(ptr)
 			{
 			}
 

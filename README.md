@@ -81,7 +81,7 @@ To use this library in your project:
       // In byte array form
       auto bytes = Chocobo1::SHA1().addData("hello").finalize().toArray();  // std::array<uint8_t, 20>
 
-      // Some hash algorithms provides constexpr result (more under C++17)
+      // Some hash algorithm provides constexpr result under C++17
       constexpr uint8_t data[] = {0x00, 0xFF};
       constexpr auto bytes2 = Chocobo1::SHA1().addData(data).finalize().toArray();
     }
