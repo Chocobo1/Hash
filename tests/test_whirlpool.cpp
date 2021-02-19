@@ -93,4 +93,8 @@ TEST_CASE("whirlpool")
 	const auto s16_1 = Hash().addData(s16, 2).finalize().toArray();
 	const auto s16_2 = Hash().addData(s16).finalize().toArray();
 	REQUIRE(s16_1 == s16_2);
+
+	const char s17[31] = {0};
+	REQUIRE("3e3f188f8febbeb17a933feaf7fe53a4858d80c915ad6a1418f0318e68d49b4e459223cd414e0fbc8a57578fd755d86e827abef4070fc1503e25d99e382f72ba"
+			== Hash().addData(s17, sizeof(s17)).finalize().toString());
 }

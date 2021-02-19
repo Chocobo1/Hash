@@ -87,4 +87,8 @@ TEST_CASE("sha2-256")
 	const auto s16_1 = Hash().addData(s16, 2).finalize().toArray();
 	const auto s16_2 = Hash().addData(s16).finalize().toArray();
 	REQUIRE(s16_1 == s16_2);
+
+	const char s17[55] = {0};
+	REQUIRE("02779466cdec163811d078815c633f21901413081449002f24aa3e80f0b88ef7"
+			== Hash().addData(s17, sizeof(s17)).finalize().toString());
 }

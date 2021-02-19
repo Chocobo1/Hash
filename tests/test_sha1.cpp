@@ -87,4 +87,8 @@ TEST_CASE("sha1")
 	const auto s16_1 = Hash().addData(s16, 2).finalize().toArray();
 	const auto s16_2 = Hash().addData(s16).finalize().toArray();
 	REQUIRE(s16_1 == s16_2);
+
+	const char s17[55] = {0};
+	REQUIRE("8e8832c642a6a38c74c17fc92ccedc266c108e6c"
+			== Hash().addData(s17, sizeof(s17)).finalize().toString());
 }

@@ -279,4 +279,8 @@ TEST_CASE("sm3")
 	const auto s35_1 = Hash().addData(s35, 2).finalize().toArray();
 	const auto s35_2 = Hash().addData(s35).finalize().toArray();
 	REQUIRE(s35_1 == s35_2);
+
+	const char s36[55] = {0};
+	REQUIRE("2cdce3d697af3716a9b3cdf068b43e513846e17cc9fd427929aad70165f21dda"
+			== Hash().addData(s36, sizeof(s36)).finalize().toString());
 }

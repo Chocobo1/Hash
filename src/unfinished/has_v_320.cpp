@@ -95,7 +95,7 @@ HAS_V_320& HAS_V_320::finalize()
 	m_buffer.emplace_back(1 << 7);
 
 	// append paddings
-	const size_t len = BLOCK_SIZE - ((m_buffer.size() + 9) % BLOCK_SIZE);
+	const auto len = static_cast<int>(((2 * BLOCK_SIZE) - (m_buffer.size() + 9)) % BLOCK_SIZE);
 	m_buffer.insert(m_buffer.end(), (len + 9), 0);
 
 	// append result length in bytes

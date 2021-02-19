@@ -68,4 +68,8 @@ TEST_CASE("md5")
 	const auto s16_1 = Hash().addData(s16, 2).finalize().toArray();
 	const auto s16_2 = Hash().addData(s16).finalize().toArray();
 	REQUIRE(s16_1 == s16_2);
+
+	const char s17[55] = {0};
+	REQUIRE("c9ea3314b91c9fd4e38f9432064fd1f2"
+			== Hash().addData(s17, sizeof(s17)).finalize().toString());
 }

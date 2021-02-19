@@ -285,7 +285,7 @@ namespace MD4_NS
 		m_buffer.fill(1 << 7);
 
 		// append paddings
-		const size_t len = BLOCK_SIZE - ((m_buffer.size() + 8) % BLOCK_SIZE);
+		const auto len = static_cast<int>(((2 * BLOCK_SIZE) - (m_buffer.size() + 8)) % BLOCK_SIZE);
 		m_buffer.fill(0, (len + 8));
 
 		// append size in bits

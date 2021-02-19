@@ -312,7 +312,7 @@ namespace SHA3_NS
 		// the padding is reversed due to "B.1 Conversion Functions - Algorithm 11: b2h(S)"
 		m_buffer.fill(P);
 
-		const size_t len = R - (m_buffer.size() % R);
+		const auto len = static_cast<int>(((2 * R) - m_buffer.size()) % R);
 		m_buffer.fill(0, len);
 		m_buffer[m_buffer.size() - 1] |= (1 << 7);
 

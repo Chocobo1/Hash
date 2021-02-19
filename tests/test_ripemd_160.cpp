@@ -80,4 +80,8 @@ TEST_CASE("ripemd-160")
 	const auto s16_1 = Hash().addData(s16, 2).finalize().toArray();
 	const auto s16_2 = Hash().addData(s16).finalize().toArray();
 	REQUIRE(s16_1 == s16_2);
+
+	const char s17[55] = {0};
+	REQUIRE("e323d78db60afc7404def79abb82b8fb73591037"
+			== Hash().addData(s17, sizeof(s17)).finalize().toString());
 }

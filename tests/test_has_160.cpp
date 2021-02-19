@@ -77,5 +77,9 @@ TEST_CASE("has-160")
 	const auto s16_1 = Hash().addData(s16, 2).finalize().toArray();
 	const auto s16_2 = Hash().addData(s16).finalize().toArray();
 	REQUIRE(s16_1 == s16_2);
+
+	const char s17[55] = {0};
+	REQUIRE("5d8db63ebe00ecca2ec655ffcf4c2b0c585cf3e8"
+			== Hash().addData(s17, sizeof(s17)).finalize().toString());
 }
 

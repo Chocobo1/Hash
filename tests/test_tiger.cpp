@@ -77,6 +77,10 @@ TEST_CASE("tiger1-192")
 	const auto s16_1 = Hash().addData(s16, 2).finalize().toArray();
 	const auto s16_2 = Hash().addData(s16).finalize().toArray();
 	REQUIRE(s16_1 == s16_2);
+
+	const char s17[55] = {0};
+	REQUIRE("a4ee394b2a208e9b0a74c6d57568e470f6e658c44689fc63"
+			== Hash().addData(s17, sizeof(s17)).finalize().toString());
 }
 
 
@@ -141,4 +145,8 @@ TEST_CASE("tiger2-192")
 	const auto s16_1 = Hash().addData(s16, 2).finalize().toArray();
 	const auto s16_2 = Hash().addData(s16).finalize().toArray();
 	REQUIRE(s16_1 == s16_2);
+
+	const char s17[55] = {0};
+	REQUIRE("f67d481b1789e12356fb1a503bdc210e1e9ae3a6c07de567"
+			== Hash().addData(s17, sizeof(s17)).finalize().toString());
 }

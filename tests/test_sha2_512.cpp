@@ -102,4 +102,8 @@ TEST_CASE("sha2-512")
 	const auto s16_1 = Hash().addData(s16, 2).finalize().toArray();
 	const auto s16_2 = Hash().addData(s16).finalize().toArray();
 	REQUIRE(s16_1 == s16_2);
+
+	const char s17[111] = {0};
+	REQUIRE("77ddd3a542e530fd047b8977c657ba6ce72f1492e360b2b2212cd264e75ec03882e4ff0525517ab4207d14c70c2259ba88d4d335ee0e7e20543d22102ab1788c"
+			== Hash().addData(s17, sizeof(s17)).finalize().toString());
 }

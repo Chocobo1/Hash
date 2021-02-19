@@ -365,7 +365,7 @@ namespace Blake1_512_NS
 		m_buffer.fill(1 << 7);
 
 		// append paddings
-		const int len = static_cast<int>(BLOCK_SIZE - ((m_buffer.size() + 16) % BLOCK_SIZE));
+		const auto len = static_cast<int>(((2 * BLOCK_SIZE) - (m_buffer.size() + 16)) % BLOCK_SIZE);
 		m_buffer.fill(0, (len + 16));
 
 		m_buffer[m_buffer.size() - 17] |= 1;

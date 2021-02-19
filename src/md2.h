@@ -264,7 +264,7 @@ namespace MD2_NS
 	CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& MD2::finalize()
 	{
 		// append padding bytes
-		const int len = static_cast<int>(BLOCK_SIZE - (m_buffer.size() % BLOCK_SIZE));
+		const auto len = static_cast<int>(BLOCK_SIZE - (m_buffer.size() % BLOCK_SIZE));
 		m_buffer.fill(static_cast<Byte>(len), len);
 		addDataImpl({m_buffer.data(), m_buffer.size()});
 		m_buffer.clear();

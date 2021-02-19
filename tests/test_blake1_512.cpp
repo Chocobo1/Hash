@@ -70,4 +70,8 @@ TEST_CASE("blake1-512")
 	const auto s17_1 = Hash().addData(s17, 2).finalize().toArray();
 	const auto s17_2 = Hash().addData(s17).finalize().toArray();
 	REQUIRE(s17_1 == s17_2);
+
+	const char s18[111] = {0};
+	REQUIRE("125695c5cc01de48d8b107c101778fc447a55ad3440a17dc153c6c652faecdbf017aed68f4f48826b9dfc413ef8f14ae7dfd8b74a0afcf47b61ce7dcb1058976"
+			== Hash().addData(s18, sizeof(s18)).finalize().toString());
 }

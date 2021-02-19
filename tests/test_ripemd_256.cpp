@@ -80,4 +80,8 @@ TEST_CASE("ripemd-256")
 	const auto s16_1 = Hash().addData(s16, 2).finalize().toArray();
 	const auto s16_2 = Hash().addData(s16).finalize().toArray();
 	REQUIRE(s16_1 == s16_2);
+
+	const char s17[55] = {0};
+	REQUIRE("49434f3c05314ccc78553f906795a1823eddf7d6605a96ce78c6d69ca80f0c68"
+			== Hash().addData(s17, sizeof(s17)).finalize().toString());
 }
