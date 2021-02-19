@@ -5,6 +5,7 @@ os:
   - osx
 
 dist: bionic
+osx_image: xcode12.2
 
 compiler:
   - g++
@@ -42,7 +43,7 @@ install:
 
       # ninja
       mkdir ~/ninja
-      wget "https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-linux.zip" -O ~/ninja/ninja-linux.zip
+      wget "https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip" -O ~/ninja/ninja-linux.zip
       unzip ~/ninja/ninja-linux.zip -d ~/ninja
       PATH="$PATH":~/ninja
       ninja --version
