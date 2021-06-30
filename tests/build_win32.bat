@@ -1,32 +1,34 @@
 @echo off
 
 rem Prerequisites
-rem   python3: https://www.python.org/
-rem   meson: http://mesonbuild.com/
-rem   ninja: https://ninja-build.org/
 rem   git: https://git-scm.com/
+rem   msvc: https://visualstudio.microsoft.com
+rem   python3: https://www.python.org/
 
-if not exist "..\catch\.git" (
-	git submodule update --init --remote --depth 1 --recursive
+if not exist "catch2\.git" (
+	git submodule update --init
 )
 
-if not defined CL_EXIST (
-	call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
-	set CL_EXIST=1
+if not "%VSCMD_ARG_TGT_ARCH%" == "x64" (
+	call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
 )
 
-if not exist "_venv" (
-	python -m venv "_venv"
-	call "_venv\Scripts\activate.bat"
-	pip3 install meson
+if not exist ".venv" (
+	python -m venv ".venv"
+	call ".venv\Scripts\activate.bat"
+	pip3 install meson ninja
 ) else (
-	call "_venv\Scripts\activate.bat"
+	call ".venv\Scripts\activate.bat"
 )
 
 if not exist "_build" (
-	"_venv\Scripts\meson.exe" "_build"
+	meson "_build" -Db_sanitize=address
 	rem --backend vs
 )
 
-cd "_build"
-ninja -j2
+(
+	meson ^
+		compile ^
+		-C "_build" ^
+		-j 2
+)

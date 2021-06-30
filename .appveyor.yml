@@ -6,43 +6,25 @@ clone_depth: 50
 
 environment:
   REPO_DIR: &REPO_DIR c:\hash
-
-  NINJA_DIR: c:\ninja
-  NINJA_URL: https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip
-
   PYTHON3_DIR: C:\Python38-x64
 
 clone_folder: *REPO_DIR
 
 
 install:
-  # MSVC
-  - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
-  - cl
   # python
   - set PATH=%PYTHON3_DIR%;%PYTHON3_DIR%\Scripts;%PATH%
   - python --version
-  # ninja
-  - cd \
-  - appveyor DownloadFile "%NINJA_URL%" -FileName "ninja.zip"
-  - 7z e "ninja.zip" -o"%NINJA_DIR%"
-  - set PATH=%PATH%;%NINJA_DIR%
-  - ninja --version
-
-before_build:
-  - cd "%REPO_DIR%"
-  - git submodule update --init
 
 build_script:
   # tests
   - cd "%REPO_DIR%\tests"
   - build_win32.bat
-  - run_tests -d yes
+  - cd "_build" && run_tests -d yes
   # program
   - cd "%REPO_DIR%\src\program"
   - build_win32.bat
-  - move "%REPO_DIR%\src\program\_build\hash.exe" "%REPO_DIR%"
-
+  - move "_build\hash.exe" "%REPO_DIR%"
 
 test: off
 
