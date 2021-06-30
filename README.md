@@ -1,7 +1,9 @@
-# Hash [![AppVeyor_badge]][AppVeyor_link]
+# Hash [![AppVeyor_badge]][AppVeyor_link] [![GithubAction_badge]][GithubAction_link]
 
 [AppVeyor_badge]: https://ci.appveyor.com/api/projects/status/github/Chocobo1/Hash?branch=master&svg=true
 [AppVeyor_link]: https://ci.appveyor.com/project/Chocobo1/Hash
+[GithubAction_badge]: https://github.com/Chocobo1/Hash/workflows/CI/badge.svg
+[GithubAction_link]: https://github.com/Chocobo1/Hash/actions
 
 C++14 header-only easy-to-use hash library
 
