@@ -4,9 +4,7 @@ project('hash', 'cpp',
                           'warning_level=1',
                           'werror=true',
                           'strip=true',
-                          'b_sanitize=undefined',
-                          'b_asneeded=false',
-                          'b_lundef=false'
+                          'b_sanitize=address,undefined'
                          ])
 
 CXXFLAGS = ''
