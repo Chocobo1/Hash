@@ -28,7 +28,7 @@ jobs:
       if: ${{ matrix.os == 'windows-latest' }}
       run: |
         cd "tests"
-        meson "_build" -Db_sanitize=address
+        meson "_build" -Db_sanitize=none
         meson test -C "_build" -v --test-args "-d yes"
     - name: build sample program
       run: |
