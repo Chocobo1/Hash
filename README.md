@@ -1,7 +1,5 @@
-# Hash [![TravisCI_badge]][TravisCI_link] [![AppVeyor_badge]][AppVeyor_link]
+# Hash [![AppVeyor_badge]][AppVeyor_link]
 
-[TravisCI_badge]: https://travis-ci.org/Chocobo1/Hash.svg?branch=master
-[TravisCI_link]: https://travis-ci.org/Chocobo1/Hash
 [AppVeyor_badge]: https://ci.appveyor.com/api/projects/status/github/Chocobo1/Hash?branch=master&svg=true
 [AppVeyor_link]: https://ci.appveyor.com/project/Chocobo1/Hash
 
