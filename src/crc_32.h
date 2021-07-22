@@ -12,6 +12,7 @@
 #ifndef CHOCOBO1_CRC_32_H
 #define CHOCOBO1_CRC_32_H
 
+#include <array>
 #include <climits>
 #include <cmath>
 #include <cstdint>
