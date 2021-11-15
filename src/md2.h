@@ -78,7 +78,6 @@ namespace Hash
 			using size_type = std::size_t;
 
 			constexpr Buffer() = default;
-			constexpr Buffer(const Buffer &) = default;
 
 			CONSTEXPR_CPP17_CHOCOBO1_HASH Buffer(const std::initializer_list<T> initList)
 			{
