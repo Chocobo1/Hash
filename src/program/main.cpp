@@ -25,6 +25,7 @@
 #include "../ripemd_160.h"
 #include "../ripemd_256.h"
 #include "../ripemd_320.h"
+#include "../siphash.h"
 #include "../sha1.h"
 #include "../sha2_224.h"
 #include "../sha2_256.h"
@@ -59,6 +60,7 @@ enum class Hash : int
 	Has160,
 	Md2, Md4, Md5,
 	Ripemd_128, Ripemd_160, Ripemd_256, Ripemd_320,
+	Siphash,
 	Sha1,
 	Sha2_224, Sha2_256, Sha2_384, Sha2_512,
 	Sha2_512_224, Sha2_512_256,
@@ -114,6 +116,7 @@ void printUsage(const std::string &name)
 		"  -has160\n"
 		"  -md2"			"\t\t -md4"			"\t\t -md5\n"
 		"  -ripemd-128"		"\t -ripemd-160"	"\t -ripemd-256"	"\t -ripemd-320\n"
+		"  -siphash\n"
 		"  -sha1\n"
 		"  -sha2-224"		"\t -sha2-256"		"\t -sha2-384"		"\t -sha2-512"		"\t -sha2-512-224"	"\t -sha2-512-256\n"
 		"  -sha3-224"		"\t -sha3-256"		"\t -sha3-384"		"\t -sha3-512\n"
@@ -138,6 +141,7 @@ Hash getHash(const std::string &hash)
 		"-has160",
 		"-md2", "-md4", "-md5",
 		"-ripemd-128", "-ripemd-160", "-ripemd-256", "-ripemd-320",
+		"-siphash",
 		"-sha1",
 		"-sha2-224", "-sha2-256", "-sha2-384", "-sha2-512",
 		"-sha2-512-224", "-sha2-512-256",
@@ -374,6 +378,17 @@ bool runHash(const Hash hash, const int argc, const char *argv[])
 				return false;
 
 			readNPrint(Chocobo1::RIPEMD_320(), argv[2]);
+			return true;
+		}
+
+		case Hash::Siphash:
+		{
+			if (argc != 3)
+				return false;
+
+			// keep it simple for now
+			const unsigned char key[16] = {0};
+			readNPrint(Chocobo1::SipHash(key), argv[2]);
 			return true;
 		}
 

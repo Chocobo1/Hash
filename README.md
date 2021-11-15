@@ -20,6 +20,7 @@ What is included in this library:
 | MD4                     |                                          | https://tools.ietf.org/html/rfc1320                                                       |
 | MD5                     |                                          | https://tools.ietf.org/html/rfc1321                                                       |
 | RIPEMD                  | 128, 160, 256, 320                       | https://homes.esat.kuleuven.be/~bosselae/ripemd160.html                                   |
+| SipHash                 |                                          | https://github.com/veorq/SipHash                                                          |
 | SHA-1                   |                                          | https://tools.ietf.org/html/rfc3174                                                       |
 | SHA-2                   | 224, 256, 384, 512, 512-224, 512-256     | https://tools.ietf.org/html/rfc6234                                                       |
 | SHA-3                   | 224, 256, 384, 512, SHAKE-128, SHAKE-256 | https://keccak.team/index.html                                                            |

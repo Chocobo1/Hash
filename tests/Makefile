@@ -10,6 +10,7 @@ SRC_NAME   = main \
 	test_has_160 \
 	test_md2 test_md4 test_md5 \
 	test_ripemd_128 test_ripemd_160 test_ripemd_256 test_ripemd_320 \
+	test_siphash \
 	test_sha1 \
 	test_sha2_224 test_sha2_256 test_sha2_384 test_sha2_512 \
 	test_sha2_512_224 test_sha2_512_256 \
