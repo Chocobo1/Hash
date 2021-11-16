@@ -5,8 +5,9 @@ CXXFLAGS   = -std=c++14 -pipe -Wall -Wextra -Wpedantic -Wconversion -fmax-errors
 SRC_NAME   = main \
 	test_blake1_224 test_blake1_256 test_blake1_384 test_blake1_512 \
 	test_blake2 test_blake2s \
-	test_cshake \
 	test_crc_32 \
+	test_cshake \
+	test_fnv \
 	test_has_160 \
 	test_md2 test_md4 test_md5 \
 	test_ripemd_128 test_ripemd_160 test_ripemd_256 test_ripemd_320 \

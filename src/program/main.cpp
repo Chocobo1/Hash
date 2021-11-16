@@ -1,7 +1,7 @@
 /*
  *  Chocobo1/Hash
  *
- *   Copyright 2017-2018 by Mike Tzou (Chocobo1)
+ *   Copyright 2017-2021 by Mike Tzou (Chocobo1)
  *     https://github.com/Chocobo1/Hash
  *
  *   Licensed under GNU General Public License 3 or later.
@@ -15,8 +15,9 @@
 #include "../blake1_512.h"
 #include "../blake2.h"
 #include "../blake2s.h"
-#include "../cshake.h"
 #include "../crc_32.h"
+#include "../cshake.h"
+#include "../fnv.h"
 #include "../has_160.h"
 #include "../md2.h"
 #include "../md4.h"
@@ -57,6 +58,7 @@ enum class Hash : int
 	Blake2, Blake2s,
 	Crc_32,
 	Cshake_128, Cshake_256,
+	Fnv32_1a, Fnv64_1a,
 	Has160,
 	Md2, Md4, Md5,
 	Ripemd_128, Ripemd_160, Ripemd_256, Ripemd_320,
@@ -113,6 +115,7 @@ void printUsage(const std::string &name)
 		"  -crc-32\n"
 		"  -cshake-128 <Digest length (bytes)> <Customization string>\n"
 		"  -cshake-256 <Digest length (bytes)> <Customization string>\n"
+		"  -fnv32_1a"		"\t -fnv64_1a\n"
 		"  -has160\n"
 		"  -md2"			"\t\t -md4"			"\t\t -md5\n"
 		"  -ripemd-128"		"\t -ripemd-160"	"\t -ripemd-256"	"\t -ripemd-320\n"
@@ -138,6 +141,7 @@ Hash getHash(const std::string &hash)
 		"-blake2", "-blake2s",
 		"-crc-32",
 		"-cshake-128", "-cshake-256",
+		"-fnv32_1a", "-fnv64_1a",
 		"-has160",
 		"-md2", "-md4", "-md5",
 		"-ripemd-128", "-ripemd-160", "-ripemd-256", "-ripemd-320",
@@ -306,6 +310,24 @@ bool runHash(const Hash hash, const int argc, const char *argv[])
 			}
 
 			readNPrint(Chocobo1::CSHAKE_256(digestLength, argv[3]), argv[4]);
+			return true;
+		}
+
+		case Hash::Fnv32_1a:
+		{
+			if (argc != 3)
+				return false;
+
+			readNPrint(Chocobo1::FNV32_1a(), argv[2]);
+			return true;
+		}
+
+		case Hash::Fnv64_1a:
+		{
+			if (argc != 3)
+				return false;
+
+			readNPrint(Chocobo1::FNV64_1a(), argv[2]);
 			return true;
 		}
 
