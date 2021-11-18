@@ -168,19 +168,20 @@ namespace Hash
 	class Uint128
 	{
 		public:
-			constexpr Uint128()
-				: m_lo(0), m_hi(0)
+			constexpr Uint128() = default;
+
+			constexpr Uint128(const uint64_t n)
+				: m_lo(n)
 			{
 			}
 
 			constexpr Uint128& operator= (const uint64_t n)
 			{
-				this->m_lo = n;
-				this->m_hi = 0;
+				*this = Uint128(n);
 				return (*this);
 			}
 
-			constexpr Uint128 operator+ (const uint64_t n)
+			constexpr Uint128 operator+ (const uint64_t n) const
 			{
 				Uint128 ret = *this;
 				ret += n;
@@ -220,8 +221,8 @@ namespace Hash
 			}
 
 		private:
-			uint64_t m_lo;
-			uint64_t m_hi;
+			uint64_t m_lo = 0;
+			uint64_t m_hi = 0;
 	};
 #endif
 
