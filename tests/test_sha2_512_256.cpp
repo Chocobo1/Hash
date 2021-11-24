@@ -63,4 +63,6 @@ TEST_CASE("sha2-512/256")
 	const char s17[111] = {0};
 	REQUIRE("5192ee5471d8a02ffc34bce87142df77aaef777dde522cc171af66e95a006a15"
 			== Hash().addData(s17, sizeof(s17)).finalize().toString());
+
+	REQUIRE(0xc672b8d1ef56ed28 == std::hash<Hash> {}(Hash().finalize()));
 }

@@ -73,6 +73,8 @@ TEST_CASE("sha3-512")
 	const char s17[71] = {0};
 	REQUIRE("cd87417194c917561a59c7f2eb4b95145971e32e8e4ef3b23b0f190bfd29e3692cc7975275750a27df95d5c6a99b7a341e1b8a38a750a51aca5b77bae41fbbfc"
 			== Hash().addData(s17, sizeof(s17)).finalize().toString());
+
+	REQUIRE(0xa69f73cca23a9ac5 == std::hash<Hash> {}(Hash().finalize()));
 }
 
 
@@ -133,6 +135,8 @@ TEST_CASE("sha3-384")
 	const char s17[103] = {0};
 	REQUIRE("11c556552dda63418669716bad02e4125f4973f3ceea99ee50b6ff117e9f7a3fed0360abb5eff4ac8e954205c01981d2"
 			== Hash().addData(s17, sizeof(s17)).finalize().toString());
+
+	REQUIRE(0xc63a75b845e4f7d == std::hash<Hash> {}(Hash().finalize()));
 }
 
 
@@ -193,6 +197,8 @@ TEST_CASE("sha3-256")
 	const char s17[135] = {0};
 	REQUIRE("7d080d7ba978a75c8a7d1f9be566c859084509c9c2b4928435c225d5777d98e3"
 			== Hash().addData(s17, sizeof(s17)).finalize().toString());
+
+	REQUIRE(0xa7ffc6f8bf1ed766 == std::hash<Hash> {}(Hash().finalize()));
 }
 
 
@@ -253,4 +259,6 @@ TEST_CASE("sha3-224")
 	const char s17[143] = {0};
 	REQUIRE("b6b709fdb9852b8c7439a33595d42dba2940f44c10c3ce09f8b6a87a"
 			== Hash().addData(s17, sizeof(s17)).finalize().toString());
+
+	REQUIRE(0x6b4e03423667dbb7 == std::hash<Hash> {}(Hash().finalize()));
 }

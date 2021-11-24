@@ -209,11 +209,13 @@ namespace Blake1_224_NS
 			constexpr Blake1_224();
 
 			constexpr void reset();
-			CONSTEXPR_CPP17_CHOCOBO1_HASH Blake1_224& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			CONSTEXPR_CPP17_CHOCOBO1_HASH Blake1_224& finalize();  // after this, only `operator T()`, `reset()`, `toArray()`, `toString()`, `toVector()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
+			template <typename T>
+			CONSTEXPR_CPP17_CHOCOBO1_HASH operator T() const noexcept;
 
 			constexpr Blake1_224& addData(const Span<const Byte> inData);
 			constexpr Blake1_224& addData(const void *ptr, const std::size_t length);
@@ -358,6 +360,21 @@ namespace Blake1_224_NS
 				*(retPtr++) = ror<Byte>(i, (j * 8));
 		}
 
+		return ret;
+	}
+
+	template <typename T>
+	CONSTEXPR_CPP17_CHOCOBO1_HASH Blake1_224::operator T() const noexcept
+	{
+		static_assert(std::is_unsigned<T>::value, "");
+
+		const auto digest = toArray();
+		T ret = 0;
+		for (int i = 0, iMax = static_cast<int>(std::min(sizeof(T), digest.size())); i < iMax; ++i)
+		{
+			ret <<= 8;
+			ret |= digest[i];
+		}
 		return ret;
 	}
 
@@ -603,6 +620,18 @@ namespace Blake1_224_NS
 }
 }
 	using Blake1_224 = Hash::Blake1_224_NS::Blake1_224;
+}
+
+namespace std
+{
+	template <>
+	struct hash<Chocobo1::Blake1_224>
+	{
+		CONSTEXPR_CPP17_CHOCOBO1_HASH size_t operator()(const Chocobo1::Blake1_224 &hash) const noexcept
+		{
+			return hash;
+		}
+	};
 }
 
 #endif  // CHOCOBO1_BLAKE1_224_H

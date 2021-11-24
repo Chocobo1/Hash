@@ -260,11 +260,13 @@ namespace Whirlpool_NS
 			constexpr Whirlpool();
 
 			constexpr void reset();
-			CONSTEXPR_CPP17_CHOCOBO1_HASH Whirlpool& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			CONSTEXPR_CPP17_CHOCOBO1_HASH Whirlpool& finalize();  // after this, only `operator T()`, `reset()`, `toArray()`, `toString()`, `toVector()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
+			template <typename T>
+			CONSTEXPR_CPP17_CHOCOBO1_HASH operator T() const noexcept;
 
 			CONSTEXPR_CPP17_CHOCOBO1_HASH Whirlpool& addData(const Span<const Byte> inData);
 			CONSTEXPR_CPP17_CHOCOBO1_HASH Whirlpool& addData(const void *ptr, const std::size_t length);
@@ -689,6 +691,21 @@ namespace Whirlpool_NS
 		return ret;
 	}
 
+	template <typename T>
+	CONSTEXPR_CPP17_CHOCOBO1_HASH Whirlpool::operator T() const noexcept
+	{
+		static_assert(std::is_unsigned<T>::value, "");
+
+		const auto digest = toArray();
+		T ret = 0;
+		for (int i = 0, iMax = static_cast<int>(std::min(sizeof(T), digest.size())); i < iMax; ++i)
+		{
+			ret <<= 8;
+			ret |= digest[i];
+		}
+		return ret;
+	}
+
 	CONSTEXPR_CPP17_CHOCOBO1_HASH Whirlpool& Whirlpool::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
@@ -840,6 +857,18 @@ namespace Whirlpool_NS
 }
 }
 	using Whirlpool = Hash::Whirlpool_NS::Whirlpool;
+}
+
+namespace std
+{
+	template <>
+	struct hash<Chocobo1::Whirlpool>
+	{
+		CONSTEXPR_CPP17_CHOCOBO1_HASH size_t operator()(const Chocobo1::Whirlpool &hash) const noexcept
+		{
+			return hash;
+		}
+	};
 }
 
 #endif  // CHOCOBO1_WHIRLPOOL_H

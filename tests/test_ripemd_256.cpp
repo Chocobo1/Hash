@@ -84,4 +84,6 @@ TEST_CASE("ripemd-256")
 	const char s17[55] = {0};
 	REQUIRE("49434f3c05314ccc78553f906795a1823eddf7d6605a96ce78c6d69ca80f0c68"
 			== Hash().addData(s17, sizeof(s17)).finalize().toString());
+
+	REQUIRE(0x2ba4c4e5f8ecd18 == std::hash<Hash> {}(Hash().finalize()));
 }

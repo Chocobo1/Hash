@@ -196,11 +196,13 @@ namespace MD2_NS
 			constexpr MD2();
 
 			constexpr void reset();
-			CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& finalize();  // after this, only `operator T()`, `reset()`, `toArray()`, `toString()`, `toVector()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 			constexpr ResultArrayType toArray() const;
+			template <typename T>
+			constexpr operator T() const noexcept;
 
 			CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& addData(const Span<const Byte> inData);
 			CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& addData(const void *ptr, const std::size_t length);
@@ -307,6 +309,21 @@ namespace MD2_NS
 		return {{m_x[0], m_x[1], m_x[2], m_x[3], m_x[4], m_x[5], m_x[6], m_x[7], m_x[8], m_x[9], m_x[10], m_x[11], m_x[12], m_x[13], m_x[14], m_x[15]}};
 	}
 
+	template <typename T>
+	constexpr MD2::operator T() const noexcept
+	{
+		static_assert(std::is_unsigned<T>::value, "");
+
+		const auto digest = toArray();
+		T ret = 0;
+		for (int i = 0, iMax = static_cast<int>(std::min(sizeof(T), digest.size())); i < iMax; ++i)
+		{
+			ret <<= 8;
+			ret |= digest[i];
+		}
+		return ret;
+	}
+
 	CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& MD2::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
@@ -403,6 +420,18 @@ namespace MD2_NS
 }
 }
 	using MD2 = Hash::MD2_NS::MD2;
+}
+
+namespace std
+{
+	template <>
+	struct hash<Chocobo1::MD2>
+	{
+		constexpr size_t operator()(const Chocobo1::MD2 &hash) const noexcept
+		{
+			return hash;
+		}
+	};
 }
 
 #endif  // CHOCOBO1_MD2_H

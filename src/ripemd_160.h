@@ -209,11 +209,13 @@ namespace RIPEMD_160_NS
 			constexpr RIPEMD_160();
 
 			constexpr void reset();
-			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_160& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_160& finalize();  // after this, only `operator T()`, `reset()`, `toArray()`, `toString()`, `toVector()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
+			template <typename T>
+			CONSTEXPR_CPP17_CHOCOBO1_HASH operator T() const noexcept;
 
 			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_160& addData(const Span<const Byte> inData);
 			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_160& addData(const void *ptr, const std::size_t length);
@@ -348,6 +350,21 @@ namespace RIPEMD_160_NS
 				*(retPtr++) = ror<Byte>(i, (j * 8));
 		}
 
+		return ret;
+	}
+
+	template <typename T>
+	CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_160::operator T() const noexcept
+	{
+		static_assert(std::is_unsigned<T>::value, "");
+
+		const auto digest = toArray();
+		T ret = 0;
+		for (int i = 0, iMax = static_cast<int>(std::min(sizeof(T), digest.size())); i < iMax; ++i)
+		{
+			ret <<= 8;
+			ret |= digest[i];
+		}
 		return ret;
 	}
 
@@ -630,6 +647,18 @@ namespace RIPEMD_160_NS
 }
 }
 	using RIPEMD_160 = Hash::RIPEMD_160_NS::RIPEMD_160;
+}
+
+namespace std
+{
+	template <>
+	struct hash<Chocobo1::RIPEMD_160>
+	{
+		CONSTEXPR_CPP17_CHOCOBO1_HASH size_t operator()(const Chocobo1::RIPEMD_160 &hash) const noexcept
+		{
+			return hash;
+		}
+	};
 }
 
 #endif  // CHOCOBO1_RIPEMD_160_H

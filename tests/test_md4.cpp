@@ -78,4 +78,6 @@ TEST_CASE("md4")
 	const char s17[55] = {0};
 	REQUIRE("2df5a83f688f18c0866c64173be82a8f"
 			== Hash().addData(s17, sizeof(s17)).finalize().toString());
+
+	REQUIRE(0x31d6cfe0d16ae931 == std::hash<Hash> {}(Hash().finalize()));
 }

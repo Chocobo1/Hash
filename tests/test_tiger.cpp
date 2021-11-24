@@ -81,6 +81,8 @@ TEST_CASE("tiger1-192")
 	const char s17[55] = {0};
 	REQUIRE("a4ee394b2a208e9b0a74c6d57568e470f6e658c44689fc63"
 			== Hash().addData(s17, sizeof(s17)).finalize().toString());
+
+	REQUIRE(0x3293ac630c13f024 == std::hash<Hash> {}(Hash().finalize()));
 }
 
 
@@ -149,4 +151,6 @@ TEST_CASE("tiger2-192")
 	const char s17[55] = {0};
 	REQUIRE("f67d481b1789e12356fb1a503bdc210e1e9ae3a6c07de567"
 			== Hash().addData(s17, sizeof(s17)).finalize().toString());
+
+	REQUIRE(0x4441be75f6018773 == std::hash<Hash> {}(Hash().finalize()));
 }

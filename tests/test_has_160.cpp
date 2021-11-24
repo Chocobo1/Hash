@@ -81,5 +81,7 @@ TEST_CASE("has-160")
 	const char s17[55] = {0};
 	REQUIRE("5d8db63ebe00ecca2ec655ffcf4c2b0c585cf3e8"
 			== Hash().addData(s17, sizeof(s17)).finalize().toString());
+
+	REQUIRE(0x307964ef34151d37 == std::hash<Hash> {}(Hash().finalize()));
 }
 

@@ -69,6 +69,8 @@ TEST_CASE("shake-256")
 	const auto s16_1 = Hash(512).addData(s16, 2).finalize().toVector();
 	const auto s16_2 = Hash(512).addData(s16).finalize().toVector();
 	REQUIRE(s16_1 == s16_2);
+
+	REQUIRE(0x46b9dd2b0ba88d13 == std::hash<Hash> {}(Hash(512).finalize()));
 }
 
 
@@ -125,4 +127,6 @@ TEST_CASE("shake-128")
 	const auto s16_1 = Hash(512).addData(s16, 2).finalize().toVector();
 	const auto s16_2 = Hash(512).addData(s16).finalize().toVector();
 	REQUIRE(s16_1 == s16_2);
+
+	REQUIRE(0x7f9c2ba4e88f827d == std::hash<Hash> {}(Hash(512).finalize()));
 }

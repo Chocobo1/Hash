@@ -85,12 +85,16 @@ namespace CShake_NS
 
 
 			explicit constexpr CShake(const int digestLength, const std::string &name = {}, const std::string &customize = {});
+			constexpr CShake(const CShake &other);
+			constexpr CShake(CShake &&other);
 
 			constexpr void reset();
-			constexpr CShake& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			constexpr CShake& finalize();  // after this, only `operator T()`, `reset()`, `toString()`, `toVector()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
+			template <typename T>
+			operator T() const noexcept;
 
 			constexpr CShake& addData(const Span<const Byte> inData);
 			constexpr CShake& addData(const void *ptr, const std::size_t length);
@@ -170,6 +174,26 @@ namespace CShake_NS
 	}
 
 	template <typename S, typename K, int P>
+	constexpr CShake<S, K, P>::CShake(const CShake<S, K, P> &other)
+		: m_customized(other.m_customized)
+	{
+		if (!m_customized)
+			m_shake = std::make_unique<S>(*other.m_shake);
+		else
+			m_keccak = std::make_unique<K>(*other.m_keccak);
+	}
+
+	template <typename S, typename K, int P>
+	constexpr CShake<S, K, P>::CShake(CShake<S, K, P> &&other)
+		: m_customized(other.m_customized)
+	{
+		if (!m_customized)
+			std::swap(m_shake, other.m_shake);
+		else
+			std::swap(m_keccak, other.m_keccak);
+	}
+
+	template <typename S, typename K, int P>
 	constexpr void CShake<S, K, P>::reset()
 	{
 		if (!m_customized)
@@ -204,6 +228,22 @@ namespace CShake_NS
 			return m_shake->toVector();
 		else
 			return m_keccak->toVector();
+	}
+
+	template <typename S, typename K, int P>
+	template <typename T>
+	CShake<S, K, P>::operator T() const noexcept
+	{
+		static_assert(std::is_unsigned<T>::value, "");
+
+		const auto digest = toVector();
+		T ret = 0;
+		for (int i = 0, iMax = static_cast<int>(std::min(sizeof(T), digest.size())); i < iMax; ++i)
+		{
+			ret <<= 8;
+			ret |= digest[i];
+		}
+		return ret;
 	}
 
 	template <typename S, typename K, int P>
@@ -251,8 +291,48 @@ namespace CShake_NS
 	}
 }
 }
-	struct CSHAKE_128 : Hash::CShake_NS::CShake<SHAKE_128, Hash::SHA3_NS::Keccak<(1344 / 8), 0x04>, (1344 / 8)> { explicit CSHAKE_128(const int l, const std::string &n = {}, const std::string &c = {}) : Hash::CShake_NS::CShake<SHAKE_128, Hash::SHA3_NS::Keccak<(1344 / 8), 0x04>, (1344 / 8)>(l, n, c) {} };
-	struct CSHAKE_256 : Hash::CShake_NS::CShake<SHAKE_256, Hash::SHA3_NS::Keccak<(1088 / 8), 0x04>, (1088 / 8)> { explicit CSHAKE_256(const int l, const std::string &n = {}, const std::string &c = {}) : Hash::CShake_NS::CShake<SHAKE_256, Hash::SHA3_NS::Keccak<(1088 / 8), 0x04>, (1088 / 8)>(l, n, c) {} };
+
+	template <typename Base>
+	struct CSHAKEAlias : Base
+	{
+		explicit constexpr CSHAKEAlias(const int l, const std::string &n = {}, const std::string &c = {}) : Base(l, n, c) {}
+		CSHAKEAlias(const Base &other) : Base(other) {}
+		CSHAKEAlias(Base &&other) : Base(std::move(other)) {}
+		CSHAKEAlias& operator=(const Base &other) { if (this != &other) { *this = other; } return *this; }
+		CSHAKEAlias& operator=(Base &&other) { if (this != &other) { *this = std::move(other); } return *this; }
+	};
+	using CSHAKE_128 = CSHAKEAlias<Hash::CShake_NS::CShake<SHAKE_128, Hash::SHA3_NS::Keccak<(1344 / 8), 0x04>, (1344 / 8)>>;
+	using CSHAKE_256 = CSHAKEAlias<Hash::CShake_NS::CShake<SHAKE_256, Hash::SHA3_NS::Keccak<(1088 / 8), 0x04>, (1088 / 8)>>;
+}
+
+namespace std
+{
+	template <typename S, typename K, int P>
+	struct hash<Chocobo1::Hash::CShake_NS::CShake<S, K, P>>
+	{
+		size_t operator()(const Chocobo1::Hash::CShake_NS::CShake<S, K, P> &hash) const noexcept
+		{
+			return hash;
+		}
+	};
+
+	template <>
+	struct hash<Chocobo1::CSHAKE_128>
+	{
+		size_t operator()(const Chocobo1::CSHAKE_128 &hash) const noexcept
+		{
+			return hash;
+		}
+	};
+
+	template <>
+	struct hash<Chocobo1::CSHAKE_256>
+	{
+		size_t operator()(const Chocobo1::CSHAKE_256 &hash) const noexcept
+		{
+			return hash;
+		}
+	};
 }
 
 #endif  // CHOCOBO1_CSHAKE_H

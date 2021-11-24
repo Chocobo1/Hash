@@ -215,10 +215,12 @@ namespace SHA3_NS
 			constexpr explicit Keccak(const int digestLength);
 
 			constexpr void reset();
-			Keccak& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			Keccak& finalize();  // after this, only `operator T()`, `reset()`, `toString()`, `toVector()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
+			template <typename T>
+			operator T() const noexcept;
 
 			constexpr Keccak& addData(const Span<const Byte> inData);
 			constexpr Keccak& addData(const void *ptr, const std::size_t length);
@@ -364,6 +366,22 @@ namespace SHA3_NS
 	std::vector<typename Keccak<R, P>::Byte> Keccak<R, P>::toVector() const
 	{
 		return m_final;
+	}
+
+	template <int R, int P>
+	template <typename T>
+	Keccak<R, P>::operator T() const noexcept
+	{
+		static_assert(std::is_unsigned<T>::value, "");
+
+		const auto digest = toVector();
+		T ret = 0;
+		for (int i = 0, iMax = static_cast<int>(std::min(sizeof(T), digest.size())); i < iMax; ++i)
+		{
+			ret <<= 8;
+			ret |= digest[i];
+		}
+		return ret;
 	}
 
 	template <int R, int P>
@@ -565,12 +583,98 @@ namespace SHA3_NS
 	}
 }
 }
-	struct SHA3_224 : Hash::SHA3_NS::Keccak<(1152 / 8), 0x06> { SHA3_224() : Hash::SHA3_NS::Keccak<(1152 / 8), 0x06>(224 / 8) {} };
-	struct SHA3_256 : Hash::SHA3_NS::Keccak<(1088 / 8), 0x06> { SHA3_256() : Hash::SHA3_NS::Keccak<(1088 / 8), 0x06>(256 / 8) {} };
-	struct SHA3_384 : Hash::SHA3_NS::Keccak<( 832 / 8), 0x06> { SHA3_384() : Hash::SHA3_NS::Keccak<( 832 / 8), 0x06>(384 / 8) {} };
-	struct SHA3_512 : Hash::SHA3_NS::Keccak<( 576 / 8), 0x06> { SHA3_512() : Hash::SHA3_NS::Keccak<( 576 / 8), 0x06>(512 / 8) {} };
-	struct SHAKE_128 : Hash::SHA3_NS::Keccak<(1344 / 8), 0x1F> { explicit SHAKE_128(const int d) : Hash::SHA3_NS::Keccak<(1344 / 8), 0x1F>(d) {} };
-	struct SHAKE_256 : Hash::SHA3_NS::Keccak<(1088 / 8), 0x1F> { explicit SHAKE_256(const int d) : Hash::SHA3_NS::Keccak<(1088 / 8), 0x1F>(d) {} };
+
+	template <typename Base, int N>
+	struct KeccakAlias : Base
+	{
+		constexpr KeccakAlias() : Base(N) {}
+		KeccakAlias(const Base &other) : Base(other) {}
+		KeccakAlias(Base &&other) : Base(std::move(other)) {}
+		KeccakAlias& operator=(const Base &other) { if (this != &other) { *this = other; } return *this; }
+		KeccakAlias& operator=(Base &&other) { if (this != &other) { *this = std::move(other); } return *this; }
+	};
+	using SHA3_224 = KeccakAlias<Hash::SHA3_NS::Keccak<(1152 / 8), 0x06>, (224 / 8)>;
+	using SHA3_256 = KeccakAlias<Hash::SHA3_NS::Keccak<(1088 / 8), 0x06>, (256 / 8)>;
+	using SHA3_384 = KeccakAlias<Hash::SHA3_NS::Keccak<(832 / 8), 0x06>, (384 / 8)>;
+	using SHA3_512 = KeccakAlias<Hash::SHA3_NS::Keccak<(576 / 8), 0x06>, (512 / 8)>;
+
+	template <typename Base>
+	struct SHAKEAlias : Base
+	{
+		explicit constexpr SHAKEAlias(const int d) : Base(d) {}
+		SHAKEAlias(const Base &other) : Base(other) {}
+		SHAKEAlias(Base &&other) : Base(std::move(other)) {}
+		SHAKEAlias& operator=(const Base &other) { if (this != &other) { *this = other; } return *this; }
+		SHAKEAlias& operator=(Base &&other) { if (this != &other) { *this = std::move(other); } return *this; }
+	};
+	using SHAKE_128 = SHAKEAlias<Hash::SHA3_NS::Keccak<(1344 / 8), 0x1F>>;
+	using SHAKE_256 = SHAKEAlias<Hash::SHA3_NS::Keccak<(1088 / 8), 0x1F>>;
+}
+
+namespace std
+{
+	template <int R, int P>
+	struct hash<Chocobo1::Hash::SHA3_NS::Keccak<R, P>>
+	{
+		size_t operator()(const Chocobo1::Hash::SHA3_NS::Keccak<R, P> &hash) const noexcept
+		{
+			return hash;
+		}
+	};
+
+	template <>
+	struct hash<Chocobo1::SHA3_224>
+	{
+		size_t operator()(const Chocobo1::SHA3_224 &hash) const noexcept
+		{
+			return hash;
+		}
+	};
+
+	template <>
+	struct hash<Chocobo1::SHA3_256>
+	{
+		size_t operator()(const Chocobo1::SHA3_256 &hash) const noexcept
+		{
+			return hash;
+		}
+	};
+
+	template <>
+	struct hash<Chocobo1::SHA3_384>
+	{
+		size_t operator()(const Chocobo1::SHA3_384 &hash) const noexcept
+		{
+			return hash;
+		}
+	};
+
+	template <>
+	struct hash<Chocobo1::SHA3_512>
+	{
+		size_t operator()(const Chocobo1::SHA3_512 &hash) const noexcept
+		{
+			return hash;
+		}
+	};
+
+	template <>
+	struct hash<Chocobo1::SHAKE_128>
+	{
+		size_t operator()(const Chocobo1::SHAKE_128 &hash) const noexcept
+		{
+			return hash;
+		}
+	};
+
+	template <>
+	struct hash<Chocobo1::SHAKE_256>
+	{
+		size_t operator()(const Chocobo1::SHAKE_256 &hash) const noexcept
+		{
+			return hash;
+		}
+	};
 }
 
 #endif  // CHOCOBO1_SHA3_H

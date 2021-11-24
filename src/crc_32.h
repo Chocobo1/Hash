@@ -100,11 +100,13 @@ namespace CRC_32_NS
 			constexpr CRC_32();
 
 			constexpr void reset();
-			constexpr CRC_32& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			constexpr CRC_32& finalize();  // after this, only `operator T()`, `reset()`, `toArray()`, `toString()`, `toVector()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
+			template <typename T>
+			CONSTEXPR_CPP17_CHOCOBO1_HASH operator T() const noexcept;
 
 			constexpr CRC_32& addData(const Span<const Byte> inData);
 			constexpr CRC_32& addData(const void *ptr, const std::size_t length);
@@ -758,6 +760,21 @@ namespace CRC_32_NS
 		return ret;
 	}
 
+	template <typename T>
+	CONSTEXPR_CPP17_CHOCOBO1_HASH CRC_32::operator T() const noexcept
+	{
+		static_assert(std::is_unsigned<T>::value, "");
+
+		const auto digest = toArray();
+		T ret = 0;
+		for (int i = 0, iMax = static_cast<int>(std::min(sizeof(T), digest.size())); i < iMax; ++i)
+		{
+			ret <<= 8;
+			ret |= digest[i];
+		}
+		return ret;
+	}
+
 	constexpr CRC_32& CRC_32::addData(const Span<const Byte> inData)
 	{
 		addDataImpl(inData);
@@ -851,6 +868,18 @@ namespace CRC_32_NS
 }
 }
 	using CRC_32 = Hash::CRC_32_NS::CRC_32;
+}
+
+namespace std
+{
+	template <>
+	struct hash<Chocobo1::CRC_32>
+	{
+		CONSTEXPR_CPP17_CHOCOBO1_HASH size_t operator()(const Chocobo1::CRC_32 &hash) const noexcept
+		{
+			return hash;
+		}
+	};
 }
 
 #endif  // CHOCOBO1_CRC_32_H

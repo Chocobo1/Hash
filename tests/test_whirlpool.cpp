@@ -97,4 +97,6 @@ TEST_CASE("whirlpool")
 	const char s17[31] = {0};
 	REQUIRE("3e3f188f8febbeb17a933feaf7fe53a4858d80c915ad6a1418f0318e68d49b4e459223cd414e0fbc8a57578fd755d86e827abef4070fc1503e25d99e382f72ba"
 			== Hash().addData(s17, sizeof(s17)).finalize().toString());
+
+	REQUIRE(0x19fa61d75522a466 == std::hash<Hash> {}(Hash().finalize()));
 }

@@ -101,11 +101,13 @@ namespace FNVHASH_NS
 			constexpr FNVHash();
 
 			constexpr void reset();
-			CONSTEXPR_CPP17_CHOCOBO1_HASH FNVHash& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			CONSTEXPR_CPP17_CHOCOBO1_HASH FNVHash& finalize();  // after this, only `operator T()`, `reset()`, `toArray()`, `toString()`, `toVector()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
+			template <typename T>
+			CONSTEXPR_CPP17_CHOCOBO1_HASH operator T() const noexcept;
 
 			constexpr FNVHash& addData(const Span<const Byte> inData);
 			constexpr FNVHash& addData(const void *ptr, const std::size_t length);
@@ -208,6 +210,22 @@ namespace FNVHASH_NS
 	}
 
 	template <typename DigestType, int Variant>
+	template <typename T>
+	CONSTEXPR_CPP17_CHOCOBO1_HASH FNVHash<DigestType, Variant>::operator T() const noexcept
+	{
+		static_assert(std::is_unsigned<T>::value, "");
+
+		const auto digest = toArray();
+		T ret = 0;
+		for (int i = 0, iMax = static_cast<int>(std::min(sizeof(T), digest.size())); i < iMax; ++i)
+		{
+			ret <<= 8;
+			ret |= digest[i];
+		}
+		return ret;
+	}
+
+	template <typename DigestType, int Variant>
 	constexpr FNVHash<DigestType, Variant>& FNVHash<DigestType, Variant>::addData(const Span<const Byte> inData)
 	{
 		addDataImpl(inData);
@@ -294,6 +312,18 @@ namespace FNVHASH_NS
 	using FNV64_0 = Hash::FNVHASH_NS::FNVHash<uint64_t, 0>;
 	using FNV64_1 = Hash::FNVHASH_NS::FNVHash<uint64_t, 1>;
 	using FNV64_1a = Hash::FNVHASH_NS::FNVHash<uint64_t, 2>;
+}
+
+namespace std
+{
+	template <typename DigestType, int Variant>
+	struct hash<Chocobo1::Hash::FNVHASH_NS::FNVHash<DigestType, Variant>>
+	{
+		CONSTEXPR_CPP17_CHOCOBO1_HASH size_t operator()(const Chocobo1::Hash::FNVHASH_NS::FNVHash<DigestType, Variant> &hash) const noexcept
+		{
+			return hash;
+		}
+	};
 }
 
 #endif  // CHOCOBO1_FNV_H

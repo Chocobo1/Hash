@@ -86,10 +86,12 @@ namespace TupleHash_NS
 			explicit constexpr TupleHash(const int digestLength, const std::string &customize = {});
 
 			constexpr void reset();
-			constexpr TupleHash& finalize();  // after this, only `toString()`, `toVector()`, `reset()` are available
+			constexpr TupleHash& finalize();  // after this, only `operator T()`, `reset()`, `toString()`, `toVector()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
+			template <typename T>
+			operator T() const noexcept;
 
 			constexpr TupleHash& nextData(const Span<const Byte> inData);  // pass in next element in tuple
 			constexpr TupleHash& nextData(const void *ptr, const std::size_t length);
@@ -159,6 +161,22 @@ namespace TupleHash_NS
 	}
 
 	template <typename Alg>
+	template <typename T>
+	TupleHash<Alg>::operator T() const noexcept
+	{
+		static_assert(std::is_unsigned<T>::value, "");
+
+		const auto digest = toVector();
+		T ret = 0;
+		for (int i = 0, iMax = static_cast<int>(std::min(sizeof(T), digest.size())); i < iMax; ++i)
+		{
+			ret <<= 8;
+			ret |= digest[i];
+		}
+		return ret;
+	}
+
+	template <typename Alg>
 	constexpr TupleHash<Alg>& TupleHash<Alg>::nextData(const Span<const Byte> inData)
 	{
 		const auto encoded = Chocobo1::Hash::CShake_NS::leftEncode(inData.size() * 8);
@@ -203,8 +221,48 @@ namespace TupleHash_NS
 	}
 }
 }
-	struct TupleHash_128 : Hash::TupleHash_NS::TupleHash<CSHAKE_128> { explicit TupleHash_128(const int l, const std::string &c = {}) : Hash::TupleHash_NS::TupleHash<CSHAKE_128>(l, c) {} };
-	struct TupleHash_256 : Hash::TupleHash_NS::TupleHash<CSHAKE_256> { explicit TupleHash_256(const int l, const std::string &c = {}) : Hash::TupleHash_NS::TupleHash<CSHAKE_256>(l, c) {} };
+
+	template <typename Base>
+	struct TupleHashAlias : Base
+	{
+		explicit constexpr TupleHashAlias(const int l, const std::string &c = {}) : Base(l, c) {}
+		TupleHashAlias(const Base &other) : Base(other) {}
+		TupleHashAlias(Base &&other) : Base(std::move(other)) {}
+		TupleHashAlias& operator=(const Base &other) { if (this != &other) { *this = other; } return *this; }
+		TupleHashAlias& operator=(Base &&other) { if (this != &other) { *this = std::move(other); } return *this; }
+	};
+	using TupleHash_128 = TupleHashAlias<Hash::TupleHash_NS::TupleHash<CSHAKE_128>>;
+	using TupleHash_256 = TupleHashAlias<Hash::TupleHash_NS::TupleHash<CSHAKE_256>>;
+}
+
+namespace std
+{
+	template <typename Alg>
+	struct hash<Chocobo1::Hash::TupleHash_NS::TupleHash<Alg>>
+	{
+		size_t operator()(const Chocobo1::Hash::TupleHash_NS::TupleHash<Alg> &hash) const noexcept
+		{
+			return hash;
+		}
+	};
+
+	template <>
+	struct hash<Chocobo1::TupleHash_128>
+	{
+		size_t operator()(const Chocobo1::TupleHash_128 &hash) const noexcept
+		{
+			return hash;
+		}
+	};
+
+	template <>
+	struct hash<Chocobo1::TupleHash_256>
+	{
+		size_t operator()(const Chocobo1::TupleHash_256 &hash) const noexcept
+		{
+			return hash;
+		}
+	};
 }
 
 #endif  // CHOCOBO1_TUPLE_HASH_H

@@ -66,4 +66,6 @@ TEST_CASE("blake2s")
 	const auto s17_1 = Hash().addData(s17, 2).finalize().toArray();
 	const auto s17_2 = Hash().addData(s17).finalize().toArray();
 	REQUIRE(s17_1 == s17_2);
+
+	REQUIRE(0x69217a3079908094 == std::hash<Hash> {}(Hash().finalize()));
 }

@@ -209,11 +209,13 @@ namespace HAS160_NS
 			constexpr HAS_160();
 
 			constexpr void reset();
-			HAS_160& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			HAS_160& finalize();  // after this, only `operator T()`, `reset()`, `toArray()`, `toString()`, `toVector()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
+			template <typename T>
+			CONSTEXPR_CPP17_CHOCOBO1_HASH operator T() const noexcept;
 
 			HAS_160& addData(const Span<const Byte> inData);
 			HAS_160& addData(const void *ptr, const std::size_t length);
@@ -348,6 +350,21 @@ namespace HAS160_NS
 				*(retPtr++) = ror<Byte>(i, (j * 8));
 		}
 
+		return ret;
+	}
+
+	template <typename T>
+	CONSTEXPR_CPP17_CHOCOBO1_HASH HAS_160::operator T() const noexcept
+	{
+		static_assert(std::is_unsigned<T>::value, "");
+
+		const auto digest = toArray();
+		T ret = 0;
+		for (int i = 0, iMax = static_cast<int>(std::min(sizeof(T), digest.size())); i < iMax; ++i)
+		{
+			ret <<= 8;
+			ret |= digest[i];
+		}
 		return ret;
 	}
 
@@ -568,4 +585,17 @@ namespace HAS160_NS
 }
 	using HAS_160 = Hash::HAS160_NS::HAS_160;
 }
+
+namespace std
+{
+	template <>
+	struct hash<Chocobo1::HAS_160>
+	{
+		CONSTEXPR_CPP17_CHOCOBO1_HASH size_t operator()(const Chocobo1::HAS_160 &hash) const noexcept
+		{
+			return hash;
+		}
+	};
+}
+
 #endif  // CHOCOBO1_HAS_160_H

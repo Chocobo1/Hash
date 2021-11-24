@@ -216,11 +216,13 @@ namespace Tiger_NS
 			constexpr Tiger();
 
 			constexpr void reset();
-			constexpr Tiger& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			constexpr Tiger& finalize();  // after this, only `operator T()`, `reset()`, `toArray()`, `toString()`, `toVector()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
+			template <typename T>
+			CONSTEXPR_CPP17_CHOCOBO1_HASH operator T() const noexcept;
 
 			constexpr Tiger& addData(const Span<const Byte> inData);
 			constexpr Tiger& addData(const void *ptr, const std::size_t length);
@@ -509,6 +511,22 @@ namespace Tiger_NS
 	}
 
 	template <int V, int D>
+	template <typename T>
+	CONSTEXPR_CPP17_CHOCOBO1_HASH Tiger<V, D>::operator T() const noexcept
+	{
+		static_assert(std::is_unsigned<T>::value, "");
+
+		const auto digest = toArray();
+		T ret = 0;
+		for (int i = 0, iMax = static_cast<int>(std::min(sizeof(T), digest.size())); i < iMax; ++i)
+		{
+			ret <<= 8;
+			ret |= digest[i];
+		}
+		return ret;
+	}
+
+	template <int V, int D>
 	constexpr Tiger<V, D>& Tiger<V, D>::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
@@ -657,6 +675,18 @@ namespace Tiger_NS
 	using Tiger2_128 = Hash::Tiger_NS::Tiger<2, 128>;
 	using Tiger2_160 = Hash::Tiger_NS::Tiger<2, 160>;
 	using Tiger2_192 = Hash::Tiger_NS::Tiger<2, 192>;
+}
+
+namespace std
+{
+	template <int V, int D>
+	struct hash<Chocobo1::Hash::Tiger_NS::Tiger<V, D>>
+	{
+		CONSTEXPR_CPP17_CHOCOBO1_HASH size_t operator()(const Chocobo1::Hash::Tiger_NS::Tiger<V, D> &hash) const noexcept
+		{
+			return hash;
+		}
+	};
 }
 
 #endif  // CHOCOBO1_TIGER_H

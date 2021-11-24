@@ -23,6 +23,9 @@ TEST_CASE("fnv32_0")
 	// official test suite in rfc
 	const char s1[] = "chongo <Landon Curt Noll> /\\../\\";
 	REQUIRE("811c9dc5" == Hash().addData(s1, strlen(s1)).finalize().toString());
+
+	// my own tests
+	REQUIRE(0 == std::hash<Hash> {}(Hash().finalize()));
 }
 
 
@@ -55,6 +58,8 @@ TEST_CASE("fnv32_1")
 	const auto s16_1 = Hash().addData(s16, 2).finalize().toArray();
 	const auto s16_2 = Hash().addData(s16).finalize().toArray();
 	REQUIRE(s16_1 == s16_2);
+
+	REQUIRE(0x811c9dc5 == std::hash<Hash> {}(Hash().finalize()));
 }
 
 
@@ -106,6 +111,8 @@ TEST_CASE("fnv32_1a")
 	const auto s16_1 = Hash().addData(s16, 2).finalize().toArray();
 	const auto s16_2 = Hash().addData(s16).finalize().toArray();
 	REQUIRE(s16_1 == s16_2);
+
+	REQUIRE(0x811c9dc5 == std::hash<Hash> {}(Hash().finalize()));
 }
 
 
@@ -116,6 +123,9 @@ TEST_CASE("fnv64_0")
 	// official test suite in rfc
 	const char s1[] = "chongo <Landon Curt Noll> /\\../\\";
 	REQUIRE("cbf29ce484222325" == Hash().addData(s1, strlen(s1)).finalize().toString());
+
+	// my own tests
+	REQUIRE(0 == std::hash<Hash> {}(Hash().finalize()));
 }
 
 
@@ -148,6 +158,8 @@ TEST_CASE("fnv64_1")
 	const auto s16_1 = Hash().addData(s16, 2).finalize().toArray();
 	const auto s16_2 = Hash().addData(s16).finalize().toArray();
 	REQUIRE(s16_1 == s16_2);
+
+	REQUIRE(0xcbf29ce484222325 == std::hash<Hash> {}(Hash().finalize()));
 }
 
 
@@ -199,4 +211,6 @@ TEST_CASE("fnv64_1a")
 	const auto s16_1 = Hash().addData(s16, 2).finalize().toArray();
 	const auto s16_2 = Hash().addData(s16).finalize().toArray();
 	REQUIRE(s16_1 == s16_2);
+
+	REQUIRE(0xcbf29ce484222325 == std::hash<Hash> {}(Hash().finalize()));
 }

@@ -283,4 +283,6 @@ TEST_CASE("sm3")
 	const char s36[55] = {0};
 	REQUIRE("2cdce3d697af3716a9b3cdf068b43e513846e17cc9fd427929aad70165f21dda"
 			== Hash().addData(s36, sizeof(s36)).finalize().toString());
+
+	REQUIRE(0x1ab21d8355cfa17f == std::hash<Hash> {}(Hash().finalize()));
 }

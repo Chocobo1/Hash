@@ -210,11 +210,13 @@ namespace SIPHASH_NS
 			constexpr SipHash(const Span<const Byte> key);
 
 			constexpr void reset();
-			CONSTEXPR_CPP17_CHOCOBO1_HASH SipHash& finalize();  // after this, only `toArray()`, `toString()`, `toVector()`, `reset()` are available
+			CONSTEXPR_CPP17_CHOCOBO1_HASH SipHash& finalize();  // after this, only `operator T()`, `reset()`, `toArray()`, `toString()`, `toVector()` are available
 
 			std::string toString() const;
 			std::vector<Byte> toVector() const;
 			CONSTEXPR_CPP17_CHOCOBO1_HASH ResultArrayType toArray() const;
+			template <typename T>
+			CONSTEXPR_CPP17_CHOCOBO1_HASH operator T() const noexcept;
 
 			constexpr SipHash& addData(const Span<const Byte> inData);
 			constexpr SipHash& addData(const void *ptr, const std::size_t length);
@@ -361,6 +363,22 @@ namespace SIPHASH_NS
 	}
 
 	template <int C, int D>
+	template <typename T>
+	CONSTEXPR_CPP17_CHOCOBO1_HASH SipHash<C, D>::operator T() const noexcept
+	{
+		static_assert(std::is_unsigned<T>::value, "");
+
+		const auto digest = toArray();
+		T ret = 0;
+		for (int i = 0, iMax = static_cast<int>(std::min(sizeof(T), digest.size())); i < iMax; ++i)
+		{
+			ret <<= 8;
+			ret |= digest[i];
+		}
+		return ret;
+	}
+
+	template <int C, int D>
 	constexpr SipHash<C, D>& SipHash<C, D>::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
@@ -462,6 +480,18 @@ namespace SIPHASH_NS
 }
 }
 	using SipHash = Hash::SIPHASH_NS::SipHash<2, 4>;
+}
+
+namespace std
+{
+	template <int C, int D>
+	struct hash<Chocobo1::Hash::SIPHASH_NS::SipHash<C, D>>
+	{
+		CONSTEXPR_CPP17_CHOCOBO1_HASH size_t operator()(const Chocobo1::Hash::SIPHASH_NS::SipHash<C, D> &hash) const noexcept
+		{
+			return hash;
+		}
+	};
 }
 
 #endif  // CHOCOBO1_SIPHASH_H

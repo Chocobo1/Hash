@@ -77,4 +77,6 @@ TEST_CASE("blake1-256")
 	const char s18[55] = {0};
 	REQUIRE("dc980544f4181cc43505318e317cdfd4334dab81ae035a28818308867ce23060"
 			== Hash().addData(s18, sizeof(s18)).finalize().toString());
+
+	REQUIRE(0x716f6e863f744b9a == std::hash<Hash> {}(Hash().finalize()));
 }

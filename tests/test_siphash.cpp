@@ -55,4 +55,6 @@ TEST_CASE("siphash")
 	const char s17[7] = {0};
 	REQUIRE("85f896b6040a13ec"
 			== Hash(key2).addData(s17, sizeof(s17)).finalize().toString());
+
+	REQUIRE(0x1e924b9d737700d7 == std::hash<Hash> {}(Hash(key2).finalize()));
 }
