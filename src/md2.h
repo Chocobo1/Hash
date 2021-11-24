@@ -162,6 +162,17 @@ namespace Hash
 	};
 #endif
 
+#ifndef CHOCOBO1_HASH_ROR_IMPL
+#define CHOCOBO1_HASH_ROR_IMPL
+	template <typename R, typename T>
+	constexpr R ror(const T x, const unsigned int s)
+	{
+		static_assert(std::is_unsigned<R>::value, "");
+		static_assert(std::is_unsigned<T>::value, "");
+		return static_cast<R>(x >> s);
+	}
+#endif
+
 
 namespace MD2_NS
 {
@@ -233,15 +244,6 @@ namespace MD2_NS
 	};
 
 	constexpr MD2::Byte MD2::piSubst[256];
-
-
-	template <typename R, typename T>
-	constexpr R ror(const T x, const unsigned int s)
-	{
-		static_assert(std::is_unsigned<R>::value, "");
-		static_assert(std::is_unsigned<T>::value, "");
-		return static_cast<R>(x >> s);
-	}
 
 
 	//

@@ -66,6 +66,17 @@ namespace Hash
 #endif
 #endif
 
+#ifndef CHOCOBO1_HASH_ROR_IMPL
+#define CHOCOBO1_HASH_ROR_IMPL
+	template <typename R, typename T>
+	constexpr R ror(const T x, const unsigned int s)
+	{
+		static_assert(std::is_unsigned<R>::value, "");
+		static_assert(std::is_unsigned<T>::value, "");
+		return static_cast<R>(x >> s);
+	}
+#endif
+
 
 namespace FNVHASH_NS
 {
@@ -110,16 +121,6 @@ namespace FNVHASH_NS
 
 			DigestType m_hash = {0};
 	};
-
-
-	// helpers
-	template <typename R, typename T>
-	constexpr R ror(const T x, const unsigned int s)
-	{
-		static_assert(std::is_unsigned<R>::value, "");
-		static_assert(std::is_unsigned<T>::value, "");
-		return static_cast<R>(x >> s);
-	}
 
 
 	//

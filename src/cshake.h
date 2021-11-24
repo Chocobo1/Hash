@@ -53,6 +53,18 @@ namespace Chocobo1
 // users should ignore things in this namespace
 namespace Hash
 {
+#ifndef CHOCOBO1_HASH_ROR_IMPL
+#define CHOCOBO1_HASH_ROR_IMPL
+	template <typename R, typename T>
+	constexpr R ror(const T x, const unsigned int s)
+	{
+		static_assert(std::is_unsigned<R>::value, "");
+		static_assert(std::is_unsigned<T>::value, "");
+		return static_cast<R>(x >> s);
+	}
+#endif
+
+
 namespace CShake_NS
 {
 	template <typename S, typename K, int P>
@@ -100,14 +112,6 @@ namespace CShake_NS
 
 
 	// helpers
-	template <typename R, typename T>
-	constexpr R ror(const T x, const unsigned int s)
-	{
-		static_assert(std::is_unsigned<R>::value, "");
-		static_assert(std::is_unsigned<T>::value, "");
-		return static_cast<R>(x >> s);
-	}
-
 	const auto leftEncode = [](const uint64_t value) -> Buffer<uint8_t, sizeof(value)>
 	{
 		const uint8_t n = (value == 0) ? 1 : static_cast<uint8_t>(std::lround((std::log2(value) / 8) + 0.5));

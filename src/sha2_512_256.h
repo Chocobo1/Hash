@@ -226,6 +226,29 @@ namespace Hash
 	};
 #endif
 
+#ifndef CHOCOBO1_HASH_ROR_IMPL
+#define CHOCOBO1_HASH_ROR_IMPL
+	template <typename R, typename T>
+	constexpr R ror(const T x, const unsigned int s)
+	{
+		static_assert(std::is_unsigned<R>::value, "");
+		static_assert(std::is_unsigned<T>::value, "");
+		return static_cast<R>(x >> s);
+	}
+#endif
+
+#ifndef CHOCOBO1_HASH_ROTR_IMPL
+#define CHOCOBO1_HASH_ROTR_IMPL
+	template <typename T>
+	constexpr T rotr(const T x, const unsigned int s)
+	{
+		static_assert(std::is_unsigned<T>::value, "");
+		if (s == 0)
+			return x;
+		return ((x >> s) | (x << ((sizeof(T) * 8) - s)));
+	}
+#endif
+
 
 namespace SHA2_512_256_NS
 {
@@ -333,24 +356,8 @@ namespace SHA2_512_256_NS
 			const uint8_t *m_ptr;
 	};
 
-	template <typename R, typename T>
-	constexpr R ror(const T x, const unsigned int s)
-	{
-		static_assert(std::is_unsigned<R>::value, "");
-		static_assert(std::is_unsigned<T>::value, "");
-		return static_cast<R>(x >> s);
-	}
 
-	template <typename T>
-	constexpr T rotr(const T x, const unsigned int s)
-	{
-		static_assert(std::is_unsigned<T>::value, "");
-		if (s == 0)
-			return x;
-		return ((x >> s) | (x << ((sizeof(T) * 8) - s)));
-	}
-
-
+	//
 	constexpr SHA2_512_256::SHA2_512_256()
 	{
 		static_assert((CHAR_BIT == 8), "Sorry, we don't support exotic CPUs");

@@ -226,6 +226,29 @@ namespace Hash
 	};
 #endif
 
+#ifndef CHOCOBO1_HASH_ROR_IMPL
+#define CHOCOBO1_HASH_ROR_IMPL
+	template <typename R, typename T>
+	constexpr R ror(const T x, const unsigned int s)
+	{
+		static_assert(std::is_unsigned<R>::value, "");
+		static_assert(std::is_unsigned<T>::value, "");
+		return static_cast<R>(x >> s);
+	}
+#endif
+
+#ifndef CHOCOBO1_HASH_ROTR_IMPL
+#define CHOCOBO1_HASH_ROTR_IMPL
+	template <typename T>
+	constexpr T rotr(const T x, const unsigned int s)
+	{
+		static_assert(std::is_unsigned<T>::value, "");
+		if (s == 0)
+			return x;
+		return ((x >> s) | (x << ((sizeof(T) * 8) - s)));
+	}
+#endif
+
 
 namespace Blake1_384_NS
 {
@@ -314,23 +337,6 @@ namespace Blake1_384_NS
 		private:
 			const uint8_t *m_ptr;
 	};
-
-	template <typename R, typename T>
-	constexpr R ror(const T x, const unsigned int s)
-	{
-		static_assert(std::is_unsigned<R>::value, "");
-		static_assert(std::is_unsigned<T>::value, "");
-		return static_cast<R>(x >> s);
-	}
-
-	template <typename T>
-	constexpr T rotr(const T x, const unsigned int s)
-	{
-		static_assert(std::is_unsigned<T>::value, "");
-		if (s == 0)
-			return x;
-		return ((x >> s) | (x << ((sizeof(T) * 8) - s)));
-	}
 
 
 	//

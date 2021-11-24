@@ -52,6 +52,18 @@ namespace Chocobo1
 // users should ignore things in this namespace
 namespace Hash
 {
+#ifndef CHOCOBO1_HASH_ROR_IMPL
+#define CHOCOBO1_HASH_ROR_IMPL
+	template <typename R, typename T>
+	constexpr R ror(const T x, const unsigned int s)
+	{
+		static_assert(std::is_unsigned<R>::value, "");
+		static_assert(std::is_unsigned<T>::value, "");
+		return static_cast<R>(x >> s);
+	}
+#endif
+
+
 namespace TupleHash_NS
 {
 	template <typename Alg>
@@ -103,7 +115,7 @@ namespace TupleHash_NS
 
 		Buffer<uint8_t, sizeof(value)> ret;
 		for (int i = (n - 1); i >= 0; --i)
-			ret.fill(Chocobo1::Hash::CShake_NS::ror<uint8_t>(value, (8 * i)));
+			ret.fill(ror<uint8_t>(value, (8 * i)));
 		ret.fill(n);
 
 		return ret;

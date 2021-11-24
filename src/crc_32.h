@@ -66,6 +66,18 @@ namespace Hash
 	using IndexType = gsl::index;
 #endif
 
+#ifndef CHOCOBO1_HASH_ROR_IMPL
+#define CHOCOBO1_HASH_ROR_IMPL
+	template <typename R, typename T>
+	constexpr R ror(const T x, const unsigned int s)
+	{
+		static_assert(std::is_unsigned<R>::value, "");
+		static_assert(std::is_unsigned<T>::value, "");
+		return static_cast<R>(x >> s);
+	}
+#endif
+
+
 namespace CRC_32_NS
 {
 	class CRC_32
@@ -688,14 +700,6 @@ namespace CRC_32_NS
 		private:
 			const uint8_t *m_ptr;
 	};
-
-	template <typename R, typename T>
-	constexpr R ror(const T x, const unsigned int s)
-	{
-		static_assert(std::is_unsigned<R>::value, "");
-		static_assert(std::is_unsigned<T>::value, "");
-		return static_cast<R>(x >> s);
-	}
 
 
 	//
