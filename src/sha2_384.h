@@ -402,12 +402,12 @@ namespace SHA2_384_NS
 
 	std::string SHA2_384::toString() const
 	{
-		const auto a = toArray();
+		const auto digest = toArray();
 		std::string ret;
-		ret.resize(2 * a.size());
+		ret.resize(2 * digest.size());
 
 		auto retPtr = &ret.front();
-		for (const auto c : a)
+		for (const auto c : digest)
 		{
 			const Byte upper = ror<Byte>(c, 4);
 			*(retPtr++) = static_cast<char>((upper < 10) ? (upper + '0') : (upper - 10 + 'a'));
@@ -421,8 +421,8 @@ namespace SHA2_384_NS
 
 	std::vector<SHA2_384::Byte> SHA2_384::toVector() const
 	{
-		const auto a = toArray();
-		return {a.begin(), a.end()};
+		const auto digest = toArray();
+		return {digest.begin(), digest.end()};
 	}
 
 	CONSTEXPR_CPP17_CHOCOBO1_HASH SHA2_384::ResultArrayType SHA2_384::toArray() const
