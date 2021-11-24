@@ -605,6 +605,7 @@ namespace RIPEMD_128_NS
 	}
 }
 }
+
 	using RIPEMD_128 = Hash::RIPEMD_128_NS::RIPEMD_128;
 }
 

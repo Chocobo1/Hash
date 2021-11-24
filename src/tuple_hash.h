@@ -106,7 +106,7 @@ namespace TupleHash_NS
 			constexpr void addDataImpl(const Span<const Byte> data);
 
 			Alg m_cshake;
-			const int m_digestLength = 0;
+			int m_digestLength = 0;
 	};
 
 
@@ -225,11 +225,12 @@ namespace TupleHash_NS
 	template <typename Base>
 	struct TupleHashAlias : Base
 	{
+		using BaseType = Base;
 		explicit constexpr TupleHashAlias(const int l, const std::string &c = {}) : Base(l, c) {}
 		TupleHashAlias(const Base &other) : Base(other) {}
-		TupleHashAlias(Base &&other) : Base(std::move(other)) {}
-		TupleHashAlias& operator=(const Base &other) { if (this != &other) { *this = other; } return *this; }
-		TupleHashAlias& operator=(Base &&other) { if (this != &other) { *this = std::move(other); } return *this; }
+		TupleHashAlias(Base &&other) noexcept : Base(std::move(other)) {}
+		TupleHashAlias& operator=(const Base &other) { if (this != &other) { Base::operator=(other); } return *this; }
+		TupleHashAlias& operator=(Base &&other) noexcept { if (this != &other) { Base::operator=(std::move(other)); } return *this; }
 	};
 	using TupleHash_128 = TupleHashAlias<Hash::TupleHash_NS::TupleHash<CSHAKE_128>>;
 	using TupleHash_256 = TupleHashAlias<Hash::TupleHash_NS::TupleHash<CSHAKE_256>>;

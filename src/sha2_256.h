@@ -536,6 +536,7 @@ namespace SHA2_256_NS
 	}
 }
 }
+
 	using SHA2_256 = Hash::SHA2_256_NS::SHA2_256;
 }
 

@@ -867,6 +867,7 @@ namespace CRC_32_NS
 	}
 }
 }
+
 	using CRC_32 = Hash::CRC_32_NS::CRC_32;
 }
 

@@ -704,6 +704,7 @@ namespace Blake1_384_NS
 	}
 }
 }
+
 	using Blake1_384 = Hash::Blake1_384_NS::Blake1_384;
 }
 

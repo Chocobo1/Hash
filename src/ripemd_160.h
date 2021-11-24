@@ -646,6 +646,7 @@ namespace RIPEMD_160_NS
 	}
 }
 }
+
 	using RIPEMD_160 = Hash::RIPEMD_160_NS::RIPEMD_160;
 }
 

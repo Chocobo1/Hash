@@ -306,6 +306,7 @@ namespace FNVHASH_NS
 	}
 }
 }
+
 	using FNV32_0 = Hash::FNVHASH_NS::FNVHash<uint32_t, 0>;
 	using FNV32_1 = Hash::FNVHASH_NS::FNVHash<uint32_t, 1>;
 	using FNV32_1a = Hash::FNVHASH_NS::FNVHash<uint32_t, 2>;

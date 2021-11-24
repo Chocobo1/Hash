@@ -544,6 +544,7 @@ namespace MD5_NS
 	}
 }
 }
+
 	using MD5 = Hash::MD5_NS::MD5;
 }
 

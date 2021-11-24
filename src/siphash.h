@@ -479,6 +479,7 @@ namespace SIPHASH_NS
 	}
 }
 }
+
 	using SipHash = Hash::SIPHASH_NS::SipHash<2, 4>;
 }
 

@@ -514,6 +514,7 @@ namespace MD4_NS
 	}
 }
 }
+
 	using MD4 = Hash::MD4_NS::MD4;
 }
 

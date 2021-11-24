@@ -856,6 +856,7 @@ namespace Whirlpool_NS
 	}
 }
 }
+
 	using Whirlpool = Hash::Whirlpool_NS::Whirlpool;
 }
 

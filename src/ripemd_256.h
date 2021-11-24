@@ -628,6 +628,7 @@ namespace RIPEMD_256_NS
 	}
 }
 }
+
 	using RIPEMD_256 = Hash::RIPEMD_256_NS::RIPEMD_256;
 }
 

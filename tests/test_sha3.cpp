@@ -75,6 +75,20 @@ TEST_CASE("sha3-512")
 			== Hash().addData(s17, sizeof(s17)).finalize().toString());
 
 	REQUIRE(0xa69f73cca23a9ac5 == std::hash<Hash> {}(Hash().finalize()));
+
+	Hash h18;
+	Hash h18_2;
+	h18 = h18_2;
+	REQUIRE(h18.finalize().toVector() == h18_2.finalize().toVector());
+	h18 = std::move(h18_2);
+	REQUIRE(h18.finalize().toVector() == Hash().finalize().toVector());
+
+	Hash h19;
+	Hash::BaseType h19_2(512 / 8);
+	h19 = h19_2;
+	REQUIRE(h19.finalize().toVector() == h19_2.finalize().toVector());
+	h19 = std::move(h19_2);
+	REQUIRE(h19.finalize().toVector() == Hash::BaseType(512 / 8).finalize().toVector());
 }
 
 
@@ -137,6 +151,20 @@ TEST_CASE("sha3-384")
 			== Hash().addData(s17, sizeof(s17)).finalize().toString());
 
 	REQUIRE(0xc63a75b845e4f7d == std::hash<Hash> {}(Hash().finalize()));
+
+	Hash h18;
+	Hash h18_2;
+	h18 = h18_2;
+	REQUIRE(h18.finalize().toVector() == h18_2.finalize().toVector());
+	h18 = std::move(h18_2);
+	REQUIRE(h18.finalize().toVector() == Hash().finalize().toVector());
+
+	Hash h19;
+	Hash::BaseType h19_2(384 / 8);
+	h19 = h19_2;
+	REQUIRE(h19.finalize().toVector() == h19_2.finalize().toVector());
+	h19 = std::move(h19_2);
+	REQUIRE(h19.finalize().toVector() == Hash::BaseType(384 / 8).finalize().toVector());
 }
 
 
@@ -199,6 +227,20 @@ TEST_CASE("sha3-256")
 			== Hash().addData(s17, sizeof(s17)).finalize().toString());
 
 	REQUIRE(0xa7ffc6f8bf1ed766 == std::hash<Hash> {}(Hash().finalize()));
+
+	Hash h18;
+	Hash h18_2;
+	h18 = h18_2;
+	REQUIRE(h18.finalize().toVector() == h18_2.finalize().toVector());
+	h18 = std::move(h18_2);
+	REQUIRE(h18.finalize().toVector() == Hash().finalize().toVector());
+
+	Hash h19;
+	Hash::BaseType h19_2(256 / 8);
+	h19 = h19_2;
+	REQUIRE(h19.finalize().toVector() == h19_2.finalize().toVector());
+	h19 = std::move(h19_2);
+	REQUIRE(h19.finalize().toVector() == Hash::BaseType(256 / 8).finalize().toVector());
 }
 
 
@@ -261,4 +303,18 @@ TEST_CASE("sha3-224")
 			== Hash().addData(s17, sizeof(s17)).finalize().toString());
 
 	REQUIRE(0x6b4e03423667dbb7 == std::hash<Hash> {}(Hash().finalize()));
+
+	Hash h18;
+	Hash h18_2;
+	h18 = h18_2;
+	REQUIRE(h18.finalize().toVector() == h18_2.finalize().toVector());
+	h18 = std::move(h18_2);
+	REQUIRE(h18.finalize().toVector() == Hash().finalize().toVector());
+
+	Hash h19;
+	Hash::BaseType h19_2(224 / 8);
+	h19 = h19_2;
+	REQUIRE(h19.finalize().toVector() == h19_2.finalize().toVector());
+	h19 = std::move(h19_2);
+	REQUIRE(h19.finalize().toVector() == Hash::BaseType(224 / 8).finalize().toVector());
 }

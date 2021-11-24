@@ -546,6 +546,7 @@ namespace Blake2s_NS
 	}
 }
 }
+
 	using Blake2s = Hash::Blake2s_NS::Blake2s;
 }
 

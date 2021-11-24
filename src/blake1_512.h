@@ -706,6 +706,7 @@ namespace Blake1_512_NS
 	}
 }
 }
+
 	using Blake1_512 = Hash::Blake1_512_NS::Blake1_512;
 }
 

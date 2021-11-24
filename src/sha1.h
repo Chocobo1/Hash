@@ -600,6 +600,7 @@ namespace SHA1_NS
 	}
 }
 }
+
 	using SHA1 = Hash::SHA1_NS::SHA1;
 }
 

@@ -246,8 +246,8 @@ namespace SHA3_NS
 //				int d = 512 / 8;  // digest size
 //				int r = 576 / 8;  // (b - c)  // IOW, BLOCK_SIZE
 				int w = 64;       // (b / 25)
-			} const m_params;
-			const int m_digestLength;
+			} m_params;
+			int m_digestLength;
 
 			Buffer<Byte, R> m_buffer;
 			std::vector<Byte> m_final;
@@ -587,11 +587,12 @@ namespace SHA3_NS
 	template <typename Base, int N>
 	struct KeccakAlias : Base
 	{
+		using BaseType = Base;
 		constexpr KeccakAlias() : Base(N) {}
 		KeccakAlias(const Base &other) : Base(other) {}
-		KeccakAlias(Base &&other) : Base(std::move(other)) {}
-		KeccakAlias& operator=(const Base &other) { if (this != &other) { *this = other; } return *this; }
-		KeccakAlias& operator=(Base &&other) { if (this != &other) { *this = std::move(other); } return *this; }
+		KeccakAlias(Base &&other) noexcept : Base(std::move(other)) {}
+		KeccakAlias& operator=(const Base &other) { if (this != &other) { Base::operator=(other); } return *this; }
+		KeccakAlias& operator=(Base &&other) noexcept { if (this != &other) { Base::operator=(std::move(other)); } return *this; }
 	};
 	using SHA3_224 = KeccakAlias<Hash::SHA3_NS::Keccak<(1152 / 8), 0x06>, (224 / 8)>;
 	using SHA3_256 = KeccakAlias<Hash::SHA3_NS::Keccak<(1088 / 8), 0x06>, (256 / 8)>;
@@ -601,11 +602,12 @@ namespace SHA3_NS
 	template <typename Base>
 	struct SHAKEAlias : Base
 	{
+		using BaseType = Base;
 		explicit constexpr SHAKEAlias(const int d) : Base(d) {}
 		SHAKEAlias(const Base &other) : Base(other) {}
-		SHAKEAlias(Base &&other) : Base(std::move(other)) {}
-		SHAKEAlias& operator=(const Base &other) { if (this != &other) { *this = other; } return *this; }
-		SHAKEAlias& operator=(Base &&other) { if (this != &other) { *this = std::move(other); } return *this; }
+		SHAKEAlias(Base &&other) noexcept : Base(std::move(other)) {}
+		SHAKEAlias& operator=(const Base &other) { if (this != &other) { Base::operator=(other); } return *this; }
+		SHAKEAlias& operator=(Base &&other) noexcept { if (this != &other) { Base::operator=(std::move(other)); } return *this; }
 	};
 	using SHAKE_128 = SHAKEAlias<Hash::SHA3_NS::Keccak<(1344 / 8), 0x1F>>;
 	using SHAKE_256 = SHAKEAlias<Hash::SHA3_NS::Keccak<(1088 / 8), 0x1F>>;

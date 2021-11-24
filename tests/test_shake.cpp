@@ -71,6 +71,20 @@ TEST_CASE("shake-256")
 	REQUIRE(s16_1 == s16_2);
 
 	REQUIRE(0x46b9dd2b0ba88d13 == std::hash<Hash> {}(Hash(512).finalize()));
+
+	Hash h17(512);
+	Hash h17_2(512);
+	h17 = h17_2;
+	REQUIRE(h17.finalize().toVector() == h17_2.finalize().toVector());
+	h17 = std::move(h17_2);
+	REQUIRE(h17.finalize().toVector() == Hash(512).finalize().toVector());
+
+	Hash h18(512);
+	Hash::BaseType h18_2(512);
+	h18 = h18_2;
+	REQUIRE(h18.finalize().toVector() == h18_2.finalize().toVector());
+	h18 = std::move(h18_2);
+	REQUIRE(h18.finalize().toVector() == Hash::BaseType(512).finalize().toVector());
 }
 
 
@@ -129,4 +143,18 @@ TEST_CASE("shake-128")
 	REQUIRE(s16_1 == s16_2);
 
 	REQUIRE(0x7f9c2ba4e88f827d == std::hash<Hash> {}(Hash(512).finalize()));
+
+	Hash h17(512);
+	Hash h17_2(512);
+	h17 = h17_2;
+	REQUIRE(h17.finalize().toVector() == h17_2.finalize().toVector());
+	h17 = std::move(h17_2);
+	REQUIRE(h17.finalize().toVector() == Hash(512).finalize().toVector());
+
+	Hash h18(512);
+	Hash::BaseType h18_2(512);
+	h18 = h18_2;
+	REQUIRE(h18.finalize().toVector() == h18_2.finalize().toVector());
+	h18 = std::move(h18_2);
+	REQUIRE(h18.finalize().toVector() == Hash::BaseType(512).finalize().toVector());
 }

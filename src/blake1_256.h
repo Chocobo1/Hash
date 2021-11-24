@@ -621,6 +621,7 @@ namespace Blake1_256_NS
 	}
 }
 }
+
 	using Blake1_256 = Hash::Blake1_256_NS::Blake1_256;
 }
 

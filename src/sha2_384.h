@@ -607,6 +607,7 @@ namespace SHA2_384_NS
 	}
 }
 }
+
 	using SHA2_384 = Hash::SHA2_384_NS::SHA2_384;
 }
 

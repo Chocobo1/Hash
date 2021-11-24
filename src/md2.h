@@ -419,6 +419,7 @@ namespace MD2_NS
 	}
 }
 }
+
 	using MD2 = Hash::MD2_NS::MD2;
 }
 

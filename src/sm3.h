@@ -574,6 +574,7 @@ namespace SM3_NS
 	}
 }
 }
+
 	using SM3 = Hash::SM3_NS::SM3;
 }
 

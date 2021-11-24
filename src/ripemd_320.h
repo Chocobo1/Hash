@@ -673,6 +673,7 @@ namespace RIPEMD_320_NS
 	}
 }
 }
+
 	using RIPEMD_320 = Hash::RIPEMD_320_NS::RIPEMD_320;
 }
 

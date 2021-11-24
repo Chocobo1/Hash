@@ -583,6 +583,7 @@ namespace HAS160_NS
 	}
 }
 }
+
 	using HAS_160 = Hash::HAS160_NS::HAS_160;
 }
 

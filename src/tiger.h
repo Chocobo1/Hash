@@ -668,6 +668,7 @@ namespace Tiger_NS
 	}
 }
 }
+
 	using Tiger1_128 = Hash::Tiger_NS::Tiger<1, 128>;
 	using Tiger1_160 = Hash::Tiger_NS::Tiger<1, 160>;
 	using Tiger1_192 = Hash::Tiger_NS::Tiger<1, 192>;
