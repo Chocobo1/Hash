@@ -119,7 +119,8 @@ ninja
 * [Microsoft/GSL](https://github.com/Microsoft/GSL) \
   This library is only requried when compiling with C++14 and C++17. In C++20 or later,
   `std::span` will be used in place of `gsl::span`. \
-  No need to download or install it. It's already included!
+  No need to download or install it. This repository included a modified version that will
+  compile locally (only for `gsl::span` related headers).
 
 
 ## License
