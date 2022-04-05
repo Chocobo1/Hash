@@ -9,11 +9,11 @@ jobs:
         os: [macos-latest, ubuntu-latest]
         cpp_std: [c++14, c++20]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: true
     - uses: Chocobo1/setup-ccache-action@v1
-    - uses: actions/setup-python@v2
+    - uses: actions/setup-python@v3
       with:
         python-version: '3.x'
     - name: install tools
@@ -36,10 +36,10 @@ jobs:
       matrix:
         cpp_std: [c++14, c++latest]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: true
-    - uses: actions/setup-python@v2
+    - uses: actions/setup-python@v3
       with:
         python-version: '3.x'
     - name: install tools
