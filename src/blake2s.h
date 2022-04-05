@@ -226,6 +226,20 @@ namespace Blake2s_NS
 			template <typename T>
 			Blake2s& addData(const Span<T> inSpan);
 
+			friend constexpr bool operator==(const Blake2s &left, const Blake2s &right)
+			{
+				for (int i = 0; i < 8; ++i)
+				{
+					if (left.m_h[i] != right.m_h[i])
+						return false;
+				}
+				return true;
+			}
+			friend constexpr bool operator!=(const Blake2s &left, const Blake2s &right)
+			{
+				return !(left == right);
+			}
+
 		private:
 			constexpr void addDataImpl(const Span<const Byte> data, const bool isFinal, const int paddingLen = 0);
 
@@ -241,6 +255,7 @@ namespace Blake2s_NS
 				0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
 			};
 	};
+
 
 
 	// helpers

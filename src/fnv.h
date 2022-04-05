@@ -118,6 +118,15 @@ namespace FNVHASH_NS
 			template <typename T>
 			FNVHash& addData(const Span<T> inSpan);
 
+			friend constexpr bool operator==(const FNVHash &left, const FNVHash &right)
+			{
+				return (left.m_hash == right.m_hash);
+			}
+			friend constexpr bool operator!=(const FNVHash &left, const FNVHash &right)
+			{
+				return !(left == right);
+			}
+
 		private:
 			constexpr void addDataImpl(const Span<const Byte> data);
 

@@ -107,6 +107,17 @@ namespace CShake_NS
 			template <typename T>
 			CShake& addData(const Span<T> inSpan);
 
+			friend constexpr bool operator==(const CShake &left, const CShake &right)
+			{
+				if (left.m_customized != right.m_customized)
+					return false;
+				return left.m_customized ? (*(left.m_keccak) == *(right.m_keccak)) : (*(left.m_shake) == *(right.m_shake));
+			}
+			friend constexpr bool operator!=(const CShake &left, const CShake &right)
+			{
+				return !(left == right);
+			}
+
 		private:
 			constexpr void addDataImpl(const Span<const Byte> data);
 

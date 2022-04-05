@@ -117,6 +117,15 @@ namespace CRC_32_NS
 			template <typename T>
 			CRC_32& addData(const Span<T> inSpan);
 
+			friend constexpr bool operator==(const CRC_32 &left, const CRC_32 &right)
+			{
+				return (left.m_h == right.m_h);
+			}
+			friend constexpr bool operator!=(const CRC_32 &left, const CRC_32 &right)
+			{
+				return !(left == right);
+			}
+
 		private:
 			constexpr void addDataImpl(const Span<const Byte> data);
 

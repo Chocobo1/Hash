@@ -289,6 +289,20 @@ namespace Blake2_NS
 			template <typename T>
 			Blake2& addData(const Span<T> inSpan);
 
+			friend constexpr bool operator==(const Blake2 &left, const Blake2 &right)
+			{
+				for (int i = 0; i < 8; ++i)
+				{
+					if (left.m_h[i] != right.m_h[i])
+						return false;
+				}
+				return true;
+			}
+			friend constexpr bool operator!=(const Blake2 &left, const Blake2 &right)
+			{
+				return !(left == right);
+			}
+
 		private:
 			constexpr void addDataImpl(const Span<const Byte> data, const bool isFinal, const int paddingLen = 0);
 

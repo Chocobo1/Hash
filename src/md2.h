@@ -213,6 +213,20 @@ namespace MD2_NS
 			template <typename T>
 			MD2& addData(const Span<T> inSpan);
 
+			friend constexpr bool operator==(const MD2 &left, const MD2 &right)
+			{
+				for (int i = 0; i < 48; ++i)
+				{
+					if (left.m_x[i] != right.m_x[i])
+						return false;
+				}
+				return true;
+			}
+			friend constexpr bool operator!=(const MD2 &left, const MD2 &right)
+			{
+				return !(left == right);
+			}
+
 		private:
 			CONSTEXPR_CPP17_CHOCOBO1_HASH void addDataImpl(const Span<const Byte> data);
 

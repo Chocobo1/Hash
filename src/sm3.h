@@ -226,6 +226,20 @@ namespace SM3_NS
 			template <typename T>
 			SM3& addData(const Span<T> inSpan);
 
+			friend constexpr bool operator==(const SM3 &left, const SM3 &right)
+			{
+				for (int i = 0; i < 8; ++i)
+				{
+					if (left.m_v[i] != right.m_v[i])
+						return false;
+				}
+				return true;
+			}
+			friend constexpr bool operator!=(const SM3 &left, const SM3 &right)
+			{
+				return !(left == right);
+			}
+
 		private:
 			CONSTEXPR_CPP17_CHOCOBO1_HASH void addDataImpl(const Span<const Byte> data);
 

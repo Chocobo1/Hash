@@ -255,6 +255,9 @@ TEST_CASE("sm3")
 
 
 	// my own tests
+	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
+
 	REQUIRE("1ab21d8355cfa17f8e61194831e81a8f22bec8c728fefb747ed035eb5082aa2b" == Hash().finalize().toString());
 
 	const char s30[] = "The quick brown fox jumps over the lazy dog";

@@ -226,6 +226,20 @@ namespace HAS160_NS
 			template <typename T>
 			HAS_160& addData(const Span<T> inSpan);
 
+			friend constexpr bool operator==(const HAS_160 &left, const HAS_160 &right)
+			{
+				for (int i = 0; i < 5; ++i)
+				{
+					if (left.m_h[i] != right.m_h[i])
+						return false;
+				}
+				return true;
+			}
+			friend constexpr bool operator!=(const HAS_160 &left, const HAS_160 &right)
+			{
+				return !(left == right);
+			}
+
 		private:
 			void addDataImpl(const Span<const Byte> data);
 

@@ -44,6 +44,9 @@ TEST_CASE("md2")
 
 
 	// my own tests
+	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
+
 	REQUIRE("8350e5a3e24c153df2275c9f80692773" == Hash().finalize().toString());
 
 	const char s11[] = "The quick brown fox jumps over the lazy dog";

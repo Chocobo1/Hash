@@ -25,6 +25,9 @@ TEST_CASE("fnv32_0")
 	REQUIRE("811c9dc5" == Hash().addData(s1, strlen(s1)).finalize().toString());
 
 	// my own tests
+	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
+
 	REQUIRE(0 == std::hash<Hash> {}(Hash().finalize()));
 }
 
@@ -34,6 +37,9 @@ TEST_CASE("fnv32_1")
 	using Hash = Chocobo1::FNV32_1;
 
 	// my own tests
+	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
+
 	REQUIRE("811c9dc5" == Hash().finalize().toString());
 
 	const char s11[] = "The quick brown fox jumps over the lazy dog";
@@ -87,6 +93,9 @@ TEST_CASE("fnv32_1a")
 	REQUIRE("0c1c9eb8" == Hash().addData(s3, (strlen(s6) + 1)).finalize().toString());
 
 	// my own tests
+	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
+
 	REQUIRE("811c9dc5" == Hash().finalize().toString());
 
 	const char s11[] = "The quick brown fox jumps over the lazy dog";
@@ -125,6 +134,9 @@ TEST_CASE("fnv64_0")
 	REQUIRE("cbf29ce484222325" == Hash().addData(s1, strlen(s1)).finalize().toString());
 
 	// my own tests
+	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
+
 	REQUIRE(0 == std::hash<Hash> {}(Hash().finalize()));
 }
 
@@ -134,6 +146,9 @@ TEST_CASE("fnv64_1")
 	using Hash = Chocobo1::FNV64_1;
 
 	// my own tests
+	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
+
 	REQUIRE("cbf29ce484222325" == Hash().finalize().toString());
 
 	const char s11[] = "The quick brown fox jumps over the lazy dog";
@@ -187,6 +202,9 @@ TEST_CASE("fnv64_1a")
 	REQUIRE("34531ca7168b8f38" == Hash().addData(s3, (strlen(s6) + 1)).finalize().toString());
 
 	// my own tests
+	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
+
 	REQUIRE("cbf29ce484222325" == Hash().finalize().toString());
 
 	const char s11[] = "The quick brown fox jumps over the lazy dog";

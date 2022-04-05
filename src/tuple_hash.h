@@ -102,6 +102,15 @@ namespace TupleHash_NS
 			template <typename T>
 			TupleHash& nextData(const Span<T> inSpan);
 
+			friend constexpr bool operator==(const TupleHash &left, const TupleHash &right)
+			{
+				return (left.m_cshake == right.m_cshake);
+			}
+			friend constexpr bool operator!=(const TupleHash &left, const TupleHash &right)
+			{
+				return !(left == right);
+			}
+
 		private:
 			constexpr void addDataImpl(const Span<const Byte> data);
 

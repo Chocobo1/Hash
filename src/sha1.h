@@ -226,6 +226,20 @@ namespace SHA1_NS
 			template <typename T>
 			SHA1& addData(const Span<T> inSpan);
 
+			friend constexpr bool operator==(const SHA1 &left, const SHA1 &right)
+			{
+				for (int i = 0; i < 5; ++i)
+				{
+					if (left.m_state[i] != right.m_state[i])
+						return false;
+				}
+				return true;
+			}
+			friend constexpr bool operator!=(const SHA1 &left, const SHA1 &right)
+			{
+				return !(left == right);
+			}
+
 		private:
 			constexpr void addDataImpl(const Span<const Byte> data);
 

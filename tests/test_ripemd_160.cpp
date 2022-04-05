@@ -56,6 +56,9 @@ TEST_CASE("ripemd-160")
 
 
 	// my own tests
+	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
+
 	REQUIRE("9c1185a5c5e9fc54612808977ee8f548b2258d31" == Hash().finalize().toString());
 
 	const char s11[] = "The quick brown fox jumps over the lazy dog";

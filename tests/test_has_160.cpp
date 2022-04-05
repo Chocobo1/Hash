@@ -53,6 +53,9 @@ TEST_CASE("has-160")
 
 
 	// my own tests
+	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
+
 	REQUIRE("307964ef34151d37c8047adec7ab50f4ff89762d" == Hash().finalize().toString());
 
 	const char s11[] = "The quick brown fox jumps over the lazy dog";

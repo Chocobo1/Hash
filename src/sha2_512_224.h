@@ -289,6 +289,20 @@ namespace SHA2_512_224_NS
 			template <typename T>
 			SHA2_512_224& addData(const Span<T> inSpan);
 
+			friend constexpr bool operator==(const SHA2_512_224 &left, const SHA2_512_224 &right)
+			{
+				for (int i = 0; i < 8; ++i)
+				{
+					if (left.m_h[i] != right.m_h[i])
+						return false;
+				}
+				return true;
+			}
+			friend constexpr bool operator!=(const SHA2_512_224 &left, const SHA2_512_224 &right)
+			{
+				return !(left == right);
+			}
+
 		private:
 			CONSTEXPR_CPP17_CHOCOBO1_HASH void addDataImpl(const Span<const Byte> data);
 

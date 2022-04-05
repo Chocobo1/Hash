@@ -226,6 +226,20 @@ namespace RIPEMD_128_NS
 			template <typename T>
 			RIPEMD_128& addData(const Span<T> inSpan);
 
+			friend constexpr bool operator==(const RIPEMD_128 &left, const RIPEMD_128 &right)
+			{
+				for (int i = 0; i < 4; ++i)
+				{
+					if (left.m_h[i] != right.m_h[i])
+						return false;
+				}
+				return true;
+			}
+			friend constexpr bool operator!=(const RIPEMD_128 &left, const RIPEMD_128 &right)
+			{
+				return !(left == right);
+			}
+
 		private:
 			CONSTEXPR_CPP17_CHOCOBO1_HASH void addDataImpl(const Span<const Byte> data);
 

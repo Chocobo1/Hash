@@ -31,6 +31,9 @@ TEST_CASE("blake1-224")
 
 
 	// my own tests
+	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
+
 	const char s3[] = "a";
 	Hash test3;
 	for (long int i = 0 ; i < 1000000; ++i)

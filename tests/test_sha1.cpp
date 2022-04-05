@@ -63,6 +63,9 @@ TEST_CASE("sha1")
 
 
 	// my own tests
+	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
+
 	REQUIRE("da39a3ee5e6b4b0d3255bfef95601890afd80709" == Hash().finalize().toString());
 
 	const char s11[] = "The quick brown fox jumps over the lazy dog";

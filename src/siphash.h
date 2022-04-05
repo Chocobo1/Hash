@@ -227,6 +227,20 @@ namespace SIPHASH_NS
 			template <typename T>
 			SipHash& addData(const Span<T> inSpan);
 
+			friend constexpr bool operator==(const SipHash &left, const SipHash &right)
+			{
+				for (int i = 0; i < 4; ++i)
+				{
+					if (left.m_state[i] != right.m_state[i])
+						return false;
+				}
+				return true;
+			}
+			friend constexpr bool operator!=(const SipHash &left, const SipHash &right)
+			{
+				return !(left == right);
+			}
+
 		private:
 			constexpr void addDataImpl(const Span<const Byte> data);
 			constexpr void sipRound();

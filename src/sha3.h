@@ -231,6 +231,23 @@ namespace SHA3_NS
 			template <typename T>
 			Keccak& addData(const Span<T> inSpan);
 
+			friend constexpr bool operator==(const Keccak &left, const Keccak &right)
+			{
+				for (int y = 0; y < 5; ++y)
+				{
+					for (int x = 0; x < 5; ++x)
+					{
+						if (left.m_state[y][x] != right.m_state[y][x])
+							return false;
+					}
+				}
+				return true;
+			}
+			friend constexpr bool operator!=(const Keccak &left, const Keccak &right)
+			{
+				return !(left == right);
+			}
+
 		private:
 			constexpr void addDataImpl(const Span<const Byte> data);
 			std::vector<typename Keccak::Byte> stateToVector() const;

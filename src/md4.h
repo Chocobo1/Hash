@@ -226,6 +226,20 @@ namespace MD4_NS
 			template <typename T>
 			MD4& addData(const Span<T> inSpan);
 
+			friend constexpr bool operator==(const MD4 &left, const MD4 &right)
+			{
+				for (int i = 0; i < 4; ++i)
+				{
+					if (left.m_state[i] != right.m_state[i])
+						return false;
+				}
+				return true;
+			}
+			friend constexpr bool operator!=(const MD4 &left, const MD4 &right)
+			{
+				return !(left == right);
+			}
+
 		private:
 			CONSTEXPR_CPP17_CHOCOBO1_HASH void addDataImpl(const Span<const Byte> data);
 
