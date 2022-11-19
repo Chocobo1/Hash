@@ -1,0 +1,45 @@
+Checks: >
+  bugprone-*,
+  cert-*,
+  concurrency-*,
+  cppcoreguidelines-*,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -# pure annonying,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-implicit-widening-of-multiplication-result,
+  -bugprone-macro-parentheses,
+  -cppcoreguidelines-avoid-c-arrays,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-macro-usage,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -misc-no-recursion,
+  -modernize-avoid-c-arrays,
+  -modernize-use-auto,
+  -modernize-use-nodiscard,
+  -modernize-use-trailing-return-type,
+  -readability-function-size,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+  -# only sometimes useful,
+  -bugprone-narrowing-conversions,
+  -cppcoreguidelines-narrowing-conversions,
+  -misc-definitions-in-headers,
+  -modernize-concat-nested-namespaces,
+  -modernize-loop-convert,
+  -modernize-raw-string-literal,
+  -modernize-unary-static-assert,
+  -readability-else-after-return,
+  -readability-redundant-declaration
+
+CheckOptions:
+  - { key: readability-braces-around-statements.ShortStatementLines, value: 3 }
+
+HeaderFilterRegex: ".+/src/.*\\.h"
+WarningsAsErrors: "*"
