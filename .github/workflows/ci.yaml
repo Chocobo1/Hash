@@ -1,5 +1,8 @@
 name: CI
 on: [pull_request, push]
+permissions:
+  actions: write
+
 jobs:
   CI:
     runs-on: ${{ matrix.os }}
@@ -8,26 +11,33 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest]
         cpp_std: [c++14, c++20]
+
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: true
+
     - uses: Chocobo1/setup-ccache-action@v1
+
     - uses: actions/setup-python@v3
       with:
         python-version: '3.x'
+
     - name: install tools
       run: pip install meson ninja
+
     - name: run tests
       run: |
         cd "tests"
-        meson "_build" -Dcpp_std="${{ matrix.cpp_std }}"
+        meson setup "_build" -Dcpp_std="${{ matrix.cpp_std }}"
         meson test -C "_build" -v --test-args "-d yes"
+
     - name: build sample program
       run: |
         cd "src/program"
-        meson "_build" -Dcpp_std="${{ matrix.cpp_std }}"
+        meson setup "_build" -Dcpp_std="${{ matrix.cpp_std }}"
         meson compile -C "_build"
+
 
   CI_Windows:
     runs-on: windows-latest
@@ -35,23 +45,29 @@ jobs:
       fail-fast: false
       matrix:
         cpp_std: [c++14, c++latest]
+
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: true
+
     - uses: actions/setup-python@v3
       with:
         python-version: '3.x'
+
     - name: install tools
       run: pip install meson ninja
+
     - uses: ilammy/msvc-dev-cmd@v1
+
     - name: run tests
       run: |
         cd "tests"
-        meson "_build" -Dcpp_std="${{ matrix.cpp_std }}" -Db_sanitize=none
+        meson setup "_build" -Dcpp_std="${{ matrix.cpp_std }}" -Db_sanitize=none
         meson test -C "_build" -v --test-args "-d yes"
+
     - name: build sample program
       run: |
         cd "src/program"
-        meson "_build" -Dcpp_std="${{ matrix.cpp_std }}"
+        meson setup "_build" -Dcpp_std="${{ matrix.cpp_std }}"
         meson compile -C "_build"

@@ -18,7 +18,7 @@ if not exist ".venv" (
 )
 
 if not exist "_build" (
-	meson "_build"
+	meson setup "_build"
 	rem --backend vs
 )
 

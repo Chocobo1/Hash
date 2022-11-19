@@ -22,7 +22,7 @@ if not exist ".venv" (
 )
 
 if not exist "_build" (
-	meson "_build" -Db_sanitize=none
+	meson setup "_build" -Db_sanitize=none
 	rem --backend vs
 )
 
