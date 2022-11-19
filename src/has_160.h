@@ -217,14 +217,14 @@ namespace HAS160_NS
 			template <typename T>
 			CONSTEXPR_CPP17_CHOCOBO1_HASH operator T() const noexcept;
 
-			HAS_160& addData(const Span<const Byte> inData);
-			HAS_160& addData(const void *ptr, const std::size_t length);
+			HAS_160& addData(Span<const Byte> inData);
+			HAS_160& addData(const void *ptr, std::size_t length);
 			template <std::size_t N>
 			HAS_160& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			HAS_160& addData(const T (&array)[N]);
 			template <typename T>
-			HAS_160& addData(const Span<T> inSpan);
+			HAS_160& addData(Span<T> inSpan);
 
 			friend constexpr bool operator==(const HAS_160 &left, const HAS_160 &right)
 			{
@@ -241,7 +241,7 @@ namespace HAS160_NS
 			}
 
 		private:
-			void addDataImpl(const Span<const Byte> data);
+			void addDataImpl(Span<const Byte> data);
 
 			static constexpr int BLOCK_SIZE = 64;
 
@@ -332,7 +332,7 @@ namespace HAS160_NS
 		std::string ret;
 		ret.resize(2 * digest.size());
 
-		auto retPtr = &ret.front();
+		auto *retPtr = &ret.front();
 		for (const auto c : digest)
 		{
 			const Byte upper = ror<Byte>(c, 4);
@@ -357,7 +357,7 @@ namespace HAS160_NS
 		const int dataSize = sizeof(decltype(state)::value_type);
 
 		ResultArrayType ret {};
-		auto retPtr = ret.data();
+		auto *retPtr = ret.data();
 		for (const auto i : state)
 		{
 			for (int j = 0; j < dataSize; ++j)

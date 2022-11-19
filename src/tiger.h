@@ -224,14 +224,14 @@ namespace Tiger_NS
 			template <typename T>
 			CONSTEXPR_CPP17_CHOCOBO1_HASH operator T() const noexcept;
 
-			constexpr Tiger& addData(const Span<const Byte> inData);
-			constexpr Tiger& addData(const void *ptr, const std::size_t length);
+			constexpr Tiger& addData(Span<const Byte> inData);
+			constexpr Tiger& addData(const void *ptr, std::size_t length);
 			template <std::size_t N>
 			constexpr Tiger& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			Tiger& addData(const T (&array)[N]);
 			template <typename T>
-			Tiger& addData(const Span<T> inSpan);
+			Tiger& addData(Span<T> inSpan);
 
 			friend constexpr bool operator==(const Tiger &left, const Tiger &right)
 			{
@@ -248,7 +248,7 @@ namespace Tiger_NS
 			}
 
 		private:
-			constexpr void addDataImpl(const Span<const Byte> data);
+			constexpr void addDataImpl(Span<const Byte> data);
 
 			static constexpr int BLOCK_SIZE = 64;
 
@@ -488,7 +488,7 @@ namespace Tiger_NS
 		std::string ret;
 		ret.resize(2 * digest.size());
 
-		auto retPtr = &ret.front();
+		auto *retPtr = &ret.front();
 		for (const auto c : digest)
 		{
 			const Byte upper = ror<Byte>(c, 4);

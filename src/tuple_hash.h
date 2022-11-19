@@ -83,7 +83,7 @@ namespace TupleHash_NS
 #endif
 
 
-			explicit constexpr TupleHash(const int digestLength, const std::string &customize = {});
+			explicit constexpr TupleHash(int digestLength, const std::string &customize = {});
 
 			constexpr void reset();
 			constexpr TupleHash& finalize();  // after this, only `operator T()`, `reset()`, `toString()`, `toVector()` are available
@@ -93,14 +93,14 @@ namespace TupleHash_NS
 			template <typename T>
 			operator T() const noexcept;
 
-			constexpr TupleHash& nextData(const Span<const Byte> inData);  // pass in next element in tuple
-			constexpr TupleHash& nextData(const void *ptr, const std::size_t length);
+			constexpr TupleHash& nextData(Span<const Byte> inData);  // pass in next element in tuple
+			constexpr TupleHash& nextData(const void *ptr, std::size_t length);
 			template <std::size_t N>
 			constexpr TupleHash& nextData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			TupleHash& nextData(const T (&array)[N]);
 			template <typename T>
-			TupleHash& nextData(const Span<T> inSpan);
+			TupleHash& nextData(Span<T> inSpan);
 
 			friend constexpr bool operator==(const TupleHash &left, const TupleHash &right)
 			{
@@ -112,7 +112,7 @@ namespace TupleHash_NS
 			}
 
 		private:
-			constexpr void addDataImpl(const Span<const Byte> data);
+			constexpr void addDataImpl(Span<const Byte> data);
 
 			Alg m_cshake;
 			int m_digestLength = 0;

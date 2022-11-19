@@ -217,14 +217,14 @@ namespace RIPEMD_128_NS
 			template <typename T>
 			CONSTEXPR_CPP17_CHOCOBO1_HASH operator T() const noexcept;
 
-			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_128& addData(const Span<const Byte> inData);
-			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_128& addData(const void *ptr, const std::size_t length);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_128& addData(Span<const Byte> inData);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_128& addData(const void *ptr, std::size_t length);
 			template <std::size_t N>
 			CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_128& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			RIPEMD_128& addData(const T (&array)[N]);
 			template <typename T>
-			RIPEMD_128& addData(const Span<T> inSpan);
+			RIPEMD_128& addData(Span<T> inSpan);
 
 			friend constexpr bool operator==(const RIPEMD_128 &left, const RIPEMD_128 &right)
 			{
@@ -241,7 +241,7 @@ namespace RIPEMD_128_NS
 			}
 
 		private:
-			CONSTEXPR_CPP17_CHOCOBO1_HASH void addDataImpl(const Span<const Byte> data);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH void addDataImpl(Span<const Byte> data);
 
 			static constexpr int BLOCK_SIZE = 64;
 
@@ -331,7 +331,7 @@ namespace RIPEMD_128_NS
 		std::string ret;
 		ret.resize(2 * digest.size());
 
-		auto retPtr = &ret.front();
+		auto *retPtr = &ret.front();
 		for (const auto c : digest)
 		{
 			const Byte upper = ror<Byte>(c, 4);
@@ -356,7 +356,7 @@ namespace RIPEMD_128_NS
 		const int dataSize = sizeof(decltype(state)::value_type);
 
 		ResultArrayType ret {};
-		auto retPtr = ret.data();
+		auto *retPtr = ret.data();
 		for (const auto i : state)
 		{
 			for (int j = 0; j < dataSize; ++j)

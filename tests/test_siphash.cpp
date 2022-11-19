@@ -16,7 +16,7 @@
 #include <cstring>
 
 
-TEST_CASE("siphash")
+TEST_CASE("siphash")  // NOLINT
 {
 	using Hash = Chocobo1::SipHash;
 

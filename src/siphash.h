@@ -207,7 +207,7 @@ namespace SIPHASH_NS
 #endif
 
 
-			constexpr SipHash(const Span<const Byte> key);
+			constexpr SipHash(Span<const Byte> key);
 
 			constexpr void reset();
 			CONSTEXPR_CPP17_CHOCOBO1_HASH SipHash& finalize();  // after this, only `operator T()`, `reset()`, `toArray()`, `toString()`, `toVector()` are available
@@ -218,14 +218,14 @@ namespace SIPHASH_NS
 			template <typename T>
 			CONSTEXPR_CPP17_CHOCOBO1_HASH operator T() const noexcept;
 
-			constexpr SipHash& addData(const Span<const Byte> inData);
-			constexpr SipHash& addData(const void *ptr, const std::size_t length);
+			constexpr SipHash& addData(Span<const Byte> inData);
+			constexpr SipHash& addData(const void *ptr, std::size_t length);
 			template <std::size_t N>
 			constexpr SipHash& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			SipHash& addData(const T (&array)[N]);
 			template <typename T>
-			SipHash& addData(const Span<T> inSpan);
+			SipHash& addData(Span<T> inSpan);
 
 			friend constexpr bool operator==(const SipHash &left, const SipHash &right)
 			{
@@ -242,7 +242,7 @@ namespace SIPHASH_NS
 			}
 
 		private:
-			constexpr void addDataImpl(const Span<const Byte> data);
+			constexpr void addDataImpl(Span<const Byte> data);
 			constexpr void sipRound();
 
 			static constexpr int BLOCK_SIZE = 8;
@@ -342,7 +342,7 @@ namespace SIPHASH_NS
 		std::string ret;
 		ret.resize(2 * digest.size());
 
-		auto retPtr = &ret.front();
+		auto *retPtr = &ret.front();
 		for (const auto c : digest)
 		{
 			const Byte upper = ror<Byte>(c, 4);
@@ -369,7 +369,7 @@ namespace SIPHASH_NS
 		const int dataSize = sizeof(result);
 
 		ResultArrayType ret {};
-		auto retPtr = ret.data();
+		auto *retPtr = ret.data();
 		for (int j = (dataSize - 1); j >= 0; --j)
 			*(retPtr++) = ror<Byte>(result, (j * 8));
 

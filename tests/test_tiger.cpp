@@ -16,7 +16,7 @@
 #include <cstring>
 
 
-TEST_CASE("tiger1-192")
+TEST_CASE("tiger1-192")  // NOLINT
 {
 	using Hash = Chocobo1::Tiger1_192;
 
@@ -89,7 +89,7 @@ TEST_CASE("tiger1-192")
 }
 
 
-TEST_CASE("tiger2-192")
+TEST_CASE("tiger2-192")  // NOLINT
 {
 	using Hash = Chocobo1::Tiger2_192;
 

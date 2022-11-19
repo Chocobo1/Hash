@@ -16,7 +16,7 @@
 #include <cstring>
 
 
-TEST_CASE("blake1-512")
+TEST_CASE("blake1-512")  // NOLINT
 {
 	using Hash = Chocobo1::Blake1_512;
 

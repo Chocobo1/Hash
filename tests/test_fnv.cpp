@@ -16,7 +16,7 @@
 #include <cstring>
 
 
-TEST_CASE("fnv32_0")
+TEST_CASE("fnv32_0")  // NOLINT
 {
 	using Hash = Chocobo1::FNV32_0;
 
@@ -32,7 +32,7 @@ TEST_CASE("fnv32_0")
 }
 
 
-TEST_CASE("fnv32_1")
+TEST_CASE("fnv32_1")  // NOLINT
 {
 	using Hash = Chocobo1::FNV32_1;
 
@@ -69,7 +69,7 @@ TEST_CASE("fnv32_1")
 }
 
 
-TEST_CASE("fnv32_1a")
+TEST_CASE("fnv32_1a")  // NOLINT
 {
 	using Hash = Chocobo1::FNV32_1a;
 
@@ -125,7 +125,7 @@ TEST_CASE("fnv32_1a")
 }
 
 
-TEST_CASE("fnv64_0")
+TEST_CASE("fnv64_0")  // NOLINT
 {
 	using Hash = Chocobo1::FNV64_0;
 
@@ -141,7 +141,7 @@ TEST_CASE("fnv64_0")
 }
 
 
-TEST_CASE("fnv64_1")
+TEST_CASE("fnv64_1")  // NOLINT
 {
 	using Hash = Chocobo1::FNV64_1;
 
@@ -178,7 +178,7 @@ TEST_CASE("fnv64_1")
 }
 
 
-TEST_CASE("fnv64_1a")
+TEST_CASE("fnv64_1a")  // NOLINT
 {
 	using Hash = Chocobo1::FNV64_1a;
 

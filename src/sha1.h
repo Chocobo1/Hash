@@ -217,14 +217,14 @@ namespace SHA1_NS
 			template <typename T>
 			CONSTEXPR_CPP17_CHOCOBO1_HASH operator T() const noexcept;
 
-			constexpr SHA1& addData(const Span<const Byte> inData);
-			constexpr SHA1& addData(const void *ptr, const std::size_t length);
+			constexpr SHA1& addData(Span<const Byte> inData);
+			constexpr SHA1& addData(const void *ptr, std::size_t length);
 			template <std::size_t N>
 			constexpr SHA1& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			SHA1& addData(const T (&array)[N]);
 			template <typename T>
-			SHA1& addData(const Span<T> inSpan);
+			SHA1& addData(Span<T> inSpan);
 
 			friend constexpr bool operator==(const SHA1 &left, const SHA1 &right)
 			{
@@ -241,7 +241,7 @@ namespace SHA1_NS
 			}
 
 		private:
-			constexpr void addDataImpl(const Span<const Byte> data);
+			constexpr void addDataImpl(Span<const Byte> data);
 
 			static constexpr int BLOCK_SIZE = 64;
 
@@ -332,7 +332,7 @@ namespace SHA1_NS
 		std::string ret;
 		ret.resize(2 * digest.size());
 
-		auto retPtr = &ret.front();
+		auto *retPtr = &ret.front();
 		for (const auto c : digest)
 		{
 			const Byte upper = ror<Byte>(c, 4);
@@ -357,7 +357,7 @@ namespace SHA1_NS
 		const int dataSize = sizeof(decltype(state)::value_type);
 
 		ResultArrayType ret {};
-		auto retPtr = ret.data();
+		auto *retPtr = ret.data();
 		for (const auto i : state)
 		{
 			for (int j = (dataSize - 1); j >= 0; --j)

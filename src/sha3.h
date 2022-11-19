@@ -212,7 +212,7 @@ namespace SHA3_NS
 #endif
 
 
-			constexpr explicit Keccak(const int digestLength);
+			constexpr explicit Keccak(int digestLength);
 
 			constexpr void reset();
 			Keccak& finalize();  // after this, only `operator T()`, `reset()`, `toString()`, `toVector()` are available
@@ -222,14 +222,14 @@ namespace SHA3_NS
 			template <typename T>
 			operator T() const noexcept;
 
-			constexpr Keccak& addData(const Span<const Byte> inData);
-			constexpr Keccak& addData(const void *ptr, const std::size_t length);
+			constexpr Keccak& addData(Span<const Byte> inData);
+			constexpr Keccak& addData(const void *ptr, std::size_t length);
 			template <std::size_t N>
 			constexpr Keccak& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			Keccak& addData(const T (&array)[N]);
 			template <typename T>
-			Keccak& addData(const Span<T> inSpan);
+			Keccak& addData(Span<T> inSpan);
 
 			friend constexpr bool operator==(const Keccak &left, const Keccak &right)
 			{
@@ -249,7 +249,7 @@ namespace SHA3_NS
 			}
 
 		private:
-			constexpr void addDataImpl(const Span<const Byte> data);
+			constexpr void addDataImpl(Span<const Byte> data);
 			std::vector<typename Keccak::Byte> stateToVector() const;
 
 			struct
@@ -366,7 +366,7 @@ namespace SHA3_NS
 		std::string ret;
 		ret.resize(2 * v.size());
 
-		auto retPtr = &ret.front();
+		auto *retPtr = &ret.front();
 		for (const auto c : v)
 		{
 			const Byte upper = ror<Byte>(c, 4);

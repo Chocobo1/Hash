@@ -16,7 +16,7 @@
 #include <cstring>
 
 
-TEST_CASE("sha3-512")
+TEST_CASE("sha3-512")  // NOLINT
 {
 	using Hash = Chocobo1::SHA3_512;
 
@@ -95,7 +95,7 @@ TEST_CASE("sha3-512")
 }
 
 
-TEST_CASE("sha3-384")
+TEST_CASE("sha3-384")  // NOLINT
 {
 	using Hash = Chocobo1::SHA3_384;
 
@@ -174,7 +174,7 @@ TEST_CASE("sha3-384")
 }
 
 
-TEST_CASE("sha3-256")
+TEST_CASE("sha3-256")  // NOLINT
 {
 	using Hash = Chocobo1::SHA3_256;
 
@@ -253,7 +253,7 @@ TEST_CASE("sha3-256")
 }
 
 
-TEST_CASE("sha3-224")
+TEST_CASE("sha3-224")  // NOLINT
 {
 	using Hash = Chocobo1::SHA3_224;
 

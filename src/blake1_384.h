@@ -280,14 +280,14 @@ namespace Blake1_384_NS
 			template <typename T>
 			CONSTEXPR_CPP17_CHOCOBO1_HASH operator T() const noexcept;
 
-			constexpr Blake1_384& addData(const Span<const Byte> inData);
-			constexpr Blake1_384& addData(const void *ptr, const std::size_t length);
+			constexpr Blake1_384& addData(Span<const Byte> inData);
+			constexpr Blake1_384& addData(const void *ptr, std::size_t length);
 			template <std::size_t N>
 			constexpr Blake1_384& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			Blake1_384& addData(const T (&array)[N]);
 			template <typename T>
-			Blake1_384& addData(const Span<T> inSpan);
+			Blake1_384& addData(Span<T> inSpan);
 
 			friend constexpr bool operator==(const Blake1_384 &left, const Blake1_384 &right)
 			{
@@ -304,7 +304,7 @@ namespace Blake1_384_NS
 			}
 
 		private:
-			constexpr void addDataImpl(const Span<const Byte> data, const int paddingLen = 0);
+			constexpr void addDataImpl(Span<const Byte> data, int paddingLen = 0);
 
 			static constexpr int BLOCK_SIZE = 128;
 
@@ -409,7 +409,7 @@ namespace Blake1_384_NS
 		std::string ret;
 		ret.resize(2 * digest.size());
 
-		auto retPtr = &ret.front();
+		auto *retPtr = &ret.front();
 		for (const auto c : digest)
 		{
 			const Byte upper = ror<Byte>(c, 4);
@@ -434,7 +434,7 @@ namespace Blake1_384_NS
 		const int dataSize = sizeof(decltype(state)::value_type);
 
 		ResultArrayType ret {};
-		auto retPtr = ret.data();
+		auto *retPtr = ret.data();
 		for (const auto i : state)
 		{
 			for (int j = (dataSize - 1); j >= 0; --j)

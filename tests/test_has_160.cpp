@@ -16,7 +16,7 @@
 #include <cstring>
 
 
-TEST_CASE("has-160")
+TEST_CASE("has-160")  // NOLINT
 {
 	using Hash = Chocobo1::HAS_160;
 

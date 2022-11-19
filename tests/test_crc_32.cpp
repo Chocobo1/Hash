@@ -16,7 +16,7 @@
 #include <cstring>
 
 
-TEST_CASE("crc-32")
+TEST_CASE("crc-32")  // NOLINT
 {
 	using Hash = Chocobo1::CRC_32;
 

@@ -84,11 +84,12 @@ namespace CShake_NS
 #endif
 
 
-			explicit constexpr CShake(const int digestLength, const std::string &name = {}, const std::string &customize = {});
+			explicit constexpr CShake(int digestLength, const std::string &name = {}, const std::string &customize = {});
 			constexpr CShake(const CShake &other);
 			constexpr CShake(CShake &&other) noexcept;
 			constexpr CShake& operator=(const CShake &other);
 			constexpr CShake& operator=(CShake &&other) noexcept;
+			~CShake() = default;
 
 			constexpr void reset();
 			constexpr CShake& finalize();  // after this, only `operator T()`, `reset()`, `toString()`, `toVector()` are available
@@ -98,14 +99,14 @@ namespace CShake_NS
 			template <typename T>
 			operator T() const noexcept;
 
-			constexpr CShake& addData(const Span<const Byte> inData);
-			constexpr CShake& addData(const void *ptr, const std::size_t length);
+			constexpr CShake& addData(Span<const Byte> inData);
+			constexpr CShake& addData(const void *ptr, std::size_t length);
 			template <std::size_t N>
 			constexpr CShake& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			CShake& addData(const T (&array)[N]);
 			template <typename T>
-			CShake& addData(const Span<T> inSpan);
+			CShake& addData(Span<T> inSpan);
 
 			friend constexpr bool operator==(const CShake &left, const CShake &right)
 			{
@@ -119,7 +120,7 @@ namespace CShake_NS
 			}
 
 		private:
-			constexpr void addDataImpl(const Span<const Byte> data);
+			constexpr void addDataImpl(Span<const Byte> data);
 
 			bool m_customized = false;
 
@@ -154,10 +155,8 @@ namespace CShake_NS
 			m_shake = std::make_unique<S>(digestLength);
 			return;
 		}
-		else
-		{
-			m_keccak = std::make_unique<K>(digestLength);
-		}
+
+		m_keccak = std::make_unique<K>(digestLength);
 
 		const auto processString = [this](const std::string &str, size_t &length) -> void
 		{
@@ -188,8 +187,8 @@ namespace CShake_NS
 
 	template <typename S, typename K, int P>
 	constexpr CShake<S, K, P>::CShake(const CShake<S, K, P> &other)
+		: m_customized(other.m_customized)
 	{
-		m_customized = other.m_customized;
 		if (!m_customized)
 			m_shake = std::make_unique<S>(*other.m_shake);
 		else

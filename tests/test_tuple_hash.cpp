@@ -19,7 +19,7 @@
 #define ARRAY_LENGTH(a) (static_cast<int>(std::extent<decltype(a)>::value))
 
 
-TEST_CASE("tuple_hash-256")
+TEST_CASE("tuple_hash-256")  // NOLINT
 {
 	using Hash = Chocobo1::TupleHash_256;
 
@@ -92,7 +92,7 @@ TEST_CASE("tuple_hash-256")
 }
 
 
-TEST_CASE("tuple_hash-128")
+TEST_CASE("tuple_hash-128")  // NOLINT
 {
 	using Hash = Chocobo1::TupleHash_128;
 

@@ -16,7 +16,7 @@
 #include <cstring>
 
 
-TEST_CASE("whirlpool")
+TEST_CASE("whirlpool")  // NOLINT
 {
 	using Hash = Chocobo1::Whirlpool;
 

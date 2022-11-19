@@ -109,14 +109,14 @@ namespace FNVHASH_NS
 			template <typename T>
 			CONSTEXPR_CPP17_CHOCOBO1_HASH operator T() const noexcept;
 
-			constexpr FNVHash& addData(const Span<const Byte> inData);
-			constexpr FNVHash& addData(const void *ptr, const std::size_t length);
+			constexpr FNVHash& addData(Span<const Byte> inData);
+			constexpr FNVHash& addData(const void *ptr, std::size_t length);
 			template <std::size_t N>
 			constexpr FNVHash& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			FNVHash& addData(const T (&array)[N]);
 			template <typename T>
-			FNVHash& addData(const Span<T> inSpan);
+			FNVHash& addData(Span<T> inSpan);
 
 			friend constexpr bool operator==(const FNVHash &left, const FNVHash &right)
 			{
@@ -128,7 +128,7 @@ namespace FNVHASH_NS
 			}
 
 		private:
-			constexpr void addDataImpl(const Span<const Byte> data);
+			constexpr void addDataImpl(Span<const Byte> data);
 
 			DigestType m_hash = {0};
 	};
@@ -187,7 +187,7 @@ namespace FNVHASH_NS
 		std::string ret;
 		ret.resize(2 * digest.size());
 
-		auto retPtr = &ret.front();
+		auto *retPtr = &ret.front();
 		for (const auto c : digest)
 		{
 			const Byte upper = ror<Byte>(c, 4);

@@ -19,7 +19,7 @@
 #define ARRAY_LENGTH(a) (static_cast<int>(std::extent<decltype(a)>::value))
 
 
-TEST_CASE("cshake-256")
+TEST_CASE("cshake-256")  // NOLINT
 {
 	using Hash = Chocobo1::CSHAKE_256;
 
@@ -94,7 +94,7 @@ TEST_CASE("cshake-256")
 }
 
 
-TEST_CASE("cshake-128")
+TEST_CASE("cshake-128")  // NOLINT
 {
 	using Hash = Chocobo1::CSHAKE_128;
 

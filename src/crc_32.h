@@ -108,14 +108,14 @@ namespace CRC_32_NS
 			template <typename T>
 			CONSTEXPR_CPP17_CHOCOBO1_HASH operator T() const noexcept;
 
-			constexpr CRC_32& addData(const Span<const Byte> inData);
-			constexpr CRC_32& addData(const void *ptr, const std::size_t length);
+			constexpr CRC_32& addData(Span<const Byte> inData);
+			constexpr CRC_32& addData(const void *ptr, std::size_t length);
 			template <std::size_t N>
 			constexpr CRC_32& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			CRC_32& addData(const T (&array)[N]);
 			template <typename T>
-			CRC_32& addData(const Span<T> inSpan);
+			CRC_32& addData(Span<T> inSpan);
 
 			friend constexpr bool operator==(const CRC_32 &left, const CRC_32 &right)
 			{
@@ -127,7 +127,7 @@ namespace CRC_32_NS
 			}
 
 		private:
-			constexpr void addDataImpl(const Span<const Byte> data);
+			constexpr void addDataImpl(Span<const Byte> data);
 
 			static constexpr int BLOCK_SIZE = 16;
 
@@ -738,7 +738,7 @@ namespace CRC_32_NS
 		std::string ret;
 		ret.resize(2 * digest.size());
 
-		auto retPtr = &ret.front();
+		auto *retPtr = &ret.front();
 		for (const auto c : digest)
 		{
 			const Byte upper = ror<Byte>(c, 4);
@@ -762,7 +762,7 @@ namespace CRC_32_NS
 		const int dataSize = sizeof(m_h);
 
 		ResultArrayType ret {};
-		auto retPtr = ret.data();
+		auto *retPtr = ret.data();
 		for (int j = (dataSize - 1); j >= 0; --j)
 			*(retPtr++) = ror<Byte>(m_h, (j * 8));
 

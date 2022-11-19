@@ -204,14 +204,14 @@ namespace MD2_NS
 			template <typename T>
 			constexpr operator T() const noexcept;
 
-			CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& addData(const Span<const Byte> inData);
-			CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& addData(const void *ptr, const std::size_t length);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& addData(Span<const Byte> inData);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& addData(const void *ptr, std::size_t length);
 			template <std::size_t N>
 			CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& addData(const Byte (&array)[N]);
 			template <typename T, std::size_t N>
 			MD2& addData(const T (&array)[N]);
 			template <typename T>
-			MD2& addData(const Span<T> inSpan);
+			MD2& addData(Span<T> inSpan);
 
 			friend constexpr bool operator==(const MD2 &left, const MD2 &right)
 			{
@@ -228,7 +228,7 @@ namespace MD2_NS
 			}
 
 		private:
-			CONSTEXPR_CPP17_CHOCOBO1_HASH void addDataImpl(const Span<const Byte> data);
+			CONSTEXPR_CPP17_CHOCOBO1_HASH void addDataImpl(Span<const Byte> data);
 
 			static constexpr int BLOCK_SIZE = 16;
 
@@ -299,7 +299,7 @@ namespace MD2_NS
 		std::string ret;
 		ret.resize(2 * digest.size());
 
-		auto retPtr = &ret.front();
+		auto *retPtr = &ret.front();
 		for (const auto c : digest)
 		{
 			const Byte upper = ror<Byte>(c, 4);

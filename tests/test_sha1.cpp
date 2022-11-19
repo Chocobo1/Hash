@@ -19,7 +19,7 @@
 #define ARRAY_LENGTH(a) (static_cast<int>(std::extent<decltype(a)>::value))
 
 
-TEST_CASE("sha1")
+TEST_CASE("sha1")  // NOLINT
 {
 	using Hash = Chocobo1::SHA1;
 

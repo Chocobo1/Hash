@@ -16,7 +16,7 @@
 #include <cstring>
 
 
-TEST_CASE("ripemd-256")
+TEST_CASE("ripemd-256")  // NOLINT
 {
 	using Hash = Chocobo1::RIPEMD_256;
 

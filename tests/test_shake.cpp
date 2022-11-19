@@ -16,7 +16,7 @@
 #include <cstring>
 
 
-TEST_CASE("shake-256")
+TEST_CASE("shake-256")  // NOLINT
 {
 	using Hash = Chocobo1::SHAKE_256;
 
@@ -91,7 +91,7 @@ TEST_CASE("shake-256")
 }
 
 
-TEST_CASE("shake-128")
+TEST_CASE("shake-128")  // NOLINT
 {
 	using Hash = Chocobo1::SHAKE_128;
 
