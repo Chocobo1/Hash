@@ -1,0 +1,10 @@
+name: "CodeQL config for C++"
+
+queries:
+  - uses: security-and-quality
+
+query-filters:
+  - exclude:
+      id: cpp/commented-out-code
+  - exclude:
+      id: cpp/poorly-documented-function

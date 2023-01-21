@@ -1,7 +1,10 @@
 name: CI
+
 on: [pull_request, push]
+
 permissions:
   actions: write
+  security-events: write
 
 jobs:
   CI:
@@ -32,11 +35,22 @@ jobs:
         meson setup "_build" -Dcpp_std="${{ matrix.cpp_std }}"
         meson test -C "_build" -v --test-args "-d yes"
 
+    - name: initialize CodeQL
+      uses: github/codeql-action/init@v2
+      if: startsWith(matrix.os, 'ubuntu') && (matrix.cpp_std == 'c++20')
+      with:
+        languages: cpp
+        config-file: ./.github/workflows/codeql/cpp.yaml
+
     - name: build sample program
       run: |
         cd "src/program"
         meson setup "_build" -Dcpp_std="${{ matrix.cpp_std }}"
         meson compile -C "_build"
+
+    - name: perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+      if: startsWith(matrix.os, 'ubuntu') && (matrix.cpp_std == 'c++20')
 
 
   CI_Windows:
