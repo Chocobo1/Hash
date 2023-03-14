@@ -10,7 +10,6 @@ environment:
 
 clone_folder: *REPO_DIR
 
-
 install:
   # python
   - set PATH=%PYTHON3_DIR%;%PYTHON3_DIR%\Scripts;%PATH%

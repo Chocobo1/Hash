@@ -6,7 +6,7 @@ rem   msvc: https://visualstudio.microsoft.com
 rem   python3: https://www.python.org/
 
 if not "%VSCMD_ARG_TGT_ARCH%" == "x64" (
-	call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
+	call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
 )
 
 if not exist ".venv" (
