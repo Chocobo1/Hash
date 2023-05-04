@@ -29,6 +29,7 @@ Checks: >
   -readability-magic-numbers,
   -# only sometimes useful,
   -bugprone-narrowing-conversions,
+  -cert-dcl58-cpp,
   -cppcoreguidelines-narrowing-conversions,
   -misc-definitions-in-headers,
   -modernize-concat-nested-namespaces,
