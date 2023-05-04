@@ -664,9 +664,9 @@ namespace Tiger_NS
 			uint64_t a = m_h[0];
 			uint64_t b = m_h[1];
 			uint64_t c = m_h[2];
-			uint64_t aa = m_h[0];
-			uint64_t bb = m_h[1];
-			uint64_t cc = m_h[2];
+			const uint64_t aa = m_h[0];
+			const uint64_t bb = m_h[1];
+			const uint64_t cc = m_h[2];
 
 			pass(a, b, c, 5);
 			keySchedule();

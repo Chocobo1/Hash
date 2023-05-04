@@ -443,7 +443,7 @@ namespace Blake2_NS
 		if (inData.empty())
 			return (*this);
 
-		Span<const Byte> data = inData;
+		const Span<const Byte> data = inData;
 
 		if (m_buffer.size() == BLOCK_SIZE)
 		{
