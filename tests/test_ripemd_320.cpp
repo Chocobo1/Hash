@@ -20,7 +20,7 @@ TEST_CASE("ripemd-320")  // NOLINT
 {
 	using Hash = Chocobo1::RIPEMD_320;
 
-	// official test suite from ripemd-160 webiste
+	// official test suite from ripemd-160 website
 	const char s1[] = "";
 	REQUIRE("22d65d5661536cdc75c1fdf5c6de7b41b9f27325ebc61e8557177d705a0ec880151c3a32a00899b8" == Hash().addData(s1, strlen(s1)).finalize().toString());
 
