@@ -61,6 +61,15 @@ namespace Hash
 #endif
 #endif
 
+#ifndef INLINE_CLASS_VARIABLE_CHOCOBO1_HASH
+#if __cplusplus >= 201703L
+#define INLINE_CLASS_VARIABLE_CHOCOBO1_HASH constexpr static
+#define HAS_INLINE_CLASS_VARIABLE_CHOCOBO1_HASH
+#else
+#define INLINE_CLASS_VARIABLE_CHOCOBO1_HASH const
+#endif
+#endif
+
 #if (USE_STD_SPAN_CHOCOBO1_HASH == 1)
 	using IndexType = std::size_t;
 #else
@@ -238,7 +247,7 @@ namespace MD2_NS
 			std::array<Byte, 16> m_checksum {};
 			Byte m_checksumL = 0;
 
-			static constexpr Byte piSubst[256] =
+			INLINE_CLASS_VARIABLE_CHOCOBO1_HASH Byte piSubst[256] =
 			{
 				 41,  46,  67, 201, 162, 216, 124,   1,  61,  54,  84, 161, 236, 240,   6,  19,
 				 98, 167,   5, 243, 192, 199, 115, 140, 152, 147,  43, 217, 188,  76, 130, 202,
@@ -259,8 +268,6 @@ namespace MD2_NS
 			};
 	};
 
-	constexpr MD2::Byte MD2::piSubst[256];
-
 
 	//
 	constexpr MD2::MD2()
@@ -278,7 +285,7 @@ namespace MD2_NS
 		m_checksumL = 0;
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& MD2::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline MD2& MD2::finalize()
 	{
 		// append padding bytes
 		const auto len = static_cast<int>(BLOCK_SIZE - (m_buffer.size() % BLOCK_SIZE));
@@ -293,7 +300,7 @@ namespace MD2_NS
 		return (*this);
 	}
 
-	std::string MD2::toString() const
+	inline std::string MD2::toString() const
 	{
 		const auto digest = toArray();
 		std::string ret;
@@ -312,7 +319,7 @@ namespace MD2_NS
 		return ret;
 	}
 
-	std::vector<MD2::Byte> MD2::toVector() const
+	inline std::vector<MD2::Byte> MD2::toVector() const
 	{
 		const auto digest = toArray();
 		return {digest.begin(), digest.end()};
@@ -338,7 +345,7 @@ namespace MD2_NS
 		return ret;
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& MD2::addData(const Span<const Byte> inData)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline MD2& MD2::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
 
@@ -372,7 +379,7 @@ namespace MD2_NS
 		return (*this);
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH MD2& MD2::addData(const void *ptr, const std::size_t length)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline MD2& MD2::addData(const void *ptr, const std::size_t length)
 	{
 		// Span::size_type = std::size_t
 		return addData({static_cast<const Byte*>(ptr), length});
@@ -396,7 +403,7 @@ namespace MD2_NS
 		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH void MD2::addDataImpl(const Span<const Byte> data)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline void MD2::addDataImpl(const Span<const Byte> data)
 	{
 		for (size_t i = 0, iend = static_cast<size_t>(data.size() / BLOCK_SIZE); i < iend; ++i)
 		{

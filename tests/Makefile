@@ -10,6 +10,7 @@ SRC_NAME   = main \
 	test_fnv \
 	test_has_160 \
 	test_md2 test_md4 test_md5 \
+	test_multiple_tu_include \
 	test_ripemd_128 test_ripemd_160 test_ripemd_256 test_ripemd_320 \
 	test_siphash \
 	test_sha1 \

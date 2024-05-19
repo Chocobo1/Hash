@@ -62,6 +62,15 @@ namespace Hash
 #endif
 #endif
 
+#ifndef INLINE_CLASS_VARIABLE_CHOCOBO1_HASH
+#if __cplusplus >= 201703L
+#define INLINE_CLASS_VARIABLE_CHOCOBO1_HASH constexpr static
+#define HAS_INLINE_CLASS_VARIABLE_CHOCOBO1_HASH
+#else
+#define INLINE_CLASS_VARIABLE_CHOCOBO1_HASH const
+#endif
+#endif
+
 #if (USE_STD_SPAN_CHOCOBO1_HASH == 1)
 	using IndexType = std::size_t;
 #else
@@ -250,7 +259,7 @@ namespace SHA2_256_NS
 
 			uint32_t m_h[8] = {};
 
-			static constexpr uint32_t kTable[64] =
+			INLINE_CLASS_VARIABLE_CHOCOBO1_HASH uint32_t kTable[64] =
 			{
 				0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
 				0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -270,8 +279,6 @@ namespace SHA2_256_NS
 				0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 			};
 	};
-
-	constexpr uint32_t SHA2_256::kTable[64];
 
 
 	// helpers
@@ -324,7 +331,7 @@ namespace SHA2_256_NS
 		m_h[7] = 0x5be0cd19;
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH SHA2_256& SHA2_256::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline SHA2_256& SHA2_256::finalize()
 	{
 		m_sizeCounter += m_buffer.size();
 
@@ -351,7 +358,7 @@ namespace SHA2_256_NS
 		return (*this);
 	}
 
-	std::string SHA2_256::toString() const
+	inline std::string SHA2_256::toString() const
 	{
 		const auto digest = toArray();
 		std::string ret;
@@ -370,13 +377,13 @@ namespace SHA2_256_NS
 		return ret;
 	}
 
-	std::vector<SHA2_256::Byte> SHA2_256::toVector() const
+	inline std::vector<SHA2_256::Byte> SHA2_256::toVector() const
 	{
 		const auto digest = toArray();
 		return {digest.begin(), digest.end()};
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH SHA2_256::ResultArrayType SHA2_256::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline SHA2_256::ResultArrayType SHA2_256::toArray() const
 	{
 		const Span<const uint32_t> state(m_h);
 		const int dataSize = sizeof(decltype(state)::value_type);
@@ -407,7 +414,7 @@ namespace SHA2_256_NS
 		return ret;
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH SHA2_256& SHA2_256::addData(const Span<const Byte> inData)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline SHA2_256& SHA2_256::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
 
@@ -441,7 +448,7 @@ namespace SHA2_256_NS
 		return (*this);
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH SHA2_256& SHA2_256::addData(const void *ptr, const std::size_t length)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline SHA2_256& SHA2_256::addData(const void *ptr, const std::size_t length)
 	{
 		// Span::size_type = std::size_t
 		return addData({static_cast<const Byte*>(ptr), length});
@@ -465,7 +472,7 @@ namespace SHA2_256_NS
 		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH void SHA2_256::addDataImpl(const Span<const Byte> data)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline void SHA2_256::addDataImpl(const Span<const Byte> data)
 	{
 		assert((data.size() % BLOCK_SIZE) == 0);
 
@@ -500,7 +507,11 @@ namespace SHA2_256_NS
 			uint32_t g = m_h[6];
 			uint32_t h = m_h[7];
 
+#ifdef HAS_INLINE_CLASS_VARIABLE_CHOCOBO1_HASH
 			const auto round = [&wTable](uint32_t &a, uint32_t &b, uint32_t &c, uint32_t &d, uint32_t &e, uint32_t &f, uint32_t &g, uint32_t &h, const unsigned int t) -> void
+#else
+			const auto round = [this, &wTable](uint32_t &a, uint32_t &b, uint32_t &c, uint32_t &d, uint32_t &e, uint32_t &f, uint32_t &g, uint32_t &h, const unsigned int t) -> void
+#endif
 			{
 				const auto ch = [](const uint32_t x, const uint32_t y, const uint32_t z) -> uint32_t
 				{

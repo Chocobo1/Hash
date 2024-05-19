@@ -304,7 +304,7 @@ namespace MD5_NS
 		m_state[3] = 0x10325476;
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH MD5& MD5::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline MD5& MD5::finalize()
 	{
 		m_sizeCounter += m_buffer.size();
 
@@ -331,7 +331,7 @@ namespace MD5_NS
 		return (*this);
 	}
 
-	std::string MD5::toString() const
+	inline std::string MD5::toString() const
 	{
 		const auto digest = toArray();
 		std::string ret;
@@ -350,13 +350,13 @@ namespace MD5_NS
 		return ret;
 	}
 
-	std::vector<MD5::Byte> MD5::toVector() const
+	inline std::vector<MD5::Byte> MD5::toVector() const
 	{
 		const auto digest = toArray();
 		return {digest.begin(), digest.end()};
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH MD5::ResultArrayType MD5::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline MD5::ResultArrayType MD5::toArray() const
 	{
 		const Span<const uint32_t> state(m_state);
 		const int dataSize = sizeof(decltype(state)::value_type);
@@ -387,7 +387,7 @@ namespace MD5_NS
 		return ret;
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH MD5& MD5::addData(const Span<const Byte> inData)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline MD5& MD5::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
 
@@ -421,7 +421,7 @@ namespace MD5_NS
 		return (*this);
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH MD5& MD5::addData(const void *ptr, const std::size_t length)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline MD5& MD5::addData(const void *ptr, const std::size_t length)
 	{
 		// Span::size_type = std::size_t
 		return addData({static_cast<const Byte*>(ptr), length});
@@ -445,7 +445,7 @@ namespace MD5_NS
 		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH void MD5::addDataImpl(const Span<const Byte> data)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline void MD5::addDataImpl(const Span<const Byte> data)
 	{
 		assert((data.size() % BLOCK_SIZE) == 0);
 

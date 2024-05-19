@@ -299,7 +299,7 @@ namespace RIPEMD_160_NS
 		m_h[4] = 0xC3D2E1F0;
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_160& RIPEMD_160::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline RIPEMD_160& RIPEMD_160::finalize()
 	{
 		m_sizeCounter += m_buffer.size();
 
@@ -326,7 +326,7 @@ namespace RIPEMD_160_NS
 		return (*this);
 	}
 
-	std::string RIPEMD_160::toString() const
+	inline std::string RIPEMD_160::toString() const
 	{
 		const auto digest = toArray();
 		std::string ret;
@@ -345,13 +345,13 @@ namespace RIPEMD_160_NS
 		return ret;
 	}
 
-	std::vector<RIPEMD_160::Byte> RIPEMD_160::toVector() const
+	inline std::vector<RIPEMD_160::Byte> RIPEMD_160::toVector() const
 	{
 		const auto digest = toArray();
 		return {digest.begin(), digest.end()};
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_160::ResultArrayType RIPEMD_160::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline RIPEMD_160::ResultArrayType RIPEMD_160::toArray() const
 	{
 		const Span<const uint32_t> state(m_h);
 		const int dataSize = sizeof(decltype(state)::value_type);
@@ -382,7 +382,7 @@ namespace RIPEMD_160_NS
 		return ret;
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_160& RIPEMD_160::addData(const Span<const Byte> inData)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline RIPEMD_160& RIPEMD_160::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
 
@@ -416,7 +416,7 @@ namespace RIPEMD_160_NS
 		return (*this);
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH RIPEMD_160& RIPEMD_160::addData(const void *ptr, const std::size_t length)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline RIPEMD_160& RIPEMD_160::addData(const void *ptr, const std::size_t length)
 	{
 		// Span::size_type = std::size_t
 		return addData({static_cast<const Byte*>(ptr), length});
@@ -440,7 +440,7 @@ namespace RIPEMD_160_NS
 		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH void RIPEMD_160::addDataImpl(const Span<const Byte> data)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline void RIPEMD_160::addDataImpl(const Span<const Byte> data)
 	{
 		assert((data.size() % BLOCK_SIZE) == 0);
 

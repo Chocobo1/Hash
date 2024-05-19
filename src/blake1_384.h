@@ -320,8 +320,6 @@ namespace Blake1_384_NS
 			};
 	};
 
-	constexpr uint64_t Blake1_384::cTable[16];
-
 
 	// helpers
 	template <typename T>
@@ -377,7 +375,7 @@ namespace Blake1_384_NS
 		m_h[7] = 0x47b5481dbefa4fa4;
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH Blake1_384& Blake1_384::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline Blake1_384& Blake1_384::finalize()
 	{
 		const Uint128 sizeCounterBits = (m_sizeCounter + (m_buffer.size() * 8));
 		const uint64_t sizeCounterBitsL = sizeCounterBits.low();
@@ -403,7 +401,7 @@ namespace Blake1_384_NS
 		return (*this);
 	}
 
-	std::string Blake1_384::toString() const
+	inline std::string Blake1_384::toString() const
 	{
 		const auto digest = toArray();
 		std::string ret;
@@ -422,13 +420,13 @@ namespace Blake1_384_NS
 		return ret;
 	}
 
-	std::vector<Blake1_384::Byte> Blake1_384::toVector() const
+	inline std::vector<Blake1_384::Byte> Blake1_384::toVector() const
 	{
 		const auto digest = toArray();
 		return {digest.begin(), digest.end()};
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH Blake1_384::ResultArrayType Blake1_384::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline Blake1_384::ResultArrayType Blake1_384::toArray() const
 	{
 		const Span<const uint64_t> state(std::begin(m_h), (std::end(m_h) - 2));
 		const int dataSize = sizeof(decltype(state)::value_type);

@@ -60,6 +60,15 @@ namespace Hash
 #endif
 #endif
 
+#ifndef INLINE_CLASS_VARIABLE_CHOCOBO1_HASH
+#if __cplusplus >= 201703L
+#define INLINE_CLASS_VARIABLE_CHOCOBO1_HASH constexpr static
+#define HAS_INLINE_CLASS_VARIABLE_CHOCOBO1_HASH
+#else
+#define INLINE_CLASS_VARIABLE_CHOCOBO1_HASH const
+#endif
+#endif
+
 #if (USE_STD_SPAN_CHOCOBO1_HASH == 1)
 	using IndexType = std::size_t;
 #else
@@ -133,7 +142,7 @@ namespace CRC_32_NS
 
 			uint32_t m_h = 0;
 
-			static constexpr uint32_t crc32LUT[16][256]
+			INLINE_CLASS_VARIABLE_CHOCOBO1_HASH uint32_t crc32LUT[16][256]
 			{
 				{
 					0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3,
@@ -682,8 +691,6 @@ namespace CRC_32_NS
 			};
 	};
 
-	constexpr uint32_t CRC_32::crc32LUT[16][256];
-
 
 	// helpers
 	template <typename T>
@@ -732,7 +739,7 @@ namespace CRC_32_NS
 		return (*this);
 	}
 
-	std::string CRC_32::toString() const
+	inline std::string CRC_32::toString() const
 	{
 		const auto digest = toArray();
 		std::string ret;
@@ -751,13 +758,13 @@ namespace CRC_32_NS
 		return ret;
 	}
 
-	std::vector<CRC_32::Byte> CRC_32::toVector() const
+	inline std::vector<CRC_32::Byte> CRC_32::toVector() const
 	{
 		const auto digest = toArray();
 		return {digest.begin(), digest.end()};
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH CRC_32::ResultArrayType CRC_32::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline CRC_32::ResultArrayType CRC_32::toArray() const
 	{
 		const int dataSize = sizeof(m_h);
 

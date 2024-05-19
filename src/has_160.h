@@ -299,7 +299,7 @@ namespace HAS160_NS
 		m_h[4] = 0xC3D2E1F0;
 	}
 
-	HAS_160& HAS_160::finalize()
+	inline HAS_160& HAS_160::finalize()
 	{
 		m_sizeCounter += m_buffer.size();
 
@@ -326,7 +326,7 @@ namespace HAS160_NS
 		return (*this);
 	}
 
-	std::string HAS_160::toString() const
+	inline std::string HAS_160::toString() const
 	{
 		const auto digest = toArray();
 		std::string ret;
@@ -345,13 +345,13 @@ namespace HAS160_NS
 		return ret;
 	}
 
-	std::vector<HAS_160::Byte> HAS_160::toVector() const
+	inline std::vector<HAS_160::Byte> HAS_160::toVector() const
 	{
 		const auto digest = toArray();
 		return {digest.begin(), digest.end()};
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH HAS_160::ResultArrayType HAS_160::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline HAS_160::ResultArrayType HAS_160::toArray() const
 	{
 		const Span<const uint32_t> state(m_h);
 		const int dataSize = sizeof(decltype(state)::value_type);
@@ -382,7 +382,7 @@ namespace HAS160_NS
 		return ret;
 	}
 
-	HAS_160& HAS_160::addData(const Span<const Byte> inData)
+	inline HAS_160& HAS_160::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
 
@@ -416,7 +416,7 @@ namespace HAS160_NS
 		return (*this);
 	}
 
-	HAS_160& HAS_160::addData(const void *ptr, const std::size_t length)
+	inline HAS_160& HAS_160::addData(const void *ptr, const std::size_t length)
 	{
 		// Span::size_type = std::size_t
 		return addData({static_cast<const Byte*>(ptr), length});
@@ -440,7 +440,7 @@ namespace HAS160_NS
 		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
 	}
 
-	void HAS_160::addDataImpl(const Span<const Byte> data)
+	inline void HAS_160::addDataImpl(const Span<const Byte> data)
 	{
 		assert((data.size() % BLOCK_SIZE) == 0);
 

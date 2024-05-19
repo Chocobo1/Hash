@@ -62,6 +62,15 @@ namespace Hash
 #endif
 #endif
 
+#ifndef INLINE_CLASS_VARIABLE_CHOCOBO1_HASH
+#if __cplusplus >= 201703L
+#define INLINE_CLASS_VARIABLE_CHOCOBO1_HASH constexpr static
+#define HAS_INLINE_CLASS_VARIABLE_CHOCOBO1_HASH
+#else
+#define INLINE_CLASS_VARIABLE_CHOCOBO1_HASH const
+#endif
+#endif
+
 #if (USE_STD_SPAN_CHOCOBO1_HASH == 1)
 	using IndexType = std::size_t;
 #else
@@ -302,7 +311,7 @@ namespace Whirlpool_NS
 
 			uint64_t m_h[8] = {};
 
-			static constexpr uint64_t cTable[8][256] =
+			INLINE_CLASS_VARIABLE_CHOCOBO1_HASH uint64_t cTable[8][256] =
 			{
 				{
 					0x18186018c07830d8, 0x23238c2305af4626, 0xc6c63fc67ef991b8, 0xe8e887e8136fcdfb, 0x878726874ca113cb, 0xb8b8dab8a9626d11, 0x0101040108050209, 0x4f4f214f426e9e0d,
@@ -578,15 +587,12 @@ namespace Whirlpool_NS
 				}
 			};
 
-			static constexpr uint64_t roundConstant[ROUND] =
+			INLINE_CLASS_VARIABLE_CHOCOBO1_HASH uint64_t roundConstant[ROUND] =
 			{
 				0x1823c6e887b8014f, 0x36a6d2f5796f9152, 0x60bc9b8ea30c7b35, 0x1de0d7c22e4bfe57, 0x157737e59ff04ada,
 				0x58c9290ab1a06b85, 0xbd5d10f4cb3e0567, 0xe427418ba77d95d8, 0xfbee7c66dd17479e, 0xca2dbf07ad5a8333
 			};
 	};
-
-	constexpr uint64_t Whirlpool::cTable[8][256];
-	constexpr uint64_t Whirlpool::roundConstant[ROUND];
 
 
 	// helpers
@@ -637,7 +643,7 @@ namespace Whirlpool_NS
 			i = 0;
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH Whirlpool& Whirlpool::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline Whirlpool& Whirlpool::finalize()
 	{
 		m_sizeCounter += m_buffer.size();
 
@@ -664,7 +670,7 @@ namespace Whirlpool_NS
 		return (*this);
 	}
 
-	std::string Whirlpool::toString() const
+	inline std::string Whirlpool::toString() const
 	{
 		const auto digest = toArray();
 		std::string ret;
@@ -683,13 +689,13 @@ namespace Whirlpool_NS
 		return ret;
 	}
 
-	std::vector<Whirlpool::Byte> Whirlpool::toVector() const
+	inline std::vector<Whirlpool::Byte> Whirlpool::toVector() const
 	{
 		const auto digest = toArray();
 		return {digest.begin(), digest.end()};
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH Whirlpool::ResultArrayType Whirlpool::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline Whirlpool::ResultArrayType Whirlpool::toArray() const
 	{
 		const Span<const uint64_t> state(m_h);
 		const int dataSize = sizeof(decltype(state)::value_type);
@@ -720,7 +726,7 @@ namespace Whirlpool_NS
 		return ret;
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH Whirlpool& Whirlpool::addData(const Span<const Byte> inData)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline Whirlpool& Whirlpool::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
 
@@ -754,7 +760,7 @@ namespace Whirlpool_NS
 		return (*this);
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH Whirlpool& Whirlpool::addData(const void *ptr, const std::size_t length)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline Whirlpool& Whirlpool::addData(const void *ptr, const std::size_t length)
 	{
 		// Span::size_type = std::size_t
 		return addData({static_cast<const Byte*>(ptr), length});
@@ -778,7 +784,7 @@ namespace Whirlpool_NS
 		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH void Whirlpool::addDataImpl(const Span<const Byte> data)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline void Whirlpool::addDataImpl(const Span<const Byte> data)
 	{
 		assert((data.size() % BLOCK_SIZE) == 0);
 
@@ -810,9 +816,17 @@ namespace Whirlpool_NS
 				state[j] = m[j] ^ roundKey[j];
 			}
 
+#ifdef HAS_INLINE_CLASS_VARIABLE_CHOCOBO1_HASH
 			const auto round = [&roundKey, &state](const unsigned int round)
+#else
+			const auto round = [this, &roundKey, &state](const unsigned int round)
+#endif
 			{
+#ifdef HAS_INLINE_CLASS_VARIABLE_CHOCOBO1_HASH
 				const auto func = [](const uint64_t *x, const unsigned int a, const unsigned int b, const unsigned int c, const unsigned int d, const unsigned int e, const unsigned int f, const unsigned int g, const unsigned int h) -> uint64_t
+#else
+				const auto func = [this](const uint64_t *x, const unsigned int a, const unsigned int b, const unsigned int c, const unsigned int d, const unsigned int e, const unsigned int f, const unsigned int g, const unsigned int h) -> uint64_t
+#endif
 				{
 					return cTable[0][ror<Byte>(x[a], 56)] ^ cTable[1][ror<Byte>(x[b], 48)]
 						 ^ cTable[2][ror<Byte>(x[c], 40)] ^ cTable[3][ror<Byte>(x[d], 32)]

@@ -299,7 +299,7 @@ namespace SHA1_NS
 		m_state[4] = 0xC3D2E1F0;
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH SHA1& SHA1::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline SHA1& SHA1::finalize()
 	{
 		m_sizeCounter += m_buffer.size();
 
@@ -326,7 +326,7 @@ namespace SHA1_NS
 		return (*this);
 	}
 
-	std::string SHA1::toString() const
+	inline std::string SHA1::toString() const
 	{
 		const auto digest = toArray();
 		std::string ret;
@@ -345,13 +345,13 @@ namespace SHA1_NS
 		return ret;
 	}
 
-	std::vector<SHA1::Byte> SHA1::toVector() const
+	inline std::vector<SHA1::Byte> SHA1::toVector() const
 	{
 		const auto digest = toArray();
 		return {digest.begin(), digest.end()};
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH SHA1::ResultArrayType SHA1::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline SHA1::ResultArrayType SHA1::toArray() const
 	{
 		const Span<const uint32_t> state(m_state);
 		const int dataSize = sizeof(decltype(state)::value_type);

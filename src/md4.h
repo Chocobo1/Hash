@@ -298,7 +298,7 @@ namespace MD4_NS
 		m_state[3] = 0x10325476;
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH MD4& MD4::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline MD4& MD4::finalize()
 	{
 		m_sizeCounter += m_buffer.size();
 
@@ -325,7 +325,7 @@ namespace MD4_NS
 		return (*this);
 	}
 
-	std::string MD4::toString() const
+	inline std::string MD4::toString() const
 	{
 		const auto digest = toArray();
 		std::string ret;
@@ -344,13 +344,13 @@ namespace MD4_NS
 		return ret;
 	}
 
-	std::vector<MD4::Byte> MD4::toVector() const
+	inline std::vector<MD4::Byte> MD4::toVector() const
 	{
 		const auto digest = toArray();
 		return {digest.begin(), digest.end()};
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH MD4::ResultArrayType MD4::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline MD4::ResultArrayType MD4::toArray() const
 	{
 		const Span<const uint32_t> state(m_state);
 		const int dataSize = sizeof(decltype(state)::value_type);
@@ -381,7 +381,7 @@ namespace MD4_NS
 		return ret;
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH MD4& MD4::addData(const Span<const Byte> inData)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline MD4& MD4::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
 
@@ -415,7 +415,7 @@ namespace MD4_NS
 		return (*this);
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH MD4& MD4::addData(const void *ptr, const std::size_t length)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline MD4& MD4::addData(const void *ptr, const std::size_t length)
 	{
 		// Span::size_type = std::size_t
 		return addData({static_cast<const Byte*>(ptr), length});
@@ -439,7 +439,7 @@ namespace MD4_NS
 		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH void MD4::addDataImpl(const Span<const Byte> data)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline void MD4::addDataImpl(const Span<const Byte> data)
 	{
 		assert((data.size() % BLOCK_SIZE) == 0);
 

@@ -304,7 +304,7 @@ namespace Blake2s_NS
 		m_h[0] ^= (0x01010000 ^ (0 << 8) ^ 32);
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH Blake2s& Blake2s::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline Blake2s& Blake2s::finalize()
 	{
 		// append paddings
 		const int len = static_cast<int>(BLOCK_SIZE - m_buffer.size());
@@ -316,7 +316,7 @@ namespace Blake2s_NS
 		return (*this);
 	}
 
-	std::string Blake2s::toString() const
+	inline std::string Blake2s::toString() const
 	{
 		const auto digest = toArray();
 		std::string ret;
@@ -335,13 +335,13 @@ namespace Blake2s_NS
 		return ret;
 	}
 
-	std::vector<Blake2s::Byte> Blake2s::toVector() const
+	inline std::vector<Blake2s::Byte> Blake2s::toVector() const
 	{
 		const auto digest = toArray();
 		return {digest.begin(), digest.end()};
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH Blake2s::ResultArrayType Blake2s::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline Blake2s::ResultArrayType Blake2s::toArray() const
 	{
 		const Span<const uint32_t> state(m_h);
 		const int dataSize = sizeof(decltype(state)::value_type);

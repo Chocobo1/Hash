@@ -302,7 +302,7 @@ namespace SM3_NS
 		m_v[7] = 0xb0fb0e4e;
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH SM3& SM3::finalize()
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline SM3& SM3::finalize()
 	{
 		m_sizeCounter += m_buffer.size();
 
@@ -329,7 +329,7 @@ namespace SM3_NS
 		return (*this);
 	}
 
-	std::string SM3::toString() const
+	inline std::string SM3::toString() const
 	{
 		const auto digest = toArray();
 		std::string ret;
@@ -348,13 +348,13 @@ namespace SM3_NS
 		return ret;
 	}
 
-	std::vector<SM3::Byte> SM3::toVector() const
+	inline std::vector<SM3::Byte> SM3::toVector() const
 	{
 		const auto digest = toArray();
 		return {digest.begin(), digest.end()};
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH SM3::ResultArrayType SM3::toArray() const
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline SM3::ResultArrayType SM3::toArray() const
 	{
 		const Span<const uint32_t> state(m_v);
 		const int dataSize = sizeof(decltype(state)::value_type);
@@ -385,7 +385,7 @@ namespace SM3_NS
 		return ret;
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH SM3& SM3::addData(const Span<const Byte> inData)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline SM3& SM3::addData(const Span<const Byte> inData)
 	{
 		Span<const Byte> data = inData;
 
@@ -419,7 +419,7 @@ namespace SM3_NS
 		return (*this);
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH SM3& SM3::addData(const void *ptr, const std::size_t length)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline SM3& SM3::addData(const void *ptr, const std::size_t length)
 	{
 		// Span::size_type = std::size_t
 		return addData({static_cast<const Byte*>(ptr), length});
@@ -443,7 +443,7 @@ namespace SM3_NS
 		return addData({reinterpret_cast<const Byte*>(inSpan.data()), inSpan.size_bytes()});
 	}
 
-	CONSTEXPR_CPP17_CHOCOBO1_HASH void SM3::addDataImpl(const Span<const Byte> data)
+	CONSTEXPR_CPP17_CHOCOBO1_HASH inline void SM3::addDataImpl(const Span<const Byte> data)
 	{
 		assert((data.size() % BLOCK_SIZE) == 0);
 
