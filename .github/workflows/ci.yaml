@@ -2,9 +2,7 @@ name: CI
 
 on: [pull_request, push]
 
-permissions:
-  actions: write
-  security-events: write
+permissions: {}
 
 jobs:
   CI:
@@ -14,6 +12,9 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest]
         cpp_std: [c++14, c++20, c++23]
+    permissions:
+      actions: write
+      security-events: write
 
     steps:
     - uses: actions/checkout@v4
