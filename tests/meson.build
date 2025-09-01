@@ -3,7 +3,7 @@ project('hash', 'cpp',
                           'cpp_std=c++14',
                           'warning_level=1',
                           'werror=true',
-                          'strip=true',
+                          'strip=false',
                           'b_sanitize=address,undefined'
                          ])
 
