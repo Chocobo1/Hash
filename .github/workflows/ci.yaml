@@ -23,7 +23,7 @@ jobs:
 
     - uses: Chocobo1/setup-ccache-action@v1
 
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v6
       with:
         python-version: '3'
 
@@ -66,7 +66,7 @@ jobs:
       with:
         submodules: true
 
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v6
       with:
         python-version: '3.x'
 
