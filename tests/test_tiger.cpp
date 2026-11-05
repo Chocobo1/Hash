@@ -54,6 +54,7 @@ TEST_CASE("tiger1-192")  // NOLINT
 
 	// my own tests
 	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("1", 0).finalize() == Hash().finalize());
 	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
 
 	REQUIRE("3293ac630c13f0245f92bbb1766e16167a4e58492dde73f3" == Hash().finalize().toString());
@@ -127,6 +128,7 @@ TEST_CASE("tiger2-192")  // NOLINT
 
 	// my own tests
 	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("1", 0).finalize() == Hash().finalize());
 	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
 
 	REQUIRE("4441be75f6018773c206c22745374b924aa8313fef919f41" == Hash().finalize().toString());

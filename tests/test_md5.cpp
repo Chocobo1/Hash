@@ -45,6 +45,7 @@ TEST_CASE("md5")  // NOLINT
 
 	// my own tests
 	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("1", 0).finalize() == Hash().finalize());
 	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
 
 	REQUIRE("d41d8cd98f00b204e9800998ecf8427e" == Hash().finalize().toString());

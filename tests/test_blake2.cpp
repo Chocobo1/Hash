@@ -28,6 +28,7 @@ TEST_CASE("blake2")  // NOLINT
 
 	// my own tests
 	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("1", 0).finalize() == Hash().finalize());
 	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
 
 	const char s3[] = "a";

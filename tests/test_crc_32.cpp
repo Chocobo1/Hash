@@ -22,6 +22,7 @@ TEST_CASE("crc-32")  // NOLINT
 
 	// my own tests
 	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("1", 0).finalize() == Hash().finalize());
 	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
 
 	REQUIRE("00000000" == Hash().finalize().toString());

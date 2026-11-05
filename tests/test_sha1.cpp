@@ -64,6 +64,7 @@ TEST_CASE("sha1")  // NOLINT
 
 	// my own tests
 	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("1", 0).finalize() == Hash().finalize());
 	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
 
 	REQUIRE("da39a3ee5e6b4b0d3255bfef95601890afd80709" == Hash().finalize().toString());

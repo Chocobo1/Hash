@@ -26,6 +26,7 @@ TEST_CASE("fnv32_0")  // NOLINT
 
 	// my own tests
 	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("1", 0).finalize() == Hash().finalize());
 	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
 
 	REQUIRE(0 == std::hash<Hash> {}(Hash().finalize()));
@@ -38,6 +39,7 @@ TEST_CASE("fnv32_1")  // NOLINT
 
 	// my own tests
 	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("1", 0).finalize() == Hash().finalize());
 	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
 
 	REQUIRE("811c9dc5" == Hash().finalize().toString());
@@ -94,6 +96,7 @@ TEST_CASE("fnv32_1a")  // NOLINT
 
 	// my own tests
 	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("1", 0).finalize() == Hash().finalize());
 	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
 
 	REQUIRE("811c9dc5" == Hash().finalize().toString());
@@ -135,6 +138,7 @@ TEST_CASE("fnv64_0")  // NOLINT
 
 	// my own tests
 	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("1", 0).finalize() == Hash().finalize());
 	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
 
 	REQUIRE(0 == std::hash<Hash> {}(Hash().finalize()));
@@ -147,6 +151,7 @@ TEST_CASE("fnv64_1")  // NOLINT
 
 	// my own tests
 	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("1", 0).finalize() == Hash().finalize());
 	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
 
 	REQUIRE("cbf29ce484222325" == Hash().finalize().toString());
@@ -203,6 +208,7 @@ TEST_CASE("fnv64_1a")  // NOLINT
 
 	// my own tests
 	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("1", 0).finalize() == Hash().finalize());
 	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
 
 	REQUIRE("cbf29ce484222325" == Hash().finalize().toString());

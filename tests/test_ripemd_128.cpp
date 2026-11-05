@@ -57,6 +57,7 @@ TEST_CASE("ripemd-128")  // NOLINT
 
 	// my own tests
 	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("1", 0).finalize() == Hash().finalize());
 	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
 
 	REQUIRE("cdf26213a150dc3ecb610f18f6b38b46" == Hash().finalize().toString());

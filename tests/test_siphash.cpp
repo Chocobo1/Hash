@@ -27,6 +27,7 @@ TEST_CASE("siphash")  // NOLINT
 
 	// my own tests
 	REQUIRE(Hash(key1) == Hash(key1));
+	REQUIRE(Hash(key1).addData("1", 0).finalize() == Hash(key1).finalize());
 	REQUIRE(Hash(key1).addData("123").finalize() != Hash(key1).finalize());
 
 	const unsigned char key2[16] = {};

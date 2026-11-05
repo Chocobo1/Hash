@@ -54,6 +54,7 @@ TEST_CASE("has-160")  // NOLINT
 
 	// my own tests
 	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("1", 0).finalize() == Hash().finalize());
 	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
 
 	REQUIRE("307964ef34151d37c8047adec7ab50f4ff89762d" == Hash().finalize().toString());

@@ -32,6 +32,7 @@ TEST_CASE("sha2-512/224")  // NOLINT
 
 	// my own tests
 	REQUIRE(Hash() == Hash());
+	REQUIRE(Hash().addData("1", 0).finalize() == Hash().finalize());
 	REQUIRE(Hash().addData("123").finalize() != Hash().finalize());
 
 	REQUIRE("6ed0dd02806fa89e25de060c19d3ac86cabb87d6a0ddd05c333b84f4"
