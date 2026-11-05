@@ -26,6 +26,8 @@ SRC_EXT    = cpp
 
 
 # targets
+.PHONY: all check clean
+
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(patsubst %,%.o,$(SRC_NAME))
@@ -34,6 +36,9 @@ $(EXECUTABLE): $(patsubst %,%.o,$(SRC_NAME))
 
 $(patsubst %,%.o,$(SRC_NAME)): %.o : %.$(SRC_EXT)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+check: $(EXECUTABLE)
+	./$(EXECUTABLE)
 
 clean:
 	rm -f $(patsubst %,./%.o,$(SRC_NAME)) ./$(EXECUTABLE)
